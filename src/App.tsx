@@ -1,18 +1,25 @@
 import React from 'react';
-import { Button } from 'reactstrap';
 import { Header } from './components/header';
+import { BrowserRouter, Route, Router, Routes } from 'react-router-dom';
+import { Home } from './pages/Home';
+import { Login } from './pages/Login';
+import { Parameterization } from './pages/Parameterization';
+import { User } from './pages/User';
 
 function App() {
   return (
-    <>
-      <Header></Header>
+    <BrowserRouter>
+      <Header isLogged={true} />
       <div className="container">
-        <h1>Teste</h1>
-        <Button text="Teste" color="primary">
-          Teste
-        </Button>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/inicio" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/parametrizacao" element={<Parameterization />} />
+          <Route path="//usuario/dados" element={<User />} />
+        </Routes>
       </div>
-    </>
+    </BrowserRouter>
   );
 }
 
