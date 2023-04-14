@@ -1,48 +1,66 @@
-import React from 'react';
-import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
+import React, { ChangeEvent } from 'react';
+import { Row } from 'reactstrap';
+import { FormInputText } from './form-input-text';
+import { FormInputDate } from './form-input-date';
 
-export function FormIndividualPerson(): JSX.Element {
+interface IFields {
+  name: string;
+  rg: string;
+  cpf: string;
+  birthDate: string;
+}
+
+interface IHandle {
+  handleNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleRgChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCpfChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface IProps {
+  fields: IFields;
+  handleChanges: IHandle;
+}
+
+export function FormIndividualPerson(props: IProps): JSX.Element {
   return (
     <>
       <Row>
-        <Col sm="12">
-          <FormGroup>
-            <Label for="nome">
-              Nome <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="nome" style={{ width: '100%' }} />
-            <span id="msNome" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
+        <FormInputText
+          colSm={12}
+          id="nome"
+          label="Nome"
+          obrigatory
+          value={props.fields.name}
+          onChange={(e) => props.handleChanges.handleNameChange(e)}
+        />
       </Row>
       <Row>
-        <Col sm="4">
-          <FormGroup>
-            <Label for="rg">
-              RG <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="rg" style={{ width: '100%' }} maxLength={30} />
-            <span id="msrg" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="4">
-          <FormGroup>
-            <Label for="cpf">
-              CPF <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="cpf" style={{ width: '100%' }} />
-            <span id="mscpf" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="4">
-          <FormGroup>
-            <Label for="nasc">
-              Nascimento <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="date" id="nasc" style={{ width: '100%' }} />
-            <span id="msnasc" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
+        <FormInputText
+          colSm={4}
+          id="rg"
+          label="Rg"
+          obrigatory
+          value={props.fields.rg}
+          onChange={(e) => props.handleChanges.handleRgChange(e)}
+        />
+        <FormInputText
+          colSm={4}
+          id="cpf"
+          label="CPF"
+          obrigatory
+          mask="999.999.999-99"
+          value={props.fields.cpf}
+          onChange={(e) => props.handleChanges.handleCpfChange(e)}
+        />
+        <FormInputDate
+          colSm={4}
+          id="nasc"
+          label="Nascimento"
+          obrigatory
+          value={props.fields.birthDate}
+          onChange={(e) => props.handleChanges.handleBirthDateChange(e)}
+        />
       </Row>
     </>
   );

@@ -5,14 +5,20 @@ import { FormContact } from '../../components/form-contact';
 import { FormIndividualPerson } from '../../components/form-individual-person';
 import { FormAuthenticationData } from '../../components/form-authentication-data';
 import { FormButtonsSave } from '../../components/form-buttons-save';
+import { Row } from 'reactstrap';
+import { useParams } from 'react-router-dom';
+import { FormInputSelect } from '../../components/form-input-select';
+import { FormInputDate } from '../../components/form-input-date';
 
-export function User(): JSX.Element {
+export function Employee(): JSX.Element {
   const [name, setName] = useState('');
   const [rg, setRg] = useState('');
   const [cpf, setCpf] = useState('');
   const [birthDate, setBirthDate] = useState(new Date().toISOString().substring(0, 10));
 
-  const tipoAtual = 1;
+  const [tipo, setTipo] = useState('');
+  const [admission, setAdmission] = useState(new Date().toISOString().substring(0, 10));
+
   const [street, setStreet] = useState('');
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
@@ -24,9 +30,15 @@ export function User(): JSX.Element {
   const [cellphone, setCellphone] = useState('');
   const [email, setEmail] = useState('');
 
+  const [level, setLevel] = useState('');
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+
+  const routeParams = useParams();
+  const method = routeParams.method as string;
+  let id = 0;
+  if (routeParams.id) id = Number.parseInt(routeParams.id);
 
   const handlePerson = {
     handleNameChange: (e: ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +90,7 @@ export function User(): JSX.Element {
 
   const handleAuth = {
     handleLevelChange: (e: ChangeEvent<HTMLInputElement>) => {
-      /**nada */
+      setLevel(e.target.value);
     },
     handleLoginChange: (e: ChangeEvent<HTMLInputElement>) => {
       setLogin(e.target.value);
@@ -112,6 +124,7 @@ export function User(): JSX.Element {
   };
 
   const authFields = {
+    level,
     login,
     password,
     passwordConfirm,
@@ -119,17 +132,44 @@ export function User(): JSX.Element {
 
   return (
     <>
-      <CardTitle text="Dados do Funcionário" />
-      <FieldsetCard legend="Dados do Funcionário" obrigatoryFields>
+      {method == 'novo' ? (
+        <CardTitle text="Cadastrar Novo Funcionário" />
+      ) : (
+        <CardTitle text="Detalhes do Funcionário" />
+      )}
+      <FieldsetCard legend="Dados pessoais do Funcionário" obrigatoryFields>
         <FormIndividualPerson fields={personFields} handleChanges={handlePerson} />
+      </FieldsetCard>
+      <FieldsetCard legend="Dados do Funcionário" obrigatoryFields>
+        <Row>
+          <FormInputDate
+            colSm={6}
+            id="adm"
+            label="Admissão"
+            obrigatory
+            value={admission}
+            onChange={(e) => setAdmission(e.target.value)}
+          />
+          <FormInputSelect
+            colSm={6}
+            id="tipo"
+            label="Tipo"
+            obrigatory
+            onChange={(e) => setTipo(e.target.value)}
+          >
+            <option value="0">SELECIONE</option>
+            <option value="1">INTERNO</option>
+            <option value="2">VENDEDOR</option>
+          </FormInputSelect>
+        </Row>
       </FieldsetCard>
       <FieldsetCard legend="Dados de contato do funcionário" obrigatoryFields>
         <FormContact fields={contactFields} handleChanges={handleContact} />
       </FieldsetCard>
-      {tipoAtual == 1 ? (
+      {tipo == '1' ? (
         <FieldsetCard legend="Dados de autenticação" obrigatoryFields>
           <FormAuthenticationData
-            page="data"
+            page="employee"
             fields={authFields}
             handleChanges={handleAuth}
           />
@@ -137,7 +177,7 @@ export function User(): JSX.Element {
       ) : (
         ''
       )}
-      <FormButtonsSave clear={false} />
+      <FormButtonsSave clear={method == 'novo' ? true : false} />
     </>
   );
 }

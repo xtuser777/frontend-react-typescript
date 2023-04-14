@@ -3,10 +3,6 @@ import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
 
-interface Props {
-  text: string;
-}
-
 export class Home extends Component {
   render() {
     return (

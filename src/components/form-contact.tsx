@@ -1,135 +1,144 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { BsPhoneFill, BsTelephoneFill } from 'react-icons/bs';
-import {
-  Row,
-  Col,
-  FormGroup,
-  Label,
-  Input,
-  InputGroup,
-  InputGroupText,
-} from 'reactstrap';
+import { MdAlternateEmail } from 'react-icons/md';
+import { Row } from 'reactstrap';
+import { FormInputText } from './form-input-text';
+import { FormInputSelect } from './form-input-select';
+import { FormInputGroupText } from './form-input-group-text';
+import { FormInputGroupEmail } from './form-input-group-email';
 
-export function FormContact(): JSX.Element {
+interface IFields {
+  street: string;
+  number: string;
+  neighborhood: string;
+  complement: string;
+  code: string;
+  state: string;
+  city: string;
+  phone: string;
+  cellphone: string;
+  email: string;
+}
+
+interface IHandle {
+  handleStreetChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleNumberChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleNeighborhoodChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCodeChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleStateChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCityChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handlePhoneChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCellphoneChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleEmailChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface IProps {
+  fields: IFields;
+  handleChanges: IHandle;
+}
+
+export function FormContact(props: IProps): JSX.Element {
   return (
     <>
       <Row>
-        <Col sm="9">
-          <FormGroup>
-            <Label for="rua">
-              Rua <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="rua" style={{ width: '100%' }} />
-            <span id="msRua" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="3">
-          <FormGroup>
-            <Label for="numero">
-              Número <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="numero" style={{ width: '100%' }} />
-            <span id="msNumero" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
+        <FormInputText
+          colSm={9}
+          id="rua"
+          label="Rua"
+          obrigatory
+          value={props.fields.street}
+          onChange={(e) => props.handleChanges.handleStreetChange(e)}
+        />
+        <FormInputText
+          colSm={3}
+          id="numero"
+          label="Número"
+          obrigatory
+          value={props.fields.number}
+          onChange={(e) => props.handleChanges.handleNumberChange(e)}
+        />
       </Row>
       <Row>
-        <Col sm="6">
-          <FormGroup>
-            <Label for="bairro">
-              Bairro <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="bairro" style={{ width: '100%' }} />
-            <span id="msBairro" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="6">
-          <FormGroup>
-            <Label for="complemento">Complemento:</Label>
-            <Input type="text" id="complemento" style={{ width: '100%' }} />
-            <span id="msComplemento" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
+        <FormInputText
+          colSm={6}
+          id="bairro"
+          label="Bairro"
+          obrigatory
+          value={props.fields.neighborhood}
+          onChange={(e) => props.handleChanges.handleNeighborhoodChange(e)}
+        />
+        <FormInputText
+          colSm={6}
+          id="complemento"
+          label="Complemento"
+          obrigatory={false}
+          value={props.fields.complement}
+          onChange={(e) => props.handleChanges.handleComplementChange(e)}
+        />
       </Row>
       <Row>
-        <Col sm="4">
-          <FormGroup>
-            <Label for="cbestado">
-              Estado <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input
-              type="select"
-              id="cbestado"
-              style={{ width: '100%' }}
-              onChange={undefined}
-            >
-              <option value="0">SELECIONE</option>
-            </Input>
-            <span id="msEstado" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="5">
-          <FormGroup>
-            <Label for="cbcidade">
-              Cidade <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="select" id="cbcidade" style={{ width: '100%' }}>
-              <option value="0">SELECIONE</option>
-            </Input>
-            <span id="msCidade" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="3">
-          <FormGroup>
-            <Label for="cep">
-              CEP <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="cep" style={{ width: '100%' }} />
-            <span id="msCep" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
+        <FormInputSelect
+          colSm={4}
+          id="estado"
+          label="Estado"
+          obrigatory
+          value={props.fields.state}
+          onChange={(e) => props.handleChanges.handleStateChange(e)}
+        >
+          <option value="0">SELECIONE</option>
+        </FormInputSelect>
+        <FormInputSelect
+          colSm={5}
+          id="cidade"
+          label="Cidade"
+          obrigatory
+          value={props.fields.city}
+          disable={props.fields.state == '0'}
+          onChange={(e) => props.handleChanges.handleCityChange(e)}
+        >
+          <option value="0">SELECIONE</option>
+        </FormInputSelect>
+        <FormInputText
+          colSm={3}
+          id="cep"
+          label="CEP"
+          mask="99.999-999"
+          value={props.fields.code}
+          obrigatory
+          onChange={(e) => props.handleChanges.handleCodeChange(e)}
+        />
       </Row>
       <Row>
-        <Col sm="3">
-          <FormGroup>
-            <Label for="tel">
-              Telefone <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <InputGroup>
-              <InputGroupText>
-                <BsTelephoneFill />
-              </InputGroupText>
-              <Input type="text" id="tel" />
-            </InputGroup>
-            <span id="msTelefone" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="3">
-          <FormGroup>
-            <Label for="cel">
-              Celular <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <InputGroup>
-              <InputGroupText>
-                <BsPhoneFill />
-              </InputGroupText>
-              <Input type="text" id="cel" />
-            </InputGroup>
-            <span id="msCelular" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
-        <Col sm="6">
-          <FormGroup>
-            <Label for="email">
-              E-Mail <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <InputGroup>
-              <InputGroupText>@</InputGroupText>
-              <Input id="email" />
-            </InputGroup>
-            <span id="msEmail" className="label label-danger hidden"></span>
-          </FormGroup>
-        </Col>
+        <FormInputGroupText
+          colSm={3}
+          id="tel"
+          label="Telefone"
+          groupText={<BsTelephoneFill />}
+          obrigatory
+          mask="(99) 9999-9999"
+          value={props.fields.phone}
+          onChange={(e) => props.handleChanges.handlePhoneChange(e)}
+        />
+        <FormInputGroupText
+          colSm={3}
+          id="cel"
+          label="Celular"
+          groupText={<BsPhoneFill />}
+          obrigatory
+          mask="(99) 99999-9999"
+          value={props.fields.cellphone}
+          onChange={(e) => props.handleChanges.handleCellphoneChange(e)}
+        />
+        <FormInputGroupEmail
+          colSm={6}
+          id="email"
+          label="E-mail"
+          groupText={<MdAlternateEmail />}
+          obrigatory
+          value={props.fields.email}
+          onChange={(e) => props.handleChanges.handleEmailChange(e)}
+        />
       </Row>
     </>
   );
