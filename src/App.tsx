@@ -7,6 +7,7 @@ import { Parameterization } from './pages/Parameterization';
 import { User } from './pages/User';
 import { Employees } from './pages/Employees';
 import { Employee } from './pages/Employee';
+import { Clients } from './pages/Clients';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/usuario/dados" element={<User />} />
           <Route path="/funcionarios" element={<Employees />} />
           <Route path="/funcionario/:method/:id?" element={<Employee />} />
+          <Route path="/clientes" element={<Clients />} />
         </Routes>
       </div>
     </BrowserRouter>

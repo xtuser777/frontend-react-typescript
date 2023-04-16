@@ -8,17 +8,17 @@ import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
 
-export function Employees(): JSX.Element {
+export function Clients(): JSX.Element {
   const [filter, setfilter] = useState('');
-  const [admission, setAdmission] = useState(new Date().toISOString().substring(0, 10));
+  const [register, setRegister] = useState(new Date().toISOString().substring(0, 10));
   const [orderBy, setOrderBy] = useState('1');
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setfilter(e.target.value);
   };
 
-  const handleAdmissionChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setAdmission(e.target.value);
+  const handleRegisterChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setRegister(e.target.value);
   };
 
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -26,13 +26,13 @@ export function Employees(): JSX.Element {
   };
 
   const handleFilterClick = (e: MouseEvent) => {
-    alert(`${filter}, ${admission}, ${orderBy}`);
+    alert(`${filter}, ${register}, ${orderBy}`);
   };
 
   return (
     <>
-      <CardTitle text="Gerenciar Funcionários" />
-      <FieldsetCard legend="Filtragem de Funcionários">
+      <CardTitle text="Gerenciar Clientes" />
+      <FieldsetCard legend="Filtragem de Clientes">
         <Row>
           <FormInputText
             colSm={8}
@@ -40,16 +40,16 @@ export function Employees(): JSX.Element {
             label="Filtro"
             obrigatory={false}
             value={filter}
-            placeholder="Filtrar por nome, login e email..."
+            placeholder="Filtrar por nome e email..."
             onChange={(e) => handleFilterChange(e)}
           />
           <FormInputDate
             colSm={2}
-            id="adm"
-            label="Admissão"
+            id="cad"
+            label="Cadastro"
             obrigatory={false}
-            value={admission}
-            onChange={(e) => handleAdmissionChange(e)}
+            value={register}
+            onChange={(e) => handleRegisterChange(e)}
           />
           <FormButton
             colSm={2}
@@ -60,7 +60,7 @@ export function Employees(): JSX.Element {
           />
         </Row>
       </FieldsetCard>
-      <FieldsetCard legend="Funcionários Cadastrados">
+      <FieldsetCard legend="Clientes Cadastrados">
         <Row style={{ marginBottom: '10px' }}>
           <FormInputSelect
             colSm={10}
@@ -74,48 +74,38 @@ export function Employees(): JSX.Element {
             <option value="2">REGISTRO (DECRESCENTE)</option>
             <option value="3">NOME (CRESCENTE)</option>
             <option value="4">NOME (DECRESCENTE)</option>
-            <option value="5">USUÁRIO (CRESCENTE)</option>
-            <option value="6">USUÁRIO (DECRESCENTE)</option>
-            <option value="7">NÍVEL (CRESCENTE)</option>
-            <option value="8">NÍVEL (DECRESCENTE)</option>
-            <option value="9">CPF (CRESCENTE)</option>
-            <option value="10">CPF (DECRESCENTE)</option>
-            <option value="11">ADMISSÃO (CRESCENTE)</option>
-            <option value="12">ADMISSÃO (DECRESCENTE)</option>
-            <option value="13">TIPO (CRESCENTE)</option>
-            <option value="14">TIPO (DECRESCENTE)</option>
-            <option value="15">ATIVO (CRESCENTE)</option>
-            <option value="16">ATIVO (DECRESCENTE)</option>
-            <option value="17">EMAIL (CRESCENTE)</option>
-            <option value="18">EMAIL (DECRESCENTE)</option>
+            <option value="5">CPF/CNPJ (CRESCENTE)</option>
+            <option value="6">CPF/CNPJ (DECRESCENTE)</option>
+            <option value="7">CADASTRO (CRESCENTE)</option>
+            <option value="8">CADASTRO (DECRESCENTE)</option>
+            <option value="9">TIPO (CRESCENTE)</option>
+            <option value="10">TIPO (DECRESCENTE)</option>
+            <option value="11">EMAIL (CRESCENTE)</option>
+            <option value="12">EMAIL (DECRESCENTE)</option>
           </FormInputSelect>
           <FormButtonLink
             colSm={2}
             color="success"
             id="novo"
             text="NOVO"
-            to="/funcionario/novo"
+            to="/cliente/novo"
           />
         </Row>
-        <Table id="tableEmployees" size="sm" striped hover responsive>
+        <Table id="tableClients" size="sm" striped hover responsive>
           <thead>
             <tr>
               <th className="hidden">ID</th>
-              <th style={{ width: '20%' }}>NOME</th>
-              <th style={{ width: '10%' }}>USUÁRIO</th>
-              <th style={{ width: '12%' }}>NÍVEL</th>
-              <th style={{ width: '12%' }}>CPF</th>
-              <th style={{ width: '8%' }}>ADMISSÃO</th>
+              <th style={{ width: '40%' }}>NOME/NOME FANTASIA</th>
+              <th style={{ width: '10%' }}>CPF/CNPJ</th>
+              <th style={{ width: '10%' }}>CADASTRO</th>
               <th style={{ width: '10%' }}>TIPO</th>
-              <th style={{ width: '8%' }}>ATIVO</th>
               <th>EMAIL</th>
-              <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
             </tr>
           </thead>
 
-          <tbody id="tbodyEmployees"></tbody>
+          <tbody id="tbodyClients"></tbody>
         </Table>
       </FieldsetCard>
     </>

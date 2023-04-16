@@ -1,4 +1,4 @@
-import React, { ChangeEvent, ReactNode } from 'react';
+import React, { ChangeEvent } from 'react';
 import { Col, FormGroup, Label, Input } from 'reactstrap';
 import InputMask from 'react-input-mask';
 
@@ -7,8 +7,8 @@ interface IProps {
   label: string;
   id: string;
   obrigatory: boolean;
-  children?: ReactNode;
   mask?: string;
+  placeholder?: string;
   value?: string;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -27,10 +27,11 @@ export function FormInputText(props: IProps): JSX.Element {
           id={`${props.id}`}
           bsSize="sm"
           mask={props.mask ? props.mask : ''}
-          tag={InputMask}
+          tag={props.mask ? InputMask : undefined}
           style={{ width: '100%' }}
           onChange={(e) => props.onChange(e)}
           value={props.value}
+          placeholder={props.placeholder ? props.placeholder : ''}
         />
         <span
           id={`ms-${props.id}`}

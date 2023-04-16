@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -91,6 +91,15 @@ export function User(): JSX.Element {
     },
   };
 
+  const handleButtons = {
+    handleClearClick: (e: MouseEvent) => {
+      alert('Limpar clicado.');
+    },
+    handleSaveClick: (e: MouseEvent) => {
+      alert('Salvar clicado.');
+    },
+  };
+
   const personFields = {
     name,
     rg,
@@ -137,7 +146,7 @@ export function User(): JSX.Element {
       ) : (
         ''
       )}
-      <FormButtonsSave clear={false} />
+      <FormButtonsSave backLink="/" clear={false} handle={handleButtons} />
     </>
   );
 }

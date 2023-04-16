@@ -1,39 +1,55 @@
-import React from 'react';
-import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
+import React, { ChangeEvent } from 'react';
+import { Row } from 'reactstrap';
+import { FormInputText } from './form-input-text';
 
-export function FormEnterprisePerson(): JSX.Element {
+interface IFields {
+  enterpriseName: string;
+  fantasyName: string;
+  cnpj: string;
+}
+
+interface IHandle {
+  handleEnterpriseNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleFantasyNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCnpjChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface IProps {
+  fields: IFields;
+  handleChanges: IHandle;
+}
+
+export function FormEnterprisePerson(props: IProps): JSX.Element {
   return (
     <>
       <Row>
-        <Col sm="12">
-          <FormGroup>
-            <Label for="razao_social">
-              Razão Social <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="razao_social" style={{ width: '100%' }} />
-            <div id="msrs"></div>
-          </FormGroup>
-        </Col>
+        <FormInputText
+          colSm={12}
+          id="razao_social"
+          label="Razão Social"
+          obrigatory
+          value={props.fields.enterpriseName}
+          onChange={(e) => props.handleChanges.handleEnterpriseNameChange(e)}
+        />
       </Row>
       <Row>
-        <Col sm="9">
-          <FormGroup>
-            <Label for="nome_fantasia">
-              Nome Fantasia <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="nome_fantasia" style={{ width: '100%' }} />
-            <div id="msnf"></div>
-          </FormGroup>
-        </Col>
-        <Col sm="3">
-          <FormGroup>
-            <Label for="cnpj">
-              CNPJ <span style={{ color: 'red' }}>*</span>:
-            </Label>
-            <Input type="text" id="cnpj" style={{ width: '100%' }} />
-            <div id="mscnpj"></div>
-          </FormGroup>
-        </Col>
+        <FormInputText
+          colSm={9}
+          id="nome_fantasia"
+          label="Nome Fantasia"
+          obrigatory
+          value={props.fields.fantasyName}
+          onChange={(e) => props.handleChanges.handleFantasyNameChange(e)}
+        />
+        <FormInputText
+          colSm={3}
+          id="cnpj"
+          label="CNPJ"
+          obrigatory
+          mask="99.999.999/9999-99"
+          value={props.fields.cnpj}
+          onChange={(e) => props.handleChanges.handleCnpjChange(e)}
+        />
       </Row>
     </>
   );

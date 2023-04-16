@@ -1,17 +1,24 @@
-import React from 'react';
+import React, { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Row, Col, Button } from 'reactstrap';
 
+interface IHandle {
+  handleClearClick: (e: MouseEvent) => void;
+  handleSaveClick: (e: MouseEvent) => void;
+}
+
 interface IProp {
   clear: boolean;
+  backLink: string;
+  handle: IHandle;
 }
 
 export function FormButtonsSave(props: IProp): JSX.Element {
   return (
     <Row>
       <Col sm="2">
-        <Link style={{ textDecoration: 'none', color: 'white' }} to={'/inicio'}>
-          <Button color="secondary" id="voltar" style={{ width: '100%' }}>
+        <Link to={props.backLink}>
+          <Button color="secondary" id="voltar" size="sm" style={{ width: '100%' }}>
             VOLTAR
           </Button>
         </Link>
@@ -23,8 +30,9 @@ export function FormButtonsSave(props: IProp): JSX.Element {
             <Button
               color="primary"
               id="limpar"
+              size="sm"
               style={{ width: '100%' }}
-              onClick={undefined}
+              onClick={(e: MouseEvent) => props.handle.handleClearClick(e)}
             >
               LIMPAR
             </Button>
@@ -34,7 +42,13 @@ export function FormButtonsSave(props: IProp): JSX.Element {
         <Col sm="8"></Col>
       )}
       <Col sm="2">
-        <Button color="success" id="salvar" style={{ width: '100%' }} onClick={undefined}>
+        <Button
+          color="success"
+          id="salvar"
+          size="sm"
+          style={{ width: '100%' }}
+          onClick={(e: MouseEvent) => props.handle.handleSaveClick(e)}
+        >
           SALVAR
         </Button>
       </Col>

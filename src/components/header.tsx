@@ -55,7 +55,7 @@ export function Header(props: IProps): JSX.Element {
                     {/** if (userLevel == 1) { */}
                     <DropdownItem href="/funcionarios/">Funcionários</DropdownItem>
                     {/** } */}
-                    <DropdownItem href="/cliente/">Clientes</DropdownItem>
+                    <DropdownItem href="/clientes/">Clientes</DropdownItem>
                     <DropdownItem href="/motorista/">Motoristas</DropdownItem>
                     <DropdownItem href="/proprietario/">
                       Proprietários de Caminhões

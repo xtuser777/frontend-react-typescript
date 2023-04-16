@@ -1,12 +1,17 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { FormContact } from '../../components/form-contact';
 import { FormButtonsSave } from '../../components/form-buttons-save';
 import { FormEnterprisePerson } from '../../components/form-enterprise-person';
+import { FormInputFile } from '../../components/form-input-file';
 
 export function Parameterization(): JSX.Element {
+  const [enterpriseName, setEnterpriseName] = useState('');
+  const [fantasyName, setFantasyName] = useState('');
+  const [cnpj, setCnpj] = useState('');
+
   const [street, setStreet] = useState('');
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
@@ -17,6 +22,20 @@ export function Parameterization(): JSX.Element {
   const [phone, setPhone] = useState('');
   const [cellphone, setCellphone] = useState('');
   const [email, setEmail] = useState('');
+
+  const [logotype, setLogotype] = useState(new File([], ''));
+
+  const handlePerson = {
+    handleEnterpriseNameChange: (e: ChangeEvent<HTMLInputElement>) => {
+      setEnterpriseName(e.target.value);
+    },
+    handleFantasyNameChange: (e: ChangeEvent<HTMLInputElement>) => {
+      setFantasyName(e.target.value);
+    },
+    handleCnpjChange: (e: ChangeEvent<HTMLInputElement>) => {
+      setCnpj(e.target.value);
+    },
+  };
 
   const handleContact = {
     handleStreetChange: (e: ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +70,27 @@ export function Parameterization(): JSX.Element {
     },
   };
 
+  const handleLogotypeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files as FileList;
+    const file = files[0];
+    setLogotype(file);
+  };
+
+  const handleButtons = {
+    handleClearClick: (e: MouseEvent) => {
+      alert('Limpar clicado.');
+    },
+    handleSaveClick: (e: MouseEvent) => {
+      alert('Salvar clicado.');
+    },
+  };
+
+  const personFields = {
+    enterpriseName,
+    fantasyName,
+    cnpj,
+  };
+
   const contactFields = {
     street,
     number,
@@ -68,23 +108,23 @@ export function Parameterization(): JSX.Element {
     <>
       <CardTitle text="Parametrização do sistema" />
       <FieldsetCard legend="Dados da empresa" obrigatoryFields>
-        <FormEnterprisePerson />
+        <FormEnterprisePerson fields={personFields} handleChanges={handlePerson} />
       </FieldsetCard>
       <FieldsetCard legend="Dados de contato da empresa" obrigatoryFields>
         <FormContact fields={contactFields} handleChanges={handleContact} />
       </FieldsetCard>
       <FieldsetCard legend="Dados adicionais">
         <Row>
-          <Col sm="12">
-            <FormGroup>
-              <Label for="logotipo">Logotipo:</Label>
-              <Input type="file" id="logotipo" style={{ width: '100%' }} />
-              <div id="mslogo"></div>
-            </FormGroup>
-          </Col>
+          <FormInputFile
+            colSm={12}
+            id="logotipo"
+            label="Logotipo"
+            obrigatory={false}
+            onChange={(e) => handleLogotypeChange(e)}
+          />
         </Row>
       </FieldsetCard>
-      <FormButtonsSave clear={false} />
+      <FormButtonsSave backLink="/" clear={false} handle={handleButtons} />
     </>
   );
 }

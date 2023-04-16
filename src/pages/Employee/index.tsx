@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -16,7 +16,7 @@ export function Employee(): JSX.Element {
   const [cpf, setCpf] = useState('');
   const [birthDate, setBirthDate] = useState(new Date().toISOString().substring(0, 10));
 
-  const [tipo, setTipo] = useState('');
+  const [type, setType] = useState('');
   const [admission, setAdmission] = useState(new Date().toISOString().substring(0, 10));
 
   const [street, setStreet] = useState('');
@@ -53,6 +53,14 @@ export function Employee(): JSX.Element {
     handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setBirthDate(e.target.value);
     },
+  };
+
+  const handleAdmChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setAdmission(e.target.value);
+  };
+
+  const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setType(e.target.value);
   };
 
   const handleContact = {
@@ -103,6 +111,15 @@ export function Employee(): JSX.Element {
     },
   };
 
+  const handleButtons = {
+    handleClearClick: (e: MouseEvent) => {
+      alert('Limpar clicado.');
+    },
+    handleSaveClick: (e: MouseEvent) => {
+      alert('Salvar clicado.');
+    },
+  };
+
   const personFields = {
     name,
     rg,
@@ -132,11 +149,9 @@ export function Employee(): JSX.Element {
 
   return (
     <>
-      {method == 'novo' ? (
-        <CardTitle text="Cadastrar Novo Funcionário" />
-      ) : (
-        <CardTitle text="Detalhes do Funcionário" />
-      )}
+      <CardTitle
+        text={method == 'novo' ? 'Cadastrar Novo Funcionário' : 'Detalhes do Funcionário'}
+      />
       <FieldsetCard legend="Dados pessoais do Funcionário" obrigatoryFields>
         <FormIndividualPerson fields={personFields} handleChanges={handlePerson} />
       </FieldsetCard>
@@ -148,14 +163,14 @@ export function Employee(): JSX.Element {
             label="Admissão"
             obrigatory
             value={admission}
-            onChange={(e) => setAdmission(e.target.value)}
+            onChange={(e) => handleAdmChange(e)}
           />
           <FormInputSelect
             colSm={6}
             id="tipo"
             label="Tipo"
             obrigatory
-            onChange={(e) => setTipo(e.target.value)}
+            onChange={(e) => handleTypeChange(e)}
           >
             <option value="0">SELECIONE</option>
             <option value="1">INTERNO</option>
@@ -166,7 +181,7 @@ export function Employee(): JSX.Element {
       <FieldsetCard legend="Dados de contato do funcionário" obrigatoryFields>
         <FormContact fields={contactFields} handleChanges={handleContact} />
       </FieldsetCard>
-      {tipo == '1' ? (
+      {type == '1' ? (
         <FieldsetCard legend="Dados de autenticação" obrigatoryFields>
           <FormAuthenticationData
             page="employee"
@@ -177,7 +192,11 @@ export function Employee(): JSX.Element {
       ) : (
         ''
       )}
-      <FormButtonsSave clear={method == 'novo' ? true : false} />
+      <FormButtonsSave
+        backLink="/funcionarios"
+        clear={method == 'novo' ? true : false}
+        handle={handleButtons}
+      />
     </>
   );
 }
