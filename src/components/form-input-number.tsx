@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
 import { Col, FormGroup, Label, Input } from 'reactstrap';
-import InputMask from 'react-input-mask';
 
 interface IProps {
   colSm: number;
@@ -8,14 +7,12 @@ interface IProps {
   id: string;
   obrigatory: boolean;
   readonly?: boolean;
-  mask?: string;
-  placeholder?: string;
-  value?: string;
+  value?: number;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export function FormInputText(props: IProps): JSX.Element {
+export function FormInputNumber(props: IProps): JSX.Element {
   return (
     <Col sm={`${props.colSm}`}>
       <FormGroup>
@@ -24,15 +21,12 @@ export function FormInputText(props: IProps): JSX.Element {
           {props.obrigatory ? <span style={{ color: 'red' }}>*</span> : ''}:
         </Label>
         <Input
-          type="text"
+          type="number"
           id={`${props.id}`}
           bsSize="sm"
-          mask={props.mask ? props.mask : ''}
-          tag={props.mask ? InputMask : undefined}
           style={{ width: '100%' }}
           onChange={(e) => props.onChange(e)}
           value={props.value}
-          placeholder={props.placeholder ? props.placeholder : ''}
           readOnly={props.readonly ? true : false}
         />
         <span

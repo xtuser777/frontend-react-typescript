@@ -8,6 +8,19 @@ import { User } from './pages/User';
 import { Employees } from './pages/Employees';
 import { Employee } from './pages/Employee';
 import { Clients } from './pages/Clients';
+import { Client } from './pages/Client';
+import { Drivers } from './pages/Drivers';
+import { Driver } from './pages/Driver';
+import { Representations } from './pages/Representations';
+import { Representation } from './pages/Representation';
+import { Proprietaries } from './pages/Proprietaries';
+import { Proprietary } from './pages/Proprietary';
+import { TruckTypes } from './pages/TruckTypes';
+import { TruckType } from './pages/TruckType';
+import { Categories } from './pages/Categories';
+import { Category } from './pages/Category';
+import { PaymentForms } from './pages/PaymentForms';
+import { PaymentForm } from './pages/PaymentForm';
 
 function App() {
   return (
@@ -23,6 +36,19 @@ function App() {
           <Route path="/funcionarios" element={<Employees />} />
           <Route path="/funcionario/:method/:id?" element={<Employee />} />
           <Route path="/clientes" element={<Clients />} />
+          <Route path="/cliente/:method/:id?" element={<Client />} />
+          <Route path="/motoristas" element={<Drivers />} />
+          <Route path="/motorista/:method/:id?" element={<Driver />} />
+          <Route path="/representacoes" element={<Representations />} />
+          <Route path="/representacao/:method/:id?" element={<Representation />} />
+          <Route path="/proprietarios" element={<Proprietaries />} />
+          <Route path="/proprietario/:method/:id?" element={<Proprietary />} />
+          <Route path="/tiposcaminhao" element={<TruckTypes />} />
+          <Route path="/tipocaminhao/:method/:id?" element={<TruckType />} />
+          <Route path="/categorias" element={<Categories />} />
+          <Route path="/categoria/:method/:id?" element={<Category />} />
+          <Route path="/formaspagamento" element={<PaymentForms />} />
+          <Route path="/formapagamento/:method/:id?" element={<PaymentForm />} />
         </Routes>
       </div>
     </BrowserRouter>

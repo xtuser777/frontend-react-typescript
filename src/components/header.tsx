@@ -56,18 +56,18 @@ export function Header(props: IProps): JSX.Element {
                     <DropdownItem href="/funcionarios/">Funcionários</DropdownItem>
                     {/** } */}
                     <DropdownItem href="/clientes/">Clientes</DropdownItem>
-                    <DropdownItem href="/motorista/">Motoristas</DropdownItem>
-                    <DropdownItem href="/proprietario/">
+                    <DropdownItem href="/motoristas/">Motoristas</DropdownItem>
+                    <DropdownItem href="/proprietarios/">
                       Proprietários de Caminhões
                     </DropdownItem>
-                    <DropdownItem href="/caminhao/">Caminhões</DropdownItem>
-                    <DropdownItem href="/representacao/">Representações</DropdownItem>
-                    <DropdownItem href="/produto/">Produtos</DropdownItem>
-                    <DropdownItem href="/tipocaminhao/">Tipos de Caminhões</DropdownItem>
-                    <DropdownItem href="/categoria/">
+                    <DropdownItem href="/caminhoes/">Caminhões</DropdownItem>
+                    <DropdownItem href="/representacoes/">Representações</DropdownItem>
+                    <DropdownItem href="/produtos/">Produtos</DropdownItem>
+                    <DropdownItem href="/tiposcaminhao/">Tipos de Caminhões</DropdownItem>
+                    <DropdownItem href="/categorias/">
                       Categorias de Contas a Pagar
                     </DropdownItem>
-                    <DropdownItem href="/formapagamento/">
+                    <DropdownItem href="/formaspagamento/">
                       Formas de Pagamento
                     </DropdownItem>
                   </DropdownMenu>

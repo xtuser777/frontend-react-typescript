@@ -17,6 +17,7 @@ interface IHandle {
 interface IProps {
   fields: IFields;
   handleChanges: IHandle;
+  readonly?: boolean;
 }
 
 export function FormEnterprisePerson(props: IProps): JSX.Element {
@@ -30,6 +31,7 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.enterpriseName}
           onChange={(e) => props.handleChanges.handleEnterpriseNameChange(e)}
+          readonly={props.readonly ? true : false}
         />
       </Row>
       <Row>
@@ -40,6 +42,7 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.fantasyName}
           onChange={(e) => props.handleChanges.handleFantasyNameChange(e)}
+          readonly={props.readonly ? true : false}
         />
         <FormInputText
           colSm={3}
@@ -49,6 +52,7 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           mask="99.999.999/9999-99"
           value={props.fields.cnpj}
           onChange={(e) => props.handleChanges.handleCnpjChange(e)}
+          readonly={props.readonly ? true : false}
         />
       </Row>
     </>

@@ -22,7 +22,7 @@ export function FormInputGroupText(props: IProps): JSX.Element {
           {props.label}
           {props.obrigatory ? <span style={{ color: 'red' }}>*</span> : ''}:
         </Label>
-        <InputGroup style={{ width: '100%' }}>
+        <InputGroup size="sm" style={{ width: '100%' }}>
           <InputGroupText>{props.groupText}</InputGroupText>
           <Input
             type="text"
