@@ -9,6 +9,7 @@ interface IProps {
   id: string;
   groupText: ReactNode;
   obrigatory: boolean;
+  readonly?: boolean;
   mask?: string;
   maskReversal?: true;
   maskPlaceholder?: string;
@@ -42,6 +43,7 @@ export function FormInputGroupText(props: IProps): JSX.Element {
             bsSize="sm"
             value={props.value}
             onChange={(e) => props.onChange(e)}
+            readOnly={props.readonly ? true : false}
           />
         </InputGroup>
         <span

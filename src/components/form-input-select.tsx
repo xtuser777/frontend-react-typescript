@@ -6,6 +6,7 @@ interface IProps {
   label: string;
   id: string;
   obrigatory: boolean;
+  readonly?: boolean;
   disable?: boolean;
   children?: ReactNode;
   value?: string;
@@ -29,6 +30,7 @@ export function FormInputSelect(props: IProps): JSX.Element {
           value={props.value}
           disabled={props.disable}
           onChange={(e) => props.onChange(e)}
+          readOnly={props.readonly ? true : false}
         >
           {props.children}
         </Input>

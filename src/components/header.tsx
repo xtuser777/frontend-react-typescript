@@ -82,8 +82,8 @@ export function Header(props: IProps): JSX.Element {
                     Orçamento
                   </DropdownToggle>
                   <DropdownMenu end>
-                    <DropdownItem href="/orcamento/venda/">Venda</DropdownItem>
-                    <DropdownItem href="/orcamento/frete/">Frete</DropdownItem>
+                    <DropdownItem href="/orcamentos/venda/">Venda</DropdownItem>
+                    <DropdownItem href="/orcamentos/frete/">Frete</DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
                 <UncontrolledDropdown nav inNavbar>

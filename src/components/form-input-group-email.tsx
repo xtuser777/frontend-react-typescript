@@ -7,6 +7,7 @@ interface IProps {
   id: string;
   groupText: ReactNode;
   obrigatory: boolean;
+  readonly?: boolean;
   value?: string;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -28,6 +29,7 @@ export function FormInputGroupEmail(props: IProps): JSX.Element {
             bsSize="sm"
             value={props.value}
             onChange={(e) => props.onChange(e)}
+            readOnly={props.readonly ? true : false}
           />
         </InputGroup>
         <span

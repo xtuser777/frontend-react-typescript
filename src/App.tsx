@@ -26,6 +26,8 @@ import { Truck } from './pages/Truck';
 import { Products } from './pages/Products';
 import { Product } from './pages/Product';
 import { ProductTruckTypes } from './pages/ProductTruckTypes';
+import { SalesBudgets } from './pages/SalesBudgets';
+import { SalesBudget } from './pages/SalesBudget';
 
 function App() {
   return (
@@ -59,6 +61,8 @@ function App() {
           <Route path="/produtos" element={<Products />} />
           <Route path="/produto/:method/:id?" element={<Product />} />
           <Route path="/produto/tiposcaminhao/:id" element={<ProductTruckTypes />} />
+          <Route path="/orcamentos/venda" element={<SalesBudgets />} />
+          <Route path="/orcamento/venda/:method/:id?" element={<SalesBudget />} />
         </Routes>
       </div>
     </BrowserRouter>
