@@ -49,7 +49,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           id="cpf"
           label="CPF"
           obrigatory
-          mask="999.999.999-99"
+          mask="000.000.000-00"
           value={props.fields.cpf}
           onChange={(e) => props.handleChanges.handleCpfChange(e)}
         />

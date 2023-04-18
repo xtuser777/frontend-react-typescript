@@ -103,7 +103,7 @@ export function FormContact(props: IProps): JSX.Element {
           colSm={3}
           id="cep"
           label="CEP"
-          mask="99.999-999"
+          mask="00.000-000"
           value={props.fields.code}
           obrigatory
           onChange={(e) => props.handleChanges.handleCodeChange(e)}
@@ -116,7 +116,7 @@ export function FormContact(props: IProps): JSX.Element {
           label="Telefone"
           groupText={<BsTelephoneFill />}
           obrigatory
-          mask="(99) 9999-9999"
+          mask="(00) 0000-0000"
           value={props.fields.phone}
           onChange={(e) => props.handleChanges.handlePhoneChange(e)}
         />
@@ -126,7 +126,7 @@ export function FormContact(props: IProps): JSX.Element {
           label="Celular"
           groupText={<BsPhoneFill />}
           obrigatory
-          mask="(99) 99999-9999"
+          mask="(00) 00000-0000"
           value={props.fields.cellphone}
           onChange={(e) => props.handleChanges.handleCellphoneChange(e)}
         />

@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { Col, FormGroup, Label, Input } from 'reactstrap';
-import InputMask from 'react-input-mask';
+import $ from 'jquery';
+import 'jquery-mask-plugin';
 
 interface IProps {
   colSm: number;
@@ -9,6 +10,8 @@ interface IProps {
   obrigatory: boolean;
   readonly?: boolean;
   mask?: string;
+  maskReversal?: true;
+  maskPlaceholder?: string;
   placeholder?: string;
   value?: string;
   message?: string;
@@ -16,6 +19,15 @@ interface IProps {
 }
 
 export function FormInputText(props: IProps): JSX.Element {
+  $(() => {
+    if (props.mask) {
+      $(`#${props.id}`).mask(props.mask, {
+        reverse: props.maskReversal ? props.maskReversal : false,
+        placeholder: props.maskPlaceholder ? props.maskPlaceholder : '',
+      });
+    }
+  });
+
   return (
     <Col sm={`${props.colSm}`}>
       <FormGroup>
@@ -27,8 +39,6 @@ export function FormInputText(props: IProps): JSX.Element {
           type="text"
           id={`${props.id}`}
           bsSize="sm"
-          mask={props.mask ? props.mask : ''}
-          tag={props.mask ? InputMask : undefined}
           style={{ width: '100%' }}
           onChange={(e) => props.onChange(e)}
           value={props.value}

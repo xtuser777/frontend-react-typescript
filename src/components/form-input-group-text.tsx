@@ -1,6 +1,7 @@
 import React, { ChangeEvent, ReactNode } from 'react';
 import { Col, FormGroup, Label, Input, InputGroup, InputGroupText } from 'reactstrap';
-import InputMask from 'react-input-mask';
+import $ from 'jquery';
+import 'jquery-mask-plugin';
 
 interface IProps {
   colSm: number;
@@ -9,12 +10,23 @@ interface IProps {
   groupText: ReactNode;
   obrigatory: boolean;
   mask?: string;
+  maskReversal?: true;
+  maskPlaceholder?: string;
   value?: string;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function FormInputGroupText(props: IProps): JSX.Element {
+  $(() => {
+    if (props.mask) {
+      $(`#${props.id}`).mask(props.mask, {
+        reverse: props.maskReversal ? props.maskReversal : false,
+        placeholder: props.maskPlaceholder ? props.maskPlaceholder : '',
+      });
+    }
+  });
+
   return (
     <Col sm={`${props.colSm}`}>
       <FormGroup>
@@ -28,8 +40,6 @@ export function FormInputGroupText(props: IProps): JSX.Element {
             type="text"
             id={`${props.id}`}
             bsSize="sm"
-            mask={props.mask ? props.mask : ''}
-            tag={InputMask}
             value={props.value}
             onChange={(e) => props.onChange(e)}
           />

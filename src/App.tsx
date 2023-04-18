@@ -21,6 +21,11 @@ import { Categories } from './pages/Categories';
 import { Category } from './pages/Category';
 import { PaymentForms } from './pages/PaymentForms';
 import { PaymentForm } from './pages/PaymentForm';
+import { Trucks } from './pages/Trucks';
+import { Truck } from './pages/Truck';
+import { Products } from './pages/Products';
+import { Product } from './pages/Product';
+import { ProductTruckTypes } from './pages/ProductTruckTypes';
 
 function App() {
   return (
@@ -49,6 +54,11 @@ function App() {
           <Route path="/categoria/:method/:id?" element={<Category />} />
           <Route path="/formaspagamento" element={<PaymentForms />} />
           <Route path="/formapagamento/:method/:id?" element={<PaymentForm />} />
+          <Route path="/caminhoes" element={<Trucks />} />
+          <Route path="/caminhao/:method/:id?" element={<Truck />} />
+          <Route path="/produtos" element={<Products />} />
+          <Route path="/produto/:method/:id?" element={<Product />} />
+          <Route path="/produto/tiposcaminhao/:id" element={<ProductTruckTypes />} />
         </Routes>
       </div>
     </BrowserRouter>

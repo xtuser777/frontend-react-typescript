@@ -49,7 +49,7 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           id="cnpj"
           label="CNPJ"
           obrigatory
-          mask="99.999.999/9999-99"
+          mask="00.000.000/0000-00"
           value={props.fields.cnpj}
           onChange={(e) => props.handleChanges.handleCnpjChange(e)}
           readonly={props.readonly ? true : false}
