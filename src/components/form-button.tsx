@@ -6,7 +6,7 @@ interface IProps {
   id: string;
   color: string;
   text: string;
-  onClick: (e: MouseEvent) => void;
+  onClick: () => void;
 }
 
 export function FormButton(props: IProps): JSX.Element {
@@ -19,7 +19,7 @@ export function FormButton(props: IProps): JSX.Element {
           size="sm"
           style={{ width: '100%' }}
           color={props.color}
-          onClick={(e: MouseEvent) => props.onClick(e)}
+          onClick={props.onClick}
         >
           {props.text}
         </Button>

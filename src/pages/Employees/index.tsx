@@ -25,7 +25,7 @@ export function Employees(): JSX.Element {
     setOrderBy(e.target.value);
   };
 
-  const handleFilterClick = (e: MouseEvent) => {
+  const handleFilterClick = () => {
     alert(`${filter}, ${admission}, ${orderBy}`);
   };
 
@@ -56,7 +56,7 @@ export function Employees(): JSX.Element {
             color="primary"
             id="filtrar"
             text="FILTRAR"
-            onClick={(e) => handleFilterClick(e)}
+            onClick={handleFilterClick}
           />
         </Row>
       </FieldsetCard>

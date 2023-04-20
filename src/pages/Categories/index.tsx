@@ -19,7 +19,7 @@ export function Categories(): JSX.Element {
     setOrderBy(e.target.value);
   };
 
-  const handleFilterClick = (e: MouseEvent) => {
+  const handleFilterClick = () => {
     alert(`${filter}, ${orderBy}`);
   };
 
@@ -42,7 +42,7 @@ export function Categories(): JSX.Element {
             color="primary"
             id="filtrar"
             text="FILTRAR"
-            onClick={(e) => handleFilterClick(e)}
+            onClick={handleFilterClick}
           />
         </Row>
       </FieldsetCard>

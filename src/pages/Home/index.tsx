@@ -24,7 +24,7 @@ export function Home(): JSX.Element {
     setOrderType(e.target.value);
   };
 
-  const handleFilterClick = (e: MouseEvent) => {
+  const handleFilterClick = () => {
     alert(`${filter}, ${date}, ${orderType}`);
   };
 
@@ -70,7 +70,7 @@ export function Home(): JSX.Element {
             color={'primary'}
             id="filtrar"
             text="FILTRAR"
-            onClick={(e) => handleFilterClick(e)}
+            onClick={handleFilterClick}
           />
         </Row>
       </FieldsetCard>

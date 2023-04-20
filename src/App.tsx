@@ -28,6 +28,8 @@ import { Product } from './pages/Product';
 import { ProductTruckTypes } from './pages/ProductTruckTypes';
 import { SalesBudgets } from './pages/SalesBudgets';
 import { SalesBudget } from './pages/SalesBudget';
+import { FreightBudgets } from './pages/FreightBudgets';
+import { FreightBudget } from './pages/FreightBudget';
 
 function App() {
   return (
@@ -63,6 +65,8 @@ function App() {
           <Route path="/produto/tiposcaminhao/:id" element={<ProductTruckTypes />} />
           <Route path="/orcamentos/venda" element={<SalesBudgets />} />
           <Route path="/orcamento/venda/:method/:id?" element={<SalesBudget />} />
+          <Route path="/orcamentos/frete" element={<FreightBudgets />} />
+          <Route path="/orcamento/frete/:method/:id?" element={<FreightBudget />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Row, Table } from 'reactstrap';
@@ -19,7 +19,7 @@ export function Trucks(): JSX.Element {
     setOrderBy(e.target.value);
   };
 
-  const handleFilterClick = (e: MouseEvent) => {
+  const handleFilterClick = () => {
     alert(`${filter}, ${orderBy}`);
   };
 
@@ -42,7 +42,7 @@ export function Trucks(): JSX.Element {
             color="primary"
             id="filtrar"
             text="FILTRAR"
-            onClick={(e) => handleFilterClick(e)}
+            onClick={handleFilterClick}
           />
         </Row>
       </FieldsetCard>

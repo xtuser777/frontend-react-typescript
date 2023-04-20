@@ -25,7 +25,7 @@ export function Drivers(): JSX.Element {
     setOrderBy(e.target.value);
   };
 
-  const handleFilterClick = (e: MouseEvent) => {
+  const handleFilterClick = () => {
     alert(`${filter}, ${register}, ${orderBy}`);
   };
 
@@ -56,7 +56,7 @@ export function Drivers(): JSX.Element {
             color="primary"
             id="filtrar"
             text="FILTRAR"
-            onClick={(e) => handleFilterClick(e)}
+            onClick={handleFilterClick}
           />
         </Row>
       </FieldsetCard>
