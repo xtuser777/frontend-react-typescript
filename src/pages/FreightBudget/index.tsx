@@ -2,7 +2,7 @@ import React, { ChangeEvent, MouseEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import { Button, Col, Form, FormGroup, Input, Label, Row, Table } from 'reactstrap';
+import { Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputSelect } from '../../components/form-input-select';
@@ -19,9 +19,12 @@ export function FreightBudget(): JSX.Element {
 
   const [destinyState, setDestinyState] = useState('0');
   const [destinyCity, setDestinyCity] = useState('0');
+  const [truckType, setTruckType] = useState('0');
+  const [distance, setDistance] = useState(1);
 
   const [weight, setWeight] = useState('');
   const [price, setPrice] = useState('');
+  const [shipping, setShipping] = useState(new Date().toISOString().substring(0, 10));
   const [dueDate, setDueDate] = useState(new Date().toISOString().substring(0, 10));
 
   const routeParams = useParams();
@@ -44,24 +47,33 @@ export function FreightBudget(): JSX.Element {
     setClient(e.target.value);
   };
 
-  const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setDestinyState(e.target.value);
-  };
-  const handleDestinyCityChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setDestinyCity(e.target.value);
-  };
-
   const handleClearItemsClick = () => {
     alert('Limpar itens!');
   };
 
   const [addItems, setAddItems] = useState(false);
 
+  const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDestinyState(e.target.value);
+  };
+  const handleDestinyCityChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDestinyCity(e.target.value);
+  };
+  const handleTruckTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTruckType(e.target.value);
+  };
+  const handleDistanceChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDistance(Number.parseInt(e.target.value));
+  };
+
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setWeight(e.target.value);
   };
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value);
+  };
+  const handleShippingChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setShipping(e.target.value);
   };
   const handleDueDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDueDate(e.target.value);
@@ -82,9 +94,9 @@ export function FreightBudget(): JSX.Element {
   const [item, setItem] = useState('0');
   const [itemFilter, setItemFilter] = useState('');
 
-  const [itemPrice, setItemPrice] = useState('');
+  const [itemWeight, setItemWeight] = useState('');
   const [itemQuantity, setItemQuantity] = useState(1);
-  const [totalItemPrice, setTotalItemPrice] = useState('');
+  const [totalItemWeight, setTotalItemWeight] = useState('');
 
   const handleItemRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemRepresentation(e.target.value);
@@ -99,14 +111,14 @@ export function FreightBudget(): JSX.Element {
     setItemFilter(e.target.value);
   };
 
-  const handleItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemPrice(e.target.value);
+  const handleItemWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setItemWeight(e.target.value);
   };
   const handleItemQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemQuantity(Number.parseInt(e.target.value));
   };
-  const handleTotalItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTotalItemPrice(e.target.value);
+  const handleTotalItemWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTotalItemWeight(e.target.value);
   };
 
   const handleClearItemClick = () => {
@@ -167,7 +179,7 @@ export function FreightBudget(): JSX.Element {
           </FormInputSelect>
         </Row>
       </FieldsetCard>
-      <FieldsetCard legend="Itens do Orçamento">
+      <FieldsetCard legend="Itens fretados">
         <div className="table-container" style={{ height: '150px' }}>
           <Table id="tableItens" hover striped size="sm">
             <thead>
@@ -263,15 +275,15 @@ export function FreightBudget(): JSX.Element {
           <Row>
             <FormInputGroupText
               colSm={3}
-              id="preco-produto"
-              label="Valor Unitário"
-              groupText={'R$'}
+              id="peso-produto"
+              label="Peso"
+              groupText={'KG'}
               obrigatory
-              mask="#.##0,00"
+              mask="##0,0"
               maskReversal={true}
-              maskPlaceholder="0,00"
-              value={itemPrice}
-              onChange={handleItemPriceChange}
+              maskPlaceholder="0,0"
+              value={itemWeight}
+              onChange={handleItemWeightChange}
               readonly
             />
             <FormInputNumber
@@ -284,15 +296,15 @@ export function FreightBudget(): JSX.Element {
             />
             <FormInputGroupText
               colSm={3}
-              id="preco-total-item"
-              label="Valor Total"
-              groupText={'R$'}
+              id="peso-total-item"
+              label="Peso Total"
+              groupText={'KG'}
               obrigatory
-              mask="#.##0,00"
+              mask="##0,0"
               maskReversal={true}
-              maskPlaceholder="0,00"
-              value={totalItemPrice}
-              onChange={handleTotalItemPriceChange}
+              maskPlaceholder="0,0"
+              value={totalItemWeight}
+              onChange={handleTotalItemWeightChange}
               readonly
             />
             <FormButton
@@ -337,12 +349,30 @@ export function FreightBudget(): JSX.Element {
           >
             <option value="0">SELECIONAR</option>
           </FormInputSelect>
+          <FormInputSelect
+            colSm={3}
+            id="truck-type"
+            label="Tipo Caminhão"
+            obrigatory
+            value={truckType}
+            onChange={handleTruckTypeChange}
+          >
+            <option value="0">SELECIONAR</option>
+          </FormInputSelect>
+          <FormInputNumber
+            colSm={3}
+            id="distancia"
+            label="Distância"
+            obrigatory
+            value={distance}
+            onChange={handleDistanceChange}
+          />
         </Row>
       </FieldsetCard>
       <FieldsetCard legend="Valores do Orçamento" obrigatoryFields>
         <Row>
           <FormInputGroupText
-            colSm={4}
+            colSm={3}
             id="peso"
             label="Peso"
             groupText={'KG'}
@@ -355,9 +385,9 @@ export function FreightBudget(): JSX.Element {
             readonly
           />
           <FormInputGroupText
-            colSm={4}
-            id="preco"
-            label="Preço"
+            colSm={3}
+            id="preco-frete"
+            label="Valor Frete"
             groupText={'R$'}
             obrigatory
             mask="#.##0,00"
@@ -365,10 +395,17 @@ export function FreightBudget(): JSX.Element {
             maskPlaceholder="0,00"
             value={price}
             onChange={(e) => handlePriceChange(e)}
-            readonly
           />
           <FormInputDate
-            colSm={4}
+            colSm={3}
+            id="entrega"
+            label="Data Aprox. de Entrega"
+            obrigatory
+            value={shipping}
+            onChange={handleShippingChange}
+          />
+          <FormInputDate
+            colSm={3}
             id="validade"
             label="Validade"
             obrigatory
@@ -378,7 +415,7 @@ export function FreightBudget(): JSX.Element {
         </Row>
       </FieldsetCard>
       <FormButtonsSave
-        backLink="/orcamentos/venda"
+        backLink="/orcamentos/frete"
         clear={method == 'novo' ? true : false}
         handle={handleButtons}
       />
