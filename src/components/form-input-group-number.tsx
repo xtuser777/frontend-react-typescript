@@ -8,7 +8,7 @@ interface IProps {
   groupText: ReactNode;
   obrigatory: boolean;
   readonly?: boolean;
-  value?: string;
+  value?: number;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }

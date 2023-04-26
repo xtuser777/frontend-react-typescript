@@ -6,6 +6,7 @@ interface IProps {
   label: string;
   id: string;
   obrigatory: boolean;
+  readonly?: boolean;
   value: string;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -26,6 +27,7 @@ export function FormInputDate(props: IProps): JSX.Element {
           style={{ width: '100%' }}
           value={props.value}
           onChange={(e) => props.onChange(e)}
+          readOnly={props.readonly ? true : false}
         />
         <span
           id={`ms-${props.id}`}

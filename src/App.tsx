@@ -30,6 +30,14 @@ import { SalesBudgets } from './pages/SalesBudgets';
 import { SalesBudget } from './pages/SalesBudget';
 import { FreightBudgets } from './pages/FreightBudgets';
 import { FreightBudget } from './pages/FreightBudget';
+import { SalesOrders } from './pages/SalesOrders';
+import { SalesOrder } from './pages/SalesOrder';
+import { FreightOrders } from './pages/FreightOrders';
+import { FreightOrder } from './pages/FreightOrder';
+import { FreightOrdersStatus } from './pages/FreightOrdersStatus';
+import { FreightOrderStatus } from './pages/FreightOrderStatus';
+import { FreightOrdersAuthorize } from './pages/FreightOrdersAuthorize';
+import { FreightOrderAuthorize } from './pages/FreightOrderAuthorize';
 
 function App() {
   return (
@@ -67,6 +75,14 @@ function App() {
           <Route path="/orcamento/venda/:method/:id?" element={<SalesBudget />} />
           <Route path="/orcamentos/frete" element={<FreightBudgets />} />
           <Route path="/orcamento/frete/:method/:id?" element={<FreightBudget />} />
+          <Route path="/pedidos/venda" element={<SalesOrders />} />
+          <Route path="/pedido/venda/" element={<SalesOrder />} />
+          <Route path="/pedidos/frete" element={<FreightOrders />} />
+          <Route path="/pedido/frete/" element={<FreightOrder />} />
+          <Route path="/pedidos/frete/status" element={<FreightOrdersStatus />} />
+          <Route path="/pedido/frete/status/:id" element={<FreightOrderStatus />} />
+          <Route path="/pedidos/frete/autorizar" element={<FreightOrdersAuthorize />} />
+          <Route path="/pedido/frete/autorizar/:id" element={<FreightOrderAuthorize />} />
         </Routes>
       </div>
     </BrowserRouter>

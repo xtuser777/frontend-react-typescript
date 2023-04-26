@@ -6,6 +6,8 @@ interface IProps {
   label: string;
   id: string;
   obrigatory: boolean;
+  rows: number;
+  value: string;
   message?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -22,7 +24,9 @@ export function FormInputTextarea(props: IProps): JSX.Element {
           type="textarea"
           id={`${props.id}`}
           bsSize="sm"
+          rows={props.rows}
           style={{ width: '100%' }}
+          value={props.value}
           onChange={(e) => props.onChange(e)}
         />
         <span

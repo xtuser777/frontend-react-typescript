@@ -96,11 +96,13 @@ export function Header(props: IProps): JSX.Element {
                     Pedido
                   </DropdownToggle>
                   <DropdownMenu end>
-                    <DropdownItem href="/pedido/venda/">Venda</DropdownItem>
-                    <DropdownItem href="/pedido/frete/">Frete</DropdownItem>
-                    <DropdownItem href="/pedido/status/">Alterar Status</DropdownItem>
+                    <DropdownItem href="/pedidos/venda/">Venda</DropdownItem>
+                    <DropdownItem href="/pedidos/frete/">Frete</DropdownItem>
+                    <DropdownItem href="/pedidos/frete/status/">
+                      Alterar Status
+                    </DropdownItem>
                     {/** if (userLevel == 1) { */}
-                    <DropdownItem href="/pedido/autorizar/">
+                    <DropdownItem href="/pedidos/frete/autorizar/">
                       Autorizar Carregamento
                     </DropdownItem>
                     {/** } */}
