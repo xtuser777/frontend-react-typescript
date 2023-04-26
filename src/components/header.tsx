@@ -119,9 +119,9 @@ export function Header(props: IProps): JSX.Element {
                     Controlar
                   </DropdownToggle>
                   <DropdownMenu end>
-                    <DropdownItem href="/conta/pagar/">Contas a Pagar</DropdownItem>
-                    <DropdownItem href="/conta/receber/">Contas a Receber</DropdownItem>
-                    <DropdownItem href="/lancar/despesa/">Lançar Despesas</DropdownItem>
+                    <DropdownItem href="/contas/pagar/">Contas a Pagar</DropdownItem>
+                    <DropdownItem href="/contas/receber/">Contas a Receber</DropdownItem>
+                    <DropdownItem href="/lancar/despesas/">Lançar Despesas</DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
                 {/** } */}

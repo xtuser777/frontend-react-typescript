@@ -38,6 +38,9 @@ import { FreightOrdersStatus } from './pages/FreightOrdersStatus';
 import { FreightOrderStatus } from './pages/FreightOrderStatus';
 import { FreightOrdersAuthorize } from './pages/FreightOrdersAuthorize';
 import { FreightOrderAuthorize } from './pages/FreightOrderAuthorize';
+import { BillsPay } from './pages/BillsPay';
+import { BillPay } from './pages/BillPay';
+import { ReceiveBills } from './pages/ReceiveBills';
 
 function App() {
   return (
@@ -83,6 +86,9 @@ function App() {
           <Route path="/pedido/frete/status/:id" element={<FreightOrderStatus />} />
           <Route path="/pedidos/frete/autorizar" element={<FreightOrdersAuthorize />} />
           <Route path="/pedido/frete/autorizar/:id" element={<FreightOrderAuthorize />} />
+          <Route path="/contas/pagar" element={<BillsPay />} />
+          <Route path="/conta/pagar/:id" element={<BillPay />} />
+          <Route path="/contas/receber" element={<ReceiveBills />} />
         </Routes>
       </div>
     </BrowserRouter>
