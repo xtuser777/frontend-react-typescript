@@ -51,7 +51,7 @@ export function ReceiveBills(): JSX.Element {
 
   return (
     <>
-      <CardTitle text="Contas a Pagar" />
+      <CardTitle text="Contas a Receber" />
       <FieldsetCard legend="Filtragem de contas">
         <Row>
           <FormInputText
@@ -158,14 +158,14 @@ export function ReceiveBills(): JSX.Element {
               <th>VALOR (R$)</th>
               <th style={{ width: '10%' }}>VENCIMENTO</th>
               <th>VALOR PAGO (R$)</th>
-              <th style={{ width: '13%' }}>DATA PAGAMENTO</th>
+              <th style={{ width: '13%' }}>DATA RECEBIMENTO</th>
               <th>SITUAÇÃO</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
             </tr>
           </thead>
 
-          <tbody id="tbodyContas"></tbody>
+          <tbody id="tbodyBills"></tbody>
         </Table>
       </FieldsetCard>
     </>

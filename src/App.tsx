@@ -41,6 +41,9 @@ import { FreightOrderAuthorize } from './pages/FreightOrderAuthorize';
 import { BillsPay } from './pages/BillsPay';
 import { BillPay } from './pages/BillPay';
 import { ReceiveBills } from './pages/ReceiveBills';
+import { ReceiveBill } from './pages/ReceiveBill';
+import { ReleaseBills } from './pages/ReleaseBills';
+import { ReleaseBill } from './pages/ReleaseBill';
 
 function App() {
   return (
@@ -89,6 +92,9 @@ function App() {
           <Route path="/contas/pagar" element={<BillsPay />} />
           <Route path="/conta/pagar/:id" element={<BillPay />} />
           <Route path="/contas/receber" element={<ReceiveBills />} />
+          <Route path="/conta/receber/:id" element={<ReceiveBill />} />
+          <Route path="/lancar/despesas" element={<ReleaseBills />} />
+          <Route path="/lancar/despesa" element={<ReleaseBill />} />
         </Routes>
       </div>
     </BrowserRouter>

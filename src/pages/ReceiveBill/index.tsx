@@ -6,8 +6,13 @@ import { FormInputText } from '../../components/form-input-text';
 import { FormInputDate } from '../../components/form-input-date';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputSelect } from '../../components/form-input-select';
+import { useParams } from 'react-router-dom';
 
 export function ReceiveBill(): JSX.Element {
+  const routeParams = useParams();
+  let id = 0;
+  if (routeParams.id) id = Number.parseInt(routeParams.id);
+
   const [bill, setBill] = useState('');
   const handleBillChange = (e: ChangeEvent<HTMLInputElement>) => {
     setBill(e.target.value);
@@ -18,34 +23,19 @@ export function ReceiveBill(): JSX.Element {
     setDate(e.target.value);
   };
 
-  const [installment, setInstallment] = useState('');
-  const handleInstallmentChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInstallment(e.target.value);
-  };
-
   const [description, setDescription] = useState('');
   const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value);
   };
 
-  const [enterprise, setEnterprise] = useState('');
-  const handleEnterpriseChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEnterprise(e.target.value);
-  };
-
-  const [type, setType] = useState('');
-  const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setType(e.target.value);
-  };
-
-  const [category, setCategory] = useState('');
-  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCategory(e.target.value);
-  };
-
   const [source, setSource] = useState('');
   const handleSourceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSource(e.target.value);
+  };
+
+  const [payer, setPayer] = useState('');
+  const handlePayerChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPayer(e.target.value);
   };
 
   const [dueDate, setDueDate] = useState(new Date().toISOString().substring(0, 10));
@@ -68,22 +58,22 @@ export function ReceiveBill(): JSX.Element {
     setForm(e.target.value);
   };
 
-  const [amountPaid, setAmountPaid] = useState('');
-  const handleAmountPaidChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setAmountPaid(e.target.value);
+  const [amountReceived, setAmountReceived] = useState('');
+  const handleAmountReceivedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setAmountReceived(e.target.value);
   };
 
-  const [paymentDate, setPaymentDate] = useState(
+  const [receiveDate, setReceiveDate] = useState(
     new Date().toISOString().substring(0, 10),
   );
-  const handlePaymentDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPaymentDate(e.target.value);
+  const handleReceiveDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setReceiveDate(e.target.value);
   };
 
   const handleCancelClick = () => {
     alert('Cancelando...');
   };
-  const handlePayOffClick = () => {
+  const handleReceiveClick = () => {
     alert('Quitando...');
   };
 
@@ -102,21 +92,12 @@ export function ReceiveBill(): JSX.Element {
             readonly
           />
           <FormInputDate
-            colSm={3}
+            colSm={2}
             id="data"
             label="Data"
             obrigatory={false}
             value={date}
             onChange={handleDateChange}
-            readonly
-          />
-          <FormInputText
-            colSm={2}
-            id="parcela"
-            label="Parcela"
-            obrigatory={false}
-            value={installment}
-            onChange={handleInstallmentChange}
             readonly
           />
           <FormInputText
@@ -126,35 +107,6 @@ export function ReceiveBill(): JSX.Element {
             obrigatory={false}
             value={description}
             onChange={handleDescriptionChange}
-            readonly
-          />
-        </Row>
-        <Row>
-          <FormInputText
-            colSm={4}
-            id="empresa"
-            label="Empresa"
-            obrigatory={false}
-            value={enterprise}
-            onChange={handleEnterpriseChange}
-            readonly
-          />
-          <FormInputText
-            colSm={2}
-            id="tipo"
-            label="Tipo"
-            obrigatory={false}
-            value={type}
-            onChange={handleTypeChange}
-            readonly
-          />
-          <FormInputText
-            colSm={3}
-            id="categoria"
-            label="Categoria"
-            obrigatory={false}
-            value={category}
-            onChange={handleCategoryChange}
             readonly
           />
           <FormInputText
@@ -168,8 +120,17 @@ export function ReceiveBill(): JSX.Element {
           />
         </Row>
         <Row>
-          <FormInputDate
+          <FormInputText
             colSm={3}
+            id="pagador"
+            label="Pagador"
+            obrigatory={false}
+            value={payer}
+            onChange={handlePayerChange}
+            readonly
+          />
+          <FormInputDate
+            colSm={2}
             id="vencimento"
             label="Vencimento"
             obrigatory={false}
@@ -180,7 +141,7 @@ export function ReceiveBill(): JSX.Element {
           <FormInputGroupText
             colSm={3}
             id="valor"
-            label="Valor despesa"
+            label="Valor"
             groupText={'R$'}
             obrigatory={false}
             mask="#.##0,00"
@@ -191,7 +152,7 @@ export function ReceiveBill(): JSX.Element {
             readonly
           />
           <FormInputText
-            colSm={6}
+            colSm={4}
             id="situacao"
             label="Situação"
             obrigatory={false}
@@ -209,29 +170,29 @@ export function ReceiveBill(): JSX.Element {
             label="Forma Pagamento"
             obrigatory
             value={form}
-            onChange={handlePaymentDateChange}
+            onChange={handleFormChange}
           >
             <option value="0">SELECIONE</option>
           </FormInputSelect>
           <FormInputGroupText
             colSm={3}
-            id="valor-pago"
-            label="Valor pago"
+            id="valor-recebido"
+            label="Valor recebido"
             obrigatory
             groupText={'R$'}
             mask="#.##0,00"
             maskReversal={true}
             maskPlaceholder="0,00"
-            value={amountPaid}
-            onChange={handleAmountPaidChange}
+            value={amountReceived}
+            onChange={handleAmountReceivedChange}
           />
           <FormInputDate
             colSm={3}
-            id="data-pagamento"
-            label="Data pagamento"
+            id="data-recebimento"
+            label="Data recebimento"
             obrigatory
-            value={paymentDate}
-            onChange={handlePaymentDateChange}
+            value={receiveDate}
+            onChange={handleReceiveDateChange}
           />
         </Row>
       </FieldsetCard>
@@ -250,13 +211,13 @@ export function ReceiveBill(): JSX.Element {
         <Col sm="8"></Col>
         <Col sm="2">
           <Button
-            id="quitar"
+            id="receive"
             color="success"
             style={{ width: '100%' }}
             size="sm"
-            onClick={handlePayOffClick}
+            onClick={handleReceiveClick}
           >
-            QUITAR
+            RECEBER
           </Button>
         </Col>
       </Row>

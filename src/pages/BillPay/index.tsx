@@ -6,8 +6,13 @@ import { FormInputText } from '../../components/form-input-text';
 import { FormInputDate } from '../../components/form-input-date';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputSelect } from '../../components/form-input-select';
+import { useParams } from 'react-router-dom';
 
 export function BillPay(): JSX.Element {
+  const routeParams = useParams();
+  let id = 0;
+  if (routeParams.id) id = Number.parseInt(routeParams.id);
+
   const [bill, setBill] = useState('');
   const handleBillChange = (e: ChangeEvent<HTMLInputElement>) => {
     setBill(e.target.value);
@@ -209,7 +214,7 @@ export function BillPay(): JSX.Element {
             label="Forma Pagamento"
             obrigatory
             value={form}
-            onChange={handlePaymentDateChange}
+            onChange={handleFormChange}
           >
             <option value="0">SELECIONE</option>
           </FormInputSelect>
