@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Collapse,
   DropdownItem,
@@ -12,12 +13,10 @@ import {
   NavbarToggler,
   UncontrolledDropdown,
 } from 'reactstrap';
+import { RootState } from '../store';
 
-interface IProps {
-  isLogged: boolean;
-}
-
-export function Header(props: IProps): JSX.Element {
+export function Header(): JSX.Element {
+  const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
@@ -30,7 +29,7 @@ export function Header(props: IProps): JSX.Element {
 
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
-          {props.isLogged ? (
+          {isloggedIn ? (
             <>
               <Nav className="me-auto" navbar>
                 <NavItem>

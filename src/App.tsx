@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Header } from './components/header';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Parameterization } from './pages/Parameterization';
@@ -44,60 +44,92 @@ import { ReceiveBills } from './pages/ReceiveBills';
 import { ReceiveBill } from './pages/ReceiveBill';
 import { ReleaseBills } from './pages/ReleaseBills';
 import { ReleaseBill } from './pages/ReleaseBill';
+import { Provider, useSelector } from 'react-redux';
+import store, { RootState, persistor } from './store';
+import { PersistGate } from 'redux-persist/integration/react';
+
+const Protected = (props: { children: JSX.Element }) => {
+  const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+
+  if (!isloggedIn) {
+    return (
+      <Navigate to="/login" replace state={{ prevPath: document.location.pathname }} />
+    );
+  }
+
+  return props.children;
+};
 
 function App() {
   return (
-    <BrowserRouter>
-      <Header isLogged={true} />
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/inicio" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/parametrizacao" element={<Parameterization />} />
-          <Route path="/usuario/dados" element={<User />} />
-          <Route path="/funcionarios" element={<Employees />} />
-          <Route path="/funcionario/:method/:id?" element={<Employee />} />
-          <Route path="/clientes" element={<Clients />} />
-          <Route path="/cliente/:method/:id?" element={<Client />} />
-          <Route path="/motoristas" element={<Drivers />} />
-          <Route path="/motorista/:method/:id?" element={<Driver />} />
-          <Route path="/representacoes" element={<Representations />} />
-          <Route path="/representacao/:method/:id?" element={<Representation />} />
-          <Route path="/proprietarios" element={<Proprietaries />} />
-          <Route path="/proprietario/:method/:id?" element={<Proprietary />} />
-          <Route path="/tiposcaminhao" element={<TruckTypes />} />
-          <Route path="/tipocaminhao/:method/:id?" element={<TruckType />} />
-          <Route path="/categorias" element={<Categories />} />
-          <Route path="/categoria/:method/:id?" element={<Category />} />
-          <Route path="/formaspagamento" element={<PaymentForms />} />
-          <Route path="/formapagamento/:method/:id?" element={<PaymentForm />} />
-          <Route path="/caminhoes" element={<Trucks />} />
-          <Route path="/caminhao/:method/:id?" element={<Truck />} />
-          <Route path="/produtos" element={<Products />} />
-          <Route path="/produto/:method/:id?" element={<Product />} />
-          <Route path="/produto/tiposcaminhao/:id" element={<ProductTruckTypes />} />
-          <Route path="/orcamentos/venda" element={<SalesBudgets />} />
-          <Route path="/orcamento/venda/:method/:id?" element={<SalesBudget />} />
-          <Route path="/orcamentos/frete" element={<FreightBudgets />} />
-          <Route path="/orcamento/frete/:method/:id?" element={<FreightBudget />} />
-          <Route path="/pedidos/venda" element={<SalesOrders />} />
-          <Route path="/pedido/venda/" element={<SalesOrder />} />
-          <Route path="/pedidos/frete" element={<FreightOrders />} />
-          <Route path="/pedido/frete/" element={<FreightOrder />} />
-          <Route path="/pedidos/frete/status" element={<FreightOrdersStatus />} />
-          <Route path="/pedido/frete/status/:id" element={<FreightOrderStatus />} />
-          <Route path="/pedidos/frete/autorizar" element={<FreightOrdersAuthorize />} />
-          <Route path="/pedido/frete/autorizar/:id" element={<FreightOrderAuthorize />} />
-          <Route path="/contas/pagar" element={<BillsPay />} />
-          <Route path="/conta/pagar/:id" element={<BillPay />} />
-          <Route path="/contas/receber" element={<ReceiveBills />} />
-          <Route path="/conta/receber/:id" element={<ReceiveBill />} />
-          <Route path="/lancar/despesas" element={<ReleaseBills />} />
-          <Route path="/lancar/despesa" element={<ReleaseBill />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <Provider store={store}>
+      <PersistGate persistor={persistor}>
+        <BrowserRouter>
+          <Header />
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/inicio"
+                element={
+                  <Protected>
+                    <Home />
+                  </Protected>
+                }
+              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/parametrizacao" element={<Parameterization />} />
+              <Route path="/usuario/dados" element={<User />} />
+              <Route path="/funcionarios" element={<Employees />} />
+              <Route path="/funcionario/:method/:id?" element={<Employee />} />
+              <Route path="/clientes" element={<Clients />} />
+              <Route path="/cliente/:method/:id?" element={<Client />} />
+              <Route path="/motoristas" element={<Drivers />} />
+              <Route path="/motorista/:method/:id?" element={<Driver />} />
+              <Route path="/representacoes" element={<Representations />} />
+              <Route path="/representacao/:method/:id?" element={<Representation />} />
+              <Route path="/proprietarios" element={<Proprietaries />} />
+              <Route path="/proprietario/:method/:id?" element={<Proprietary />} />
+              <Route path="/tiposcaminhao" element={<TruckTypes />} />
+              <Route path="/tipocaminhao/:method/:id?" element={<TruckType />} />
+              <Route path="/categorias" element={<Categories />} />
+              <Route path="/categoria/:method/:id?" element={<Category />} />
+              <Route path="/formaspagamento" element={<PaymentForms />} />
+              <Route path="/formapagamento/:method/:id?" element={<PaymentForm />} />
+              <Route path="/caminhoes" element={<Trucks />} />
+              <Route path="/caminhao/:method/:id?" element={<Truck />} />
+              <Route path="/produtos" element={<Products />} />
+              <Route path="/produto/:method/:id?" element={<Product />} />
+              <Route path="/produto/tiposcaminhao/:id" element={<ProductTruckTypes />} />
+              <Route path="/orcamentos/venda" element={<SalesBudgets />} />
+              <Route path="/orcamento/venda/:method/:id?" element={<SalesBudget />} />
+              <Route path="/orcamentos/frete" element={<FreightBudgets />} />
+              <Route path="/orcamento/frete/:method/:id?" element={<FreightBudget />} />
+              <Route path="/pedidos/venda" element={<SalesOrders />} />
+              <Route path="/pedido/venda/" element={<SalesOrder />} />
+              <Route path="/pedidos/frete" element={<FreightOrders />} />
+              <Route path="/pedido/frete/" element={<FreightOrder />} />
+              <Route path="/pedidos/frete/status" element={<FreightOrdersStatus />} />
+              <Route path="/pedido/frete/status/:id" element={<FreightOrderStatus />} />
+              <Route
+                path="/pedidos/frete/autorizar"
+                element={<FreightOrdersAuthorize />}
+              />
+              <Route
+                path="/pedido/frete/autorizar/:id"
+                element={<FreightOrderAuthorize />}
+              />
+              <Route path="/contas/pagar" element={<BillsPay />} />
+              <Route path="/conta/pagar/:id" element={<BillPay />} />
+              <Route path="/contas/receber" element={<ReceiveBills />} />
+              <Route path="/conta/receber/:id" element={<ReceiveBill />} />
+              <Route path="/lancar/despesas" element={<ReleaseBills />} />
+              <Route path="/lancar/despesa" element={<ReleaseBill />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </PersistGate>
+    </Provider>
   );
 }
 
