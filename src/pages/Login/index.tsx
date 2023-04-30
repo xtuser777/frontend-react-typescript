@@ -10,7 +10,7 @@ import * as actions from '../../store/modules/auth/actions';
 export function Login(): JSX.Element {
   const dispatch = useDispatch();
 
-  const prevPath = get(document, 'location.state.prevPath', '');
+  const prevPath = get(document, 'location.pathname', '');
 
   let errors = false;
 
@@ -41,8 +41,6 @@ export function Login(): JSX.Element {
         setErrorPassword('');
       }
     }
-
-    alert(`${errors}`);
 
     if (!errors) {
       dispatch(actions.loginRequest({ login, password, prevPath }));

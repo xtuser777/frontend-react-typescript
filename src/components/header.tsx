@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { MouseEvent, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Collapse,
   DropdownItem,
@@ -14,12 +14,22 @@ import {
   UncontrolledDropdown,
 } from 'reactstrap';
 import { RootState } from '../store';
+import * as actions from '../store/modules/auth/actions';
+import history from '../services/history';
 
 export function Header(): JSX.Element {
+  const dispatch = useDispatch();
   const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
+
+  const handleLogout = (e: MouseEvent) => {
+    e.preventDefault();
+    dispatch(actions.loginFailure());
+    history.push('/inicio');
+  };
+
   return (
     <header>
       <Navbar className="navbar-scr" fixed="top" light={false} dark expand="sm">
@@ -189,7 +199,9 @@ export function Header(): JSX.Element {
                     {/** } */}
                     <DropdownItem href="/usuario/dados/">Meus Dados</DropdownItem>
                     <DropdownItem divider />
-                    <DropdownItem href="/logout/">Sair</DropdownItem>
+                    <DropdownItem onClick={handleLogout} href="/logout/">
+                      Sair
+                    </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
               </Nav>

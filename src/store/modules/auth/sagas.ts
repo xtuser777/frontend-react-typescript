@@ -5,18 +5,20 @@ import * as types from '../types';
 import axios from '../../../services/axios';
 import history from '../../../services/history';
 import { sendPost } from './requests';
+import { toast } from 'react-toastify';
 
 function* authRequest({ payload }: types.LoginRequestAction) {
   try {
-    const response: types.LoginRequestResult = yield call(sendPost, '/tokens', payload);
+    const response: types.LoginRequestResult = yield call(sendPost, '/token', payload);
     yield put(actions.loginSuccess(response));
-    alert('Você fez login.');
 
     axios.defaults.headers.Authorization = `Bearer ${response.token}`;
 
-    history.push(payload.prevPath);
+    history.push('/inicio');
+    document.location.reload();
   } catch (e) {
-    alert('Usuário ou senha inválidos.');
+    console.log(payload.prevPath);
+    toast.error('Usuário ou senha inválidos.');
 
     yield put(actions.loginFailure());
   }

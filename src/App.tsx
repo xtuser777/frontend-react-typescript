@@ -1,6 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { Header } from './components/header';
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Parameterization } from './pages/Parameterization';
@@ -48,6 +48,9 @@ import { Provider, useSelector } from 'react-redux';
 import store, { RootState, persistor } from './store';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+
 const Protected = (props: { children: JSX.Element }) => {
   const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
 
@@ -68,7 +71,14 @@ function App() {
           <Header />
           <div className="container">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route
+                path="/"
+                element={
+                  <Protected>
+                    <Home />
+                  </Protected>
+                }
+              />
               <Route
                 path="/inicio"
                 element={
@@ -78,55 +88,337 @@ function App() {
                 }
               />
               <Route path="/login" element={<Login />} />
-              <Route path="/parametrizacao" element={<Parameterization />} />
-              <Route path="/usuario/dados" element={<User />} />
-              <Route path="/funcionarios" element={<Employees />} />
-              <Route path="/funcionario/:method/:id?" element={<Employee />} />
-              <Route path="/clientes" element={<Clients />} />
-              <Route path="/cliente/:method/:id?" element={<Client />} />
-              <Route path="/motoristas" element={<Drivers />} />
-              <Route path="/motorista/:method/:id?" element={<Driver />} />
-              <Route path="/representacoes" element={<Representations />} />
-              <Route path="/representacao/:method/:id?" element={<Representation />} />
-              <Route path="/proprietarios" element={<Proprietaries />} />
-              <Route path="/proprietario/:method/:id?" element={<Proprietary />} />
-              <Route path="/tiposcaminhao" element={<TruckTypes />} />
-              <Route path="/tipocaminhao/:method/:id?" element={<TruckType />} />
-              <Route path="/categorias" element={<Categories />} />
-              <Route path="/categoria/:method/:id?" element={<Category />} />
-              <Route path="/formaspagamento" element={<PaymentForms />} />
-              <Route path="/formapagamento/:method/:id?" element={<PaymentForm />} />
-              <Route path="/caminhoes" element={<Trucks />} />
-              <Route path="/caminhao/:method/:id?" element={<Truck />} />
-              <Route path="/produtos" element={<Products />} />
-              <Route path="/produto/:method/:id?" element={<Product />} />
-              <Route path="/produto/tiposcaminhao/:id" element={<ProductTruckTypes />} />
-              <Route path="/orcamentos/venda" element={<SalesBudgets />} />
-              <Route path="/orcamento/venda/:method/:id?" element={<SalesBudget />} />
-              <Route path="/orcamentos/frete" element={<FreightBudgets />} />
-              <Route path="/orcamento/frete/:method/:id?" element={<FreightBudget />} />
-              <Route path="/pedidos/venda" element={<SalesOrders />} />
-              <Route path="/pedido/venda/" element={<SalesOrder />} />
-              <Route path="/pedidos/frete" element={<FreightOrders />} />
-              <Route path="/pedido/frete/" element={<FreightOrder />} />
-              <Route path="/pedidos/frete/status" element={<FreightOrdersStatus />} />
-              <Route path="/pedido/frete/status/:id" element={<FreightOrderStatus />} />
+              <Route
+                path="/parametrizacao"
+                element={
+                  <Protected>
+                    <Parameterization />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/usuario/dados"
+                element={
+                  <Protected>
+                    <User />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/funcionarios"
+                element={
+                  <Protected>
+                    <Employees />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/funcionario/:method/:id?"
+                element={
+                  <Protected>
+                    <Employee />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/clientes"
+                element={
+                  <Protected>
+                    <Clients />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/cliente/:method/:id?"
+                element={
+                  <Protected>
+                    <Client />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/motoristas"
+                element={
+                  <Protected>
+                    <Drivers />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/motorista/:method/:id?"
+                element={
+                  <Protected>
+                    <Driver />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/representacoes"
+                element={
+                  <Protected>
+                    <Representations />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/representacao/:method/:id?"
+                element={
+                  <Protected>
+                    <Representation />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/proprietarios"
+                element={
+                  <Protected>
+                    <Proprietaries />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/proprietario/:method/:id?"
+                element={
+                  <Protected>
+                    <Proprietary />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/tiposcaminhao"
+                element={
+                  <Protected>
+                    <TruckTypes />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/tipocaminhao/:method/:id?"
+                element={
+                  <Protected>
+                    <TruckType />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/categorias"
+                element={
+                  <Protected>
+                    <Categories />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/categoria/:method/:id?"
+                element={
+                  <Protected>
+                    <Category />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/formaspagamento"
+                element={
+                  <Protected>
+                    <PaymentForms />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/formapagamento/:method/:id?"
+                element={
+                  <Protected>
+                    <PaymentForm />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/caminhoes"
+                element={
+                  <Protected>
+                    <Trucks />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/caminhao/:method/:id?"
+                element={
+                  <Protected>
+                    <Truck />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/produtos"
+                element={
+                  <Protected>
+                    <Products />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/produto/:method/:id?"
+                element={
+                  <Protected>
+                    <Product />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/produto/tiposcaminhao/:id"
+                element={
+                  <Protected>
+                    <ProductTruckTypes />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/orcamentos/venda"
+                element={
+                  <Protected>
+                    <SalesBudgets />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/orcamento/venda/:method/:id?"
+                element={
+                  <Protected>
+                    <SalesBudget />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/orcamentos/frete"
+                element={
+                  <Protected>
+                    <FreightBudgets />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/orcamento/frete/:method/:id?"
+                element={
+                  <Protected>
+                    <FreightBudget />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/pedidos/venda"
+                element={
+                  <Protected>
+                    <SalesOrders />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/pedido/venda/"
+                element={
+                  <Protected>
+                    <SalesOrder />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/pedidos/frete"
+                element={
+                  <Protected>
+                    <FreightOrders />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/pedido/frete/"
+                element={
+                  <Protected>
+                    <FreightOrder />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/pedidos/frete/status"
+                element={
+                  <Protected>
+                    <FreightOrdersStatus />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/pedido/frete/status/:id"
+                element={
+                  <Protected>
+                    <FreightOrderStatus />
+                  </Protected>
+                }
+              />
               <Route
                 path="/pedidos/frete/autorizar"
-                element={<FreightOrdersAuthorize />}
+                element={
+                  <Protected>
+                    <FreightOrdersAuthorize />
+                  </Protected>
+                }
               />
               <Route
                 path="/pedido/frete/autorizar/:id"
-                element={<FreightOrderAuthorize />}
+                element={
+                  <Protected>
+                    <FreightOrderAuthorize />
+                  </Protected>
+                }
               />
-              <Route path="/contas/pagar" element={<BillsPay />} />
-              <Route path="/conta/pagar/:id" element={<BillPay />} />
-              <Route path="/contas/receber" element={<ReceiveBills />} />
-              <Route path="/conta/receber/:id" element={<ReceiveBill />} />
-              <Route path="/lancar/despesas" element={<ReleaseBills />} />
-              <Route path="/lancar/despesa" element={<ReleaseBill />} />
+              <Route
+                path="/contas/pagar"
+                element={
+                  <Protected>
+                    <BillsPay />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/conta/pagar/:id"
+                element={
+                  <Protected>
+                    <BillPay />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/contas/receber"
+                element={
+                  <Protected>
+                    <ReceiveBills />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/conta/receber/:id"
+                element={
+                  <Protected>
+                    <ReceiveBill />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/lancar/despesas"
+                element={
+                  <Protected>
+                    <ReleaseBills />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/lancar/despesa"
+                element={
+                  <Protected>
+                    <ReleaseBill />
+                  </Protected>
+                }
+              />
             </Routes>
           </div>
+          <ToastContainer autoClose={3000} theme="colored" pauseOnHover />
         </BrowserRouter>
       </PersistGate>
     </Provider>
