@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, {
+  ChangeEvent,
+  KeyboardEvent,
+  KeyboardEventHandler,
+  MouseEvent,
+  useState,
+} from 'react';
 import { CardTitle } from '../../components/card-title';
 import { Badge, Button, FormGroup, Input, Label } from 'reactstrap';
 
@@ -47,6 +53,12 @@ export function Login(): JSX.Element {
     }
   };
 
+  const handlePasswordKeypress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.which === 13) {
+      handleClick();
+    }
+  };
+
   return (
     <>
       <CardTitle text="Autenticação do Usuário" />
@@ -62,6 +74,7 @@ export function Login(): JSX.Element {
             id="login"
             value={login}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setLogin(e.target.value)}
+            autoFocus
           />
           <Badge
             id="erro-login"
@@ -79,6 +92,7 @@ export function Login(): JSX.Element {
             id="senha"
             value={password}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            onKeyDown={handlePasswordKeypress}
           />
           <Badge
             id="erro-password"

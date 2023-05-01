@@ -19,7 +19,7 @@ import history from '../services/history';
 
 export function Header(): JSX.Element {
   const dispatch = useDispatch();
-  const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const authState = useSelector((state: RootState) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
@@ -39,7 +39,7 @@ export function Header(): JSX.Element {
 
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
-          {isloggedIn ? (
+          {authState.isLoggedIn ? (
             <>
               <Nav className="me-auto" navbar>
                 <NavItem>
@@ -190,7 +190,7 @@ export function Header(): JSX.Element {
                     nav
                     caret
                   >
-                    Usuário Logado
+                    {authState.isLoggedIn ? authState.user.name : 'USER'}
                   </DropdownToggle>
                   <DropdownMenu end>
                     <DropdownItem header>Configurações</DropdownItem>
