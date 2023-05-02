@@ -7,12 +7,23 @@ import { FormAuthenticationData } from '../../components/form-authentication-dat
 import { FormButtonsSave } from '../../components/form-buttons-save';
 
 export function User(): JSX.Element {
+  const [addressId, setAddressId] = useState(0);
+  const [contactId, setContactId] = useState(0);
+  const [personId, setPersonId] = useState(0);
+  const [employeeId, setEmployeeId] = useState(0);
+  const [userId, serUserId] = useState(0);
+
+  const [active, setActive] = useState(true);
+  const [admission, setAdmission] = useState('');
+  const [currentCpf, setCurrentCpf] = useState('');
+
   const [name, setName] = useState('');
   const [rg, setRg] = useState('');
   const [cpf, setCpf] = useState('');
   const [birthDate, setBirthDate] = useState(new Date().toISOString().substring(0, 10));
 
-  const tipoAtual = 1;
+  const [type, setType] = useState(0);
+
   const [street, setStreet] = useState('');
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
@@ -135,7 +146,7 @@ export function User(): JSX.Element {
       <FieldsetCard legend="Dados de contato do funcionário" obrigatoryFields>
         <FormContact fields={contactFields} handleChanges={handleContact} />
       </FieldsetCard>
-      {tipoAtual == 1 ? (
+      {type == 1 ? (
         <FieldsetCard legend="Dados de autenticação" obrigatoryFields>
           <FormAuthenticationData
             page="data"

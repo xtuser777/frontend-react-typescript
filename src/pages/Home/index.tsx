@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, Row, Table } from 'reactstrap';
@@ -6,11 +6,65 @@ import { FormInputText } from '../../components/form-input-text';
 import { FormInputDate } from '../../components/form-input-date';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButton } from '../../components/form-button';
+import axios from '../../services/axios';
+import { formatarData } from '../../utils/format';
+
+interface IModel {
+  id: number;
+  date: string;
+  time: string;
+  description: string;
+  freightOrder: { id: number; description: string } | undefined;
+  salesOrder: { id: number; description: string } | undefined;
+  author: { id: number; employee: { id: number; person: { id: number; name: string } } };
+}
 
 export function Home(): JSX.Element {
+  const [events, setEvents] = useState(new Array<IModel>());
+
   const [filter, setFilter] = useState('');
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [orderType, setOrderType] = useState('0');
+
+  useEffect(() => {
+    const getData = async () => {
+      const receivedData = await axios.get('/event');
+      const data: IModel[] = [];
+      for (const item of receivedData.data) {
+        data.push({
+          id: item.id,
+          date: item.date,
+          time: item.time,
+          description: item.description,
+          salesOrder: item.salesOrder
+            ? {
+                id: item.salesOrder.id,
+                description: item.salesOrder.description,
+              }
+            : undefined,
+          freightOrder: item.freightOrder
+            ? {
+                id: item.freightOrder.id,
+                description: item.freightOrder.description,
+              }
+            : undefined,
+          author: {
+            id: item.author.id,
+            employee: {
+              id: item.author.employee.id,
+              person: {
+                id: item.author.employee.person.id,
+                name: item.author.employee.person.name,
+              },
+            },
+          },
+        });
+      }
+      setEvents(data);
+    };
+
+    getData();
+  }, []);
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
@@ -24,8 +78,45 @@ export function Home(): JSX.Element {
     setOrderType(e.target.value);
   };
 
-  const handleFilterClick = () => {
-    alert(`${filter}, ${date}, ${orderType}`);
+  const handleFilterClick = async () => {
+    const receivedData = await axios.post('/event', {
+      filter,
+      date,
+      type: orderType == '0' ? undefined : Number.parseInt(orderType),
+    });
+    console.log(receivedData.data);
+    const data: IModel[] = [];
+    for (const item of receivedData.data) {
+      data.push({
+        id: item.id,
+        date: item.date,
+        time: item.time,
+        description: item.description,
+        salesOrder: item.salesOrder
+          ? {
+              id: item.salesOrder.id,
+              description: item.salesOrder.description,
+            }
+          : undefined,
+        freightOrder: item.freightOrder
+          ? {
+              id: item.freightOrder.id,
+              description: item.freightOrder.description,
+            }
+          : undefined,
+        author: {
+          id: item.author.id,
+          employee: {
+            id: item.author.employee.id,
+            person: {
+              id: item.author.employee.person.id,
+              name: item.author.employee.person.name,
+            },
+          },
+        },
+      });
+    }
+    setEvents(data);
   };
 
   const handlePdfClick = (e: MouseEvent) => {
@@ -70,7 +161,7 @@ export function Home(): JSX.Element {
             color={'primary'}
             id="filtrar"
             text="FILTRAR"
-            onClick={handleFilterClick}
+            onClick={async () => await handleFilterClick()}
           />
         </Row>
       </FieldsetCard>
@@ -87,41 +178,21 @@ export function Home(): JSX.Element {
           </thead>
 
           <tbody id="tbodyEventos">
-            <tr>
-              <td>Teste</td>
-              <td>11/04/2023</td>
-              <td>12:00</td>
-              <td>001</td>
-              <td>Suporte</td>
-            </tr>
-            <tr>
-              <td>Teste</td>
-              <td>11/04/2023</td>
-              <td>12:00</td>
-              <td>001</td>
-              <td>Suporte</td>
-            </tr>
-            <tr>
-              <td>Teste</td>
-              <td>11/04/2023</td>
-              <td>12:00</td>
-              <td>001</td>
-              <td>Suporte</td>
-            </tr>
-            <tr>
-              <td>Teste</td>
-              <td>11/04/2023</td>
-              <td>12:00</td>
-              <td>001</td>
-              <td>Suporte</td>
-            </tr>
-            <tr>
-              <td>Teste</td>
-              <td>11/04/2023</td>
-              <td>12:00</td>
-              <td>001</td>
-              <td>Suporte</td>
-            </tr>
+            {events.map((item: IModel) => (
+              <tr key={item.id}>
+                <td>{item.description}</td>
+                <td>{formatarData(item.date)}</td>
+                <td>{item.time}</td>
+                <td>
+                  {item.salesOrder
+                    ? item.salesOrder.description
+                    : item.freightOrder
+                    ? item.freightOrder.description
+                    : ''}
+                </td>
+                <td>{item.author.employee.person.name}</td>
+              </tr>
+            ))}
           </tbody>
         </Table>
       </FieldsetCard>
