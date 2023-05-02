@@ -7,6 +7,9 @@ import { FormInputSelect } from './form-input-select';
 import { FormInputGroupText } from './form-input-group-text';
 import { FormInputGroupEmail } from './form-input-group-email';
 
+type State = { id: number; name: string; acronym: string };
+type City = { id: number; name: string; state: State };
+
 interface IFields {
   street: string;
   number: string;
@@ -14,7 +17,9 @@ interface IFields {
   complement: string;
   code: string;
   state: string;
+  states: State[];
   city: string;
+  cities: City[];
   phone: string;
   cellphone: string;
   email: string;
@@ -26,7 +31,7 @@ interface IHandle {
   handleNeighborhoodChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleCodeChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleStateChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleStateChange: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleCityChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePhoneChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleCellphoneChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -84,9 +89,14 @@ export function FormContact(props: IProps): JSX.Element {
           label="Estado"
           obrigatory
           value={props.fields.state}
-          onChange={(e) => props.handleChanges.handleStateChange(e)}
+          onChange={async (e) => await props.handleChanges.handleStateChange(e)}
         >
           <option value="0">SELECIONE</option>
+          {props.fields.states.map((item: State) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
         </FormInputSelect>
         <FormInputSelect
           colSm={5}
@@ -98,6 +108,11 @@ export function FormContact(props: IProps): JSX.Element {
           onChange={(e) => props.handleChanges.handleCityChange(e)}
         >
           <option value="0">SELECIONE</option>
+          {props.fields.cities.map((item: City) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
         </FormInputSelect>
         <FormInputText
           colSm={3}
