@@ -12,17 +12,26 @@ type City = { id: number; name: string; state: State };
 
 interface IFields {
   street: string;
+  streetMessage?: string;
   number: string;
+  numberMessage?: string;
   neighborhood: string;
+  neighborhoodMessage?: string;
   complement: string;
   code: string;
+  codeMessage?: string;
   state: string;
+  stateMessage?: string;
   states: State[];
   city: string;
+  cityMessage?: string;
   cities: City[];
   phone: string;
+  phoneMessage?: string;
   cellphone: string;
+  cellphoneMessage?: string;
   email: string;
+  emailMessage?: string;
 }
 
 interface IHandle {
@@ -54,6 +63,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.street}
           onChange={(e) => props.handleChanges.handleStreetChange(e)}
+          message={props.fields.streetMessage}
         />
         <FormInputText
           colSm={3}
@@ -62,6 +72,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.number}
           onChange={(e) => props.handleChanges.handleNumberChange(e)}
+          message={props.fields.numberMessage}
         />
       </Row>
       <Row>
@@ -72,6 +83,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.neighborhood}
           onChange={(e) => props.handleChanges.handleNeighborhoodChange(e)}
+          message={props.fields.neighborhoodMessage}
         />
         <FormInputText
           colSm={6}
@@ -90,6 +102,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.state}
           onChange={async (e) => await props.handleChanges.handleStateChange(e)}
+          message={props.fields.stateMessage}
         >
           <option value="0">SELECIONE</option>
           {props.fields.states.map((item: State) => (
@@ -106,6 +119,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.city}
           disable={props.fields.state == '0'}
           onChange={(e) => props.handleChanges.handleCityChange(e)}
+          message={props.fields.cityMessage}
         >
           <option value="0">SELECIONE</option>
           {props.fields.cities.map((item: City) => (
@@ -122,6 +136,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.code}
           obrigatory
           onChange={(e) => props.handleChanges.handleCodeChange(e)}
+          message={props.fields.codeMessage}
         />
       </Row>
       <Row>
@@ -134,6 +149,7 @@ export function FormContact(props: IProps): JSX.Element {
           mask="(00) 0000-0000"
           value={props.fields.phone}
           onChange={(e) => props.handleChanges.handlePhoneChange(e)}
+          message={props.fields.phoneMessage}
         />
         <FormInputGroupText
           colSm={3}
@@ -144,6 +160,7 @@ export function FormContact(props: IProps): JSX.Element {
           mask="(00) 00000-0000"
           value={props.fields.cellphone}
           onChange={(e) => props.handleChanges.handleCellphoneChange(e)}
+          message={props.fields.cellphoneMessage}
         />
         <FormInputGroupEmail
           colSm={6}
@@ -153,6 +170,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.email}
           onChange={(e) => props.handleChanges.handleEmailChange(e)}
+          message={props.fields.emailMessage}
         />
       </Row>
     </>

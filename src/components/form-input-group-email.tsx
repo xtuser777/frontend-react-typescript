@@ -1,5 +1,13 @@
 import React, { ChangeEvent, ReactNode } from 'react';
-import { Col, FormGroup, Label, Input, InputGroup, InputGroupText } from 'reactstrap';
+import {
+  Col,
+  FormGroup,
+  Label,
+  Input,
+  InputGroup,
+  InputGroupText,
+  Badge,
+} from 'reactstrap';
 
 interface IProps {
   colSm: number;
@@ -32,12 +40,13 @@ export function FormInputGroupEmail(props: IProps): JSX.Element {
             readOnly={props.readonly ? true : false}
           />
         </InputGroup>
-        <span
+        <Badge
           id={`ms-${props.id}`}
-          className={props.message ? 'label label-danger' : 'label label-danger hidden'}
+          color="danger"
+          className={props.message ? 'hidden' : ''}
         >
           {props.message ? props.message : ''}
-        </span>
+        </Badge>
       </FormGroup>
     </Col>
   );

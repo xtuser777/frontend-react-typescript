@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { Col, FormGroup, Label, Input } from 'reactstrap';
+import { Col, FormGroup, Label, Input, Badge } from 'reactstrap';
 
 interface IProps {
   colSm: number;
@@ -25,12 +25,13 @@ export function FormInputFile(props: IProps): JSX.Element {
           style={{ width: '100%' }}
           onChange={(e) => props.onChange(e)}
         />
-        <span
+        <Badge
           id={`ms-${props.id}`}
-          className={props.message ? 'label label-danger' : 'label label-danger hidden'}
+          color="danger"
+          className={props.message ? 'hidden' : ''}
         >
           {props.message ? props.message : ''}
-        </span>
+        </Badge>
       </FormGroup>
     </Col>
   );

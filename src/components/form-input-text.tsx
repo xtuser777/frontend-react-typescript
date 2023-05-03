@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { Col, FormGroup, Label, Input } from 'reactstrap';
+import { Col, FormGroup, Label, Input, Badge } from 'reactstrap';
 import $ from 'jquery';
 import 'jquery-mask-plugin';
 
@@ -45,12 +45,13 @@ export function FormInputText(props: IProps): JSX.Element {
           placeholder={props.placeholder ? props.placeholder : ''}
           readOnly={props.readonly ? true : false}
         />
-        <span
+        <Badge
           id={`ms-${props.id}`}
-          className={props.message ? 'label label-danger' : 'label label-danger hidden'}
+          color="danger"
+          className={props.message ? 'hidden' : ''}
         >
           {props.message ? props.message : ''}
-        </span>
+        </Badge>
       </FormGroup>
     </Col>
   );
