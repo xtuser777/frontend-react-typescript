@@ -9,7 +9,7 @@ import { FormButton } from '../../components/form-button';
 import axios from '../../services/axios';
 import { formatarData } from '../../utils/format';
 
-interface IModel {
+interface IData {
   id: number;
   date: string;
   time: string;
@@ -20,51 +20,42 @@ interface IModel {
 }
 
 export function Home(): JSX.Element {
-  const [events, setEvents] = useState(new Array<IModel>());
+  const [data, setData] = useState(new Array<IData>());
+  const [events, setEvents] = useState(new Array<IData>());
 
   const [filter, setFilter] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
+  const [date, setDate] = useState('');
   const [orderType, setOrderType] = useState('0');
 
   useEffect(() => {
     const getData = async () => {
       const receivedData = await axios.get('/event');
-      const data: IModel[] = [];
-      for (const item of receivedData.data) {
-        data.push({
-          id: item.id,
-          date: item.date,
-          time: item.time,
-          description: item.description,
-          salesOrder: item.salesOrder
-            ? {
-                id: item.salesOrder.id,
-                description: item.salesOrder.description,
-              }
-            : undefined,
-          freightOrder: item.freightOrder
-            ? {
-                id: item.freightOrder.id,
-                description: item.freightOrder.description,
-              }
-            : undefined,
-          author: {
-            id: item.author.id,
-            employee: {
-              id: item.author.employee.id,
-              person: {
-                id: item.author.employee.person.id,
-                name: item.author.employee.person.name,
-              },
-            },
-          },
-        });
-      }
-      setEvents(data);
+      setData(receivedData.data);
+      setEvents(receivedData.data);
     };
 
     getData();
   }, []);
+
+  const filterData = (): IData[] => {
+    let filteredData: IData[] = data;
+    if (date.length == 10) {
+      filteredData = filteredData.filter((item) => item.date.substring(0, 10) == date);
+    }
+
+    if (orderType != '0') {
+      filteredData = filteredData.filter((item) => {
+        if (orderType == '1') return item.salesOrder;
+        if (orderType == '2') return item.freightOrder;
+      });
+    }
+
+    if (filter.length > 0) {
+      filteredData = filteredData.filter((item) => item.description.includes(filter));
+    }
+
+    return filteredData;
+  };
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
@@ -79,43 +70,8 @@ export function Home(): JSX.Element {
   };
 
   const handleFilterClick = async () => {
-    const receivedData = await axios.post('/event', {
-      filter,
-      date,
-      type: orderType == '0' ? undefined : Number.parseInt(orderType),
-    });
-    console.log(receivedData.data);
-    const data: IModel[] = [];
-    for (const item of receivedData.data) {
-      data.push({
-        id: item.id,
-        date: item.date,
-        time: item.time,
-        description: item.description,
-        salesOrder: item.salesOrder
-          ? {
-              id: item.salesOrder.id,
-              description: item.salesOrder.description,
-            }
-          : undefined,
-        freightOrder: item.freightOrder
-          ? {
-              id: item.freightOrder.id,
-              description: item.freightOrder.description,
-            }
-          : undefined,
-        author: {
-          id: item.author.id,
-          employee: {
-            id: item.author.employee.id,
-            person: {
-              id: item.author.employee.person.id,
-              name: item.author.employee.person.name,
-            },
-          },
-        },
-      });
-    }
+    const data = filterData();
+
     setEvents(data);
   };
 
@@ -178,7 +134,7 @@ export function Home(): JSX.Element {
           </thead>
 
           <tbody id="tbodyEventos">
-            {events.map((item: IModel) => (
+            {events.map((item: IData) => (
               <tr key={item.id}>
                 <td>{item.description}</td>
                 <td>{formatarData(item.date)}</td>

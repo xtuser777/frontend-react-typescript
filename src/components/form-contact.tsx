@@ -3,7 +3,6 @@ import { BsPhoneFill, BsTelephoneFill } from 'react-icons/bs';
 import { MdAlternateEmail } from 'react-icons/md';
 import { Row } from 'reactstrap';
 import { FormInputText } from './form-input-text';
-import { FormInputSelect } from './form-input-select';
 import { FormInputGroupText } from './form-input-group-text';
 import { FormInputGroupEmail } from './form-input-group-email';
 
@@ -22,10 +21,8 @@ interface IFields {
   codeMessage?: string;
   state: string;
   stateMessage?: string;
-  states: State[];
   city: string;
   cityMessage?: string;
-  cities: City[];
   phone: string;
   phoneMessage?: string;
   cellphone: string;
@@ -57,7 +54,17 @@ export function FormContact(props: IProps): JSX.Element {
     <>
       <Row>
         <FormInputText
-          colSm={9}
+          colSm={2}
+          id="cep"
+          label="CEP"
+          mask="00.000-000"
+          value={props.fields.code}
+          obrigatory
+          onChange={(e) => props.handleChanges.handleCodeChange(e)}
+          message={props.fields.codeMessage}
+        />
+        <FormInputText
+          colSm={5}
           id="rua"
           label="Rua"
           obrigatory
@@ -66,7 +73,7 @@ export function FormContact(props: IProps): JSX.Element {
           message={props.fields.streetMessage}
         />
         <FormInputText
-          colSm={3}
+          colSm={1}
           id="numero"
           label="Número"
           obrigatory
@@ -74,10 +81,8 @@ export function FormContact(props: IProps): JSX.Element {
           onChange={(e) => props.handleChanges.handleNumberChange(e)}
           message={props.fields.numberMessage}
         />
-      </Row>
-      <Row>
         <FormInputText
-          colSm={6}
+          colSm={4}
           id="bairro"
           label="Bairro"
           obrigatory
@@ -85,58 +90,35 @@ export function FormContact(props: IProps): JSX.Element {
           onChange={(e) => props.handleChanges.handleNeighborhoodChange(e)}
           message={props.fields.neighborhoodMessage}
         />
+      </Row>
+      <Row>
         <FormInputText
-          colSm={6}
+          colSm={3}
           id="complemento"
           label="Complemento"
           obrigatory={false}
           value={props.fields.complement}
           onChange={(e) => props.handleChanges.handleComplementChange(e)}
         />
-      </Row>
-      <Row>
-        <FormInputSelect
+        <FormInputText
           colSm={4}
           id="estado"
           label="Estado"
           obrigatory
           value={props.fields.state}
+          readonly
           onChange={async (e) => await props.handleChanges.handleStateChange(e)}
           message={props.fields.stateMessage}
-        >
-          <option value="0">SELECIONE</option>
-          {props.fields.states.map((item: State) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </FormInputSelect>
-        <FormInputSelect
+        />
+        <FormInputText
           colSm={5}
           id="cidade"
           label="Cidade"
           obrigatory
           value={props.fields.city}
-          disable={props.fields.state == '0'}
+          readonly
           onChange={(e) => props.handleChanges.handleCityChange(e)}
           message={props.fields.cityMessage}
-        >
-          <option value="0">SELECIONE</option>
-          {props.fields.cities.map((item: City) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </FormInputSelect>
-        <FormInputText
-          colSm={3}
-          id="cep"
-          label="CEP"
-          mask="00.000-000"
-          value={props.fields.code}
-          obrigatory
-          onChange={(e) => props.handleChanges.handleCodeChange(e)}
-          message={props.fields.codeMessage}
         />
       </Row>
       <Row>

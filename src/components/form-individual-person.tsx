@@ -27,17 +27,15 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
     <>
       <Row>
         <FormInputText
-          colSm={12}
+          colSm={6}
           id="nome"
           label="Nome"
           obrigatory
           value={props.fields.name}
           onChange={(e) => props.handleChanges.handleNameChange(e)}
         />
-      </Row>
-      <Row>
         <FormInputText
-          colSm={4}
+          colSm={2}
           id="rg"
           label="Rg"
           obrigatory
@@ -45,7 +43,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           onChange={(e) => props.handleChanges.handleRgChange(e)}
         />
         <FormInputText
-          colSm={4}
+          colSm={2}
           id="cpf"
           label="CPF"
           obrigatory
@@ -54,7 +52,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           onChange={(e) => props.handleChanges.handleCpfChange(e)}
         />
         <FormInputDate
-          colSm={4}
+          colSm={2}
           id="nasc"
           label="Nascimento"
           obrigatory

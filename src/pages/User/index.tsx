@@ -28,9 +28,6 @@ export function User(): JSX.Element {
 
   const [user, setUser] = useState({});
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
-
   const [name, setName] = useState('');
   const [rg, setRg] = useState('');
   const [cpf, setCpf] = useState('');
@@ -42,8 +39,8 @@ export function User(): JSX.Element {
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [complement, setComplement] = useState('');
-  const [state, setState] = useState('0');
-  const [city, setCity] = useState('0');
+  const [state, setState] = useState('');
+  const [city, setCity] = useState('');
   const [code, setCode] = useState('');
   const [phone, setPhone] = useState('');
   const [cellphone, setCellphone] = useState('');
@@ -54,11 +51,6 @@ export function User(): JSX.Element {
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
   useEffect(() => {
-    const loadStates = async () => {
-      const receivedData = await axios.get('/state');
-      setStates(receivedData.data);
-    };
-
     const loadData = async () => {
       const receivedData = await axios.get(`/employee/${authState.user.id}`);
       setUserId(authState.user.id);
@@ -70,6 +62,7 @@ export function User(): JSX.Element {
       setName(receivedData.data.employee.person.name);
       setRg(receivedData.data.employee.person.rg);
       setCpf(receivedData.data.employee.person.cpf);
+      setCurrentCpf(receivedData.data.employee.person.cpf);
       setBirthDate(formatarDataIso(receivedData.data.employee.person.birthDate));
 
       setAdmission(receivedData.data.employee.admission);
@@ -80,11 +73,8 @@ export function User(): JSX.Element {
       setNeighborhood(receivedData.data.employee.person.contact.address.neighborhood);
       setComplement(receivedData.data.employee.person.contact.address.complement);
       setCode(receivedData.data.employee.person.contact.address.code);
-      setState(receivedData.data.employee.person.contact.address.city.state.id);
-      await loadCities(
-        Number.parseInt(receivedData.data.employee.person.contact.address.city.state.id),
-      );
-      setCity(receivedData.data.employee.person.contact.address.city.id);
+      setState(receivedData.data.employee.person.contact.address.city.state.name);
+      setCity(receivedData.data.employee.person.contact.address.city.name);
       setPhone(receivedData.data.employee.person.contact.phone);
       setCellphone(receivedData.data.employee.person.contact.cellphone);
       setEmail(receivedData.data.employee.person.contact.email);
@@ -94,20 +84,12 @@ export function User(): JSX.Element {
       }
     };
 
-    loadStates();
-    loadData();
+    const loadPage = async () => {
+      await loadData();
+    };
+
+    loadPage();
   }, []);
-
-  const loadCities = async (state: number) => {
-    if (state == 0) setCities([]);
-    else {
-      const receivedData = await axios.get(`/city/index/{
-          "state": ${state}
-        }`);
-
-      setCities(receivedData.data);
-    }
-  };
 
   const handlePerson = {
     handleNameChange: (e: ChangeEvent<HTMLInputElement>) => {
@@ -140,13 +122,35 @@ export function User(): JSX.Element {
     handleStateChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
 
-      await loadCities(Number.parseInt(e.target.value));
+      // setCities(
+      //   citiesData.filter((item) => item.state.id == Number.parseInt(e.target.value)),
+      // );
     },
     handleCityChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCity(e.target.value);
     },
-    handleCodeChange: (e: ChangeEvent<HTMLInputElement>) => {
+    handleCodeChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setCode(e.target.value);
+
+      type DataCEP = {
+        cep: string;
+        logradouro: string;
+        complemento: string;
+        bairro: string;
+        localidade: string;
+        uf: string;
+      };
+
+      const data: DataCEP = await axios.get(
+        `https://viacep.com.br/ws/${e.target.value
+          .replace('.', '')
+          .replace('-', '')}/json/`,
+      );
+
+      const c: City[] = await axios.get(`/city/name/${data.localidade}`);
+
+      setState(c[0].state.name);
+      setCity(c[0].name);
     },
     handlePhoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPhone(e.target.value);
@@ -197,9 +201,7 @@ export function User(): JSX.Element {
     complement,
     code,
     state,
-    states,
     city,
-    cities,
     phone,
     cellphone,
     email,
@@ -214,7 +216,7 @@ export function User(): JSX.Element {
   return (
     <>
       <CardTitle text="Dados do Funcionário" />
-      <FieldsetCard legend="Dados do Funcionário" obrigatoryFields>
+      <FieldsetCard legend="Dados pessoais do funcionário" obrigatoryFields>
         <FormIndividualPerson fields={personFields} handleChanges={handlePerson} />
       </FieldsetCard>
       <FieldsetCard legend="Dados de contato do funcionário" obrigatoryFields>
