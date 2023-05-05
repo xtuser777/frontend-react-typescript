@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  KeyboardEvent,
-  KeyboardEventHandler,
-  MouseEvent,
-  useState,
-} from 'react';
+import React, { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { Badge, Button, FormGroup, Input, Label } from 'reactstrap';
 
@@ -72,6 +66,7 @@ export function Login(): JSX.Element {
             type="text"
             name="login"
             id="login"
+            bsSize="sm"
             value={login}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setLogin(e.target.value)}
             autoFocus
@@ -90,6 +85,7 @@ export function Login(): JSX.Element {
             type="password"
             name="senha"
             id="senha"
+            bsSize="sm"
             value={password}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             onKeyDown={handlePasswordKeypress}
@@ -105,6 +101,7 @@ export function Login(): JSX.Element {
         <Button
           color="primary"
           id="btnEntrar"
+          size="sm"
           className="btn-login"
           onClick={handleClick}
         >

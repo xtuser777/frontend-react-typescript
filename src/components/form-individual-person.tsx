@@ -5,9 +5,13 @@ import { FormInputDate } from './form-input-date';
 
 interface IFields {
   name: string;
+  errorName?: string;
   rg: string;
+  errorRg?: string;
   cpf: string;
+  errorCpf?: string;
   birthDate: string;
+  errorBirthDate?: string;
 }
 
 interface IHandle {
@@ -33,6 +37,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.name}
           onChange={(e) => props.handleChanges.handleNameChange(e)}
+          message={props.fields.errorName ? props.fields.errorName : undefined}
         />
         <FormInputText
           colSm={2}
@@ -41,6 +46,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.rg}
           onChange={(e) => props.handleChanges.handleRgChange(e)}
+          message={props.fields.errorRg ? props.fields.errorRg : undefined}
         />
         <FormInputText
           colSm={2}
@@ -50,6 +56,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           mask="000.000.000-00"
           value={props.fields.cpf}
           onChange={(e) => props.handleChanges.handleCpfChange(e)}
+          message={props.fields.errorCpf ? props.fields.errorCpf : undefined}
         />
         <FormInputDate
           colSm={2}
@@ -58,6 +65,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.birthDate}
           onChange={(e) => props.handleChanges.handleBirthDateChange(e)}
+          message={props.fields.errorBirthDate ? props.fields.errorBirthDate : undefined}
         />
       </Row>
     </>

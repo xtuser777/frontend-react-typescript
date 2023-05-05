@@ -7,9 +7,13 @@ import { FormInputGroupPassword } from './form-input-group-password';
 
 interface IFields {
   level?: string;
+  errorLevel?: string;
   login: string;
+  errorLogin?: string;
   password: string;
+  errorPassword?: string;
   passwordConfirm: string;
+  errorPasswordConfirm?: string;
 }
 
 interface IHandle {
@@ -38,6 +42,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
               obrigatory
               value={props.fields.level}
               onChange={(e) => props.handleChanges.handleLevelChange(e)}
+              message={props.fields.errorLevel}
             >
               <option value="0">SELECIONAR</option>
             </FormInputSelect>
@@ -49,6 +54,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
               obrigatory
               value={props.fields.login}
               onChange={(e) => props.handleChanges.handleLoginChange(e)}
+              message={props.fields.errorLogin}
             />
           </Row>
           <Row>
@@ -60,6 +66,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
               obrigatory
               value={props.fields.password}
               onChange={(e) => props.handleChanges.handlePasswordChange(e)}
+              message={props.fields.errorPassword}
             />
             <FormInputGroupPassword
               colSm={6}
@@ -69,6 +76,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
               obrigatory
               value={props.fields.passwordConfirm}
               onChange={(e) => props.handleChanges.handlePasswordConfirmChange(e)}
+              message={props.fields.errorPasswordConfirm}
             />
           </Row>
         </>
@@ -82,6 +90,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
             obrigatory
             value={props.fields.login}
             onChange={(e) => props.handleChanges.handleLoginChange(e)}
+            message={props.fields.errorLogin}
           />
           <FormInputGroupPassword
             colSm={4}
@@ -91,6 +100,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
             obrigatory
             value={props.fields.password}
             onChange={(e) => props.handleChanges.handlePasswordChange(e)}
+            message={props.fields.errorPassword}
           />
           <FormInputGroupPassword
             colSm={4}
@@ -100,6 +110,7 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
             obrigatory
             value={props.fields.passwordConfirm}
             onChange={(e) => props.handleChanges.handlePasswordConfirmChange(e)}
+            message={props.fields.errorPasswordConfirm}
           />
         </Row>
       )}
