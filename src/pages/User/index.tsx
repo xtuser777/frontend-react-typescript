@@ -11,7 +11,7 @@ import { RootState } from '../../store';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
 import { toast } from 'react-toastify';
-import { AxiosError, isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 
 type State = { id: number; name: string; acronym: string };
 type City = { id: number; name: string; state: number };
@@ -357,7 +357,7 @@ export function User(): JSX.Element {
           person: {
             name,
             rg,
-            cpf,
+            currentCpf,
             birthDate,
           },
           employee: {
@@ -366,7 +366,7 @@ export function User(): JSX.Element {
           },
           user: {
             login,
-            password,
+            password: password.length == 6 ? password : undefined,
             level,
           },
         };

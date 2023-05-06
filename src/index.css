@@ -8,11 +8,7 @@ table {
 }
 
 table tr:hover td {
-  background-color: #2aabd2;
-}
-
-table tr.selecionado td {
-  background-color: #2e6da4;
+  background-color: lightgrey;
 }
 
 label {

@@ -3,13 +3,16 @@ import { Row } from 'reactstrap';
 import { FormInputText } from './form-input-text';
 
 interface IFields {
-  enterpriseName: string;
+  corporateName: string;
+  errorCorporateName?: string;
   fantasyName: string;
+  errorFantasyName?: string;
   cnpj: string;
+  errorCnpj?: string;
 }
 
 interface IHandle {
-  handleEnterpriseNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCorporateNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleFantasyNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleCnpjChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -29,9 +32,10 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           id="razao_social"
           label="Razão Social"
           obrigatory
-          value={props.fields.enterpriseName}
-          onChange={(e) => props.handleChanges.handleEnterpriseNameChange(e)}
+          value={props.fields.corporateName}
+          onChange={props.handleChanges.handleCorporateNameChange}
           readonly={props.readonly ? true : false}
+          message={props.fields.errorCorporateName}
         />
       </Row>
       <Row>
@@ -43,6 +47,7 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           value={props.fields.fantasyName}
           onChange={(e) => props.handleChanges.handleFantasyNameChange(e)}
           readonly={props.readonly ? true : false}
+          message={props.fields.errorFantasyName}
         />
         <FormInputText
           colSm={3}
@@ -53,6 +58,7 @@ export function FormEnterprisePerson(props: IProps): JSX.Element {
           value={props.fields.cnpj}
           onChange={(e) => props.handleChanges.handleCnpjChange(e)}
           readonly={props.readonly ? true : false}
+          message={props.fields.errorCnpj}
         />
       </Row>
     </>
