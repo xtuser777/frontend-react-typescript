@@ -7,34 +7,15 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
-import axios from '../../services/axios';
 import { formatarData } from '../../utils/format';
 import { FaEdit, FaPowerOff, FaTrash } from 'react-icons/fa';
-import { Navigate } from 'react-router-dom';
-
-interface IData {
-  id: number;
-  login: string;
-  active: boolean;
-  employee: {
-    admission: string;
-    type: number;
-    person: {
-      cpf: string;
-      name: string;
-      contact: {
-        email: string;
-      };
-    };
-  };
-  level: {
-    description: string;
-  };
-}
+import history from '../../services/history';
+import { User } from '../../models/user';
+import { IndividualPerson } from '../../models/individual-person';
 
 export function Employees(): JSX.Element {
-  const [data, setData] = useState(new Array<IData>());
-  const [employees, setEmployees] = useState(new Array<IData>());
+  const [data, setData] = useState(new Array<User>());
+  const [employees, setEmployees] = useState(new Array<User>());
 
   const [filter, setfilter] = useState('');
   const [admission, setAdmission] = useState('');
@@ -42,16 +23,16 @@ export function Employees(): JSX.Element {
 
   useEffect(() => {
     const getData = async () => {
-      const receivedData = await axios.get('/employee');
-      setData(receivedData.data);
-      setEmployees(receivedData.data);
+      const users = await new User().get();
+      setData(users);
+      setEmployees(users);
     };
 
     getData();
   }, []);
 
-  const filterData = (orderBy: string): IData[] => {
-    let filteredData: IData[] = data;
+  const filterData = (orderBy: string) => {
+    let filteredData: User[] = data;
     if (admission.length == 10) {
       filteredData = filteredData.filter(
         (item) => item.employee.admission.substring(0, 10) == admission,
@@ -62,8 +43,8 @@ export function Employees(): JSX.Element {
       filteredData = filteredData.filter(
         (item) =>
           item.login.includes(filter) ||
-          item.employee.person.name.includes(filter) ||
-          item.employee.person.contact.email.includes(filter),
+          (item.employee.person as IndividualPerson).name.includes(filter) ||
+          (item.employee.person as IndividualPerson).contact.email.includes(filter),
       );
     }
 
@@ -92,6 +73,15 @@ export function Employees(): JSX.Element {
       alert('Não é possível excluir o último administrador.');
     } else {
       const response = confirm('Confirma o excluir deste funcionário?');
+      if (response) {
+        const user = employees.find((item) => item.id == id);
+        if (user?.delete()) {
+          employees.splice(
+            employees.findIndex((item) => item.id == id),
+            1,
+          );
+        }
+      }
     }
   }
 
@@ -110,7 +100,8 @@ export function Employees(): JSX.Element {
   }
 
   function alterar(id: number) {
-    return <Navigate to={`/funcionario/editar/${id}`} />;
+    history.push(`/employee/${id}`);
+    window.location.reload();
   }
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -222,14 +213,14 @@ export function Employees(): JSX.Element {
             {employees.map((item) => (
               <tr key={item.id}>
                 <td>{item.id}</td>
-                <td>{item.employee.person.name}</td>
+                <td>{(item.employee.person as IndividualPerson).name}</td>
                 <td>{item.login}</td>
                 <td>{item.level.description}</td>
-                <td>{item.employee.person.cpf}</td>
+                <td>{(item.employee.person as IndividualPerson).cpf}</td>
                 <td>{formatarData(item.employee.admission)}</td>
                 <td>{item.employee.type == 1 ? 'Interno' : 'Vendedor'}</td>
                 <td>{item.active == true ? 'Sim' : 'Não'}</td>
-                <td>{item.employee.person.contact.email}</td>
+                <td>{(item.employee.person as IndividualPerson).contact.email}</td>
                 <td>
                   <FaPowerOff
                     role="button"

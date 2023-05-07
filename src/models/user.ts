@@ -91,16 +91,22 @@ export class User {
           level: this.level.id,
         },
       });
-      if (response.data.length == 0) toast.success('Funcionário cadastrado com sucesso!');
-      else toast.error(`Erro: ${response.data}`);
+      if (response.data.length == 0) {
+        toast.success('Funcionário cadastrado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return false;
     }
   }
 
   async update() {
     try {
-      const response = await axios.put('/employee', {
+      const response = await axios.put(`/employee/${this.id}`, {
         address: {
           street: (this.employee.person as IndividualPerson).contact.address.street,
           number: (this.employee.person as IndividualPerson).contact.address.number,
@@ -132,8 +138,109 @@ export class User {
           level: this.level.id,
         },
       });
-      if (response.data.length == 0) toast.success('Funcionário atualizado com sucesso!');
-      else toast.error(`Erro: ${response.data}`);
+      if (response.data.length == 0) {
+        toast.success('Funcionário atualizado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (err) {
+      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+    }
+  }
+
+  async desativar(id: number) {
+    try {
+      const response = await axios.put(`/employee/${id}`, {
+        address: {
+          street: (this.employee.person as IndividualPerson).contact.address.street,
+          number: (this.employee.person as IndividualPerson).contact.address.number,
+          neighborhood: (this.employee.person as IndividualPerson).contact.address
+            .neighborhood,
+          complement: (this.employee.person as IndividualPerson).contact.address
+            .complement,
+          code: (this.employee.person as IndividualPerson).contact.address.code,
+          city: (this.employee.person as IndividualPerson).contact.address.city.id,
+        },
+        contact: {
+          phone: (this.employee.person as IndividualPerson).contact.phone,
+          cellphone: (this.employee.person as IndividualPerson).contact.cellphone,
+          email: (this.employee.person as IndividualPerson).contact.email,
+        },
+        person: {
+          name: (this.employee.person as IndividualPerson).name,
+          rg: (this.employee.person as IndividualPerson).rg,
+          cpf: (this.employee.person as IndividualPerson).cpf,
+          birthDate: (this.employee.person as IndividualPerson).birthDate,
+        },
+        employee: {
+          type: this.employee.type,
+          admission: this.employee.admission,
+          demission: new Date().toISOString().substring(0, 10),
+        },
+        user: {
+          login: this.login,
+          password: this.password,
+          active: false,
+          level: this.level.id,
+        },
+      });
+      if (response.data.length == 0) {
+        toast.success('Funcionário desativado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (err) {
+      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+    }
+  }
+
+  async reativar(id: number) {
+    try {
+      const response = await axios.put(`/employee/${id}`, {
+        address: {
+          street: (this.employee.person as IndividualPerson).contact.address.street,
+          number: (this.employee.person as IndividualPerson).contact.address.number,
+          neighborhood: (this.employee.person as IndividualPerson).contact.address
+            .neighborhood,
+          complement: (this.employee.person as IndividualPerson).contact.address
+            .complement,
+          code: (this.employee.person as IndividualPerson).contact.address.code,
+          city: (this.employee.person as IndividualPerson).contact.address.city.id,
+        },
+        contact: {
+          phone: (this.employee.person as IndividualPerson).contact.phone,
+          cellphone: (this.employee.person as IndividualPerson).contact.cellphone,
+          email: (this.employee.person as IndividualPerson).contact.email,
+        },
+        person: {
+          name: (this.employee.person as IndividualPerson).name,
+          rg: (this.employee.person as IndividualPerson).rg,
+          cpf: (this.employee.person as IndividualPerson).cpf,
+          birthDate: (this.employee.person as IndividualPerson).birthDate,
+        },
+        employee: {
+          type: this.employee.type,
+          admission: this.employee.admission,
+          demission: undefined,
+        },
+        user: {
+          login: this.login,
+          password: this.password,
+          active: true,
+          level: this.level.id,
+        },
+      });
+      if (response.data.length == 0) {
+        toast.success('Funcionário reativado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
     }
@@ -142,10 +249,39 @@ export class User {
   async delete() {
     try {
       const response = await axios.delete(`/employee/${this.id}`);
-      if (response.data.length == 0) toast.success('Funcionário excluído com sucesso!');
-      else toast.error(`Erro: ${response.data}`);
+      if (response.data.length == 0) {
+        toast.success('Funcionário excluído com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+    }
+  }
+
+  async getOne(id: number) {
+    try {
+      const response = await axios.get(`/employee/${id}`);
+      const user: User = response.data;
+
+      return user;
+    } catch (err) {
+      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return undefined;
+    }
+  }
+
+  async get() {
+    try {
+      const response = await axios.get(`/employee`);
+      const users: User[] = response.data;
+
+      return users;
+    } catch (err) {
+      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return [];
     }
   }
 }
