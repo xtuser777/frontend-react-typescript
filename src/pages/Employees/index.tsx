@@ -66,7 +66,7 @@ export function Employees(): JSX.Element {
     else return false;
   };
 
-  function excluir(id: number, nivel: string) {
+  async function excluir(id: number, nivel: string) {
     const nivel_atual = nivel;
 
     if (isLastAdmin(nivel_atual) === true) {
@@ -75,9 +75,13 @@ export function Employees(): JSX.Element {
       const response = confirm('Confirma o excluir deste funcionário?');
       if (response) {
         const user = employees.find((item) => item.id == id);
-        if (user?.delete()) {
+        if (await user?.delete()) {
           employees.splice(
             employees.findIndex((item) => item.id == id),
+            1,
+          );
+          data.splice(
+            data.findIndex((item) => item.id == id),
             1,
           );
         }
@@ -85,22 +89,46 @@ export function Employees(): JSX.Element {
     }
   }
 
-  function desativar(id: number, nivel: string) {
+  async function desativar(id: number, nivel: string) {
     const nivel_atual = nivel;
 
     if (isLastAdmin(nivel_atual) === true) {
       alert('Não é possível excluir o último administrador.');
     } else {
       const response = confirm('Confirma o desligamento deste funcionário?');
+      if (response) {
+        const user = employees.find((item) => item.id == id);
+        if (await user?.desativar()) {
+          employees[employees.findIndex((item) => item.id == id)].active = false;
+          employees[employees.findIndex((item) => item.id == id)].employee.demission =
+            new Date().toISOString().substring(0, 10);
+
+          data[data.findIndex((item) => item.id == id)].active = false;
+          data[data.findIndex((item) => item.id == id)].employee.demission = new Date()
+            .toISOString()
+            .substring(0, 10);
+        }
+      }
     }
   }
 
-  function reativar(id: number) {
+  async function reativar(id: number) {
     const response = confirm('Confirma a Reativação deste funcionário?');
+    if (response) {
+      const user = employees.find((item) => item.id == id);
+      if (await user?.reativar()) {
+        employees[employees.findIndex((item) => item.id == id)].active = true;
+        employees[employees.findIndex((item) => item.id == id)].employee.demission =
+          undefined;
+
+        data[data.findIndex((item) => item.id == id)].active = true;
+        data[data.findIndex((item) => item.id == id)].employee.demission = undefined;
+      }
+    }
   }
 
   function alterar(id: number) {
-    history.push(`/employee/${id}`);
+    history.push(`/funcionario/editar/${id}`);
     window.location.reload();
   }
 

@@ -150,9 +150,9 @@ export class User {
     }
   }
 
-  async desativar(id: number) {
+  async desativar() {
     try {
-      const response = await axios.put(`/employee/${id}`, {
+      const response = await axios.put(`/employee/${this.id}`, {
         address: {
           street: (this.employee.person as IndividualPerson).contact.address.street,
           number: (this.employee.person as IndividualPerson).contact.address.number,
@@ -198,9 +198,9 @@ export class User {
     }
   }
 
-  async reativar(id: number) {
+  async reativar() {
     try {
-      const response = await axios.put(`/employee/${id}`, {
+      const response = await axios.put(`/employee/${this.id}`, {
         address: {
           street: (this.employee.person as IndividualPerson).contact.address.street,
           number: (this.employee.person as IndividualPerson).contact.address.number,

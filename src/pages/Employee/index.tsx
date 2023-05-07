@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -9,8 +9,19 @@ import { Row } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputDate } from '../../components/form-input-date';
+import { User } from '../../models/user';
+import { State } from '../../models/state';
+import { City } from '../../models/city';
+import axios from '../../services/axios';
+import { IndividualPerson } from '../../models/individual-person';
 
 export function Employee(): JSX.Element {
+  const [employee, setEmployee] = useState(new User());
+
+  const [states, setStates] = useState(new Array<State>());
+  const [citiesData, setCitiesData] = useState(new Array<City>());
+  const [cities, setCities] = useState(new Array<City>());
+
   const [name, setName] = useState('');
   const [rg, setRg] = useState('');
   const [cpf, setCpf] = useState('');
@@ -40,71 +51,116 @@ export function Employee(): JSX.Element {
   let id = 0;
   if (routeParams.id) id = Number.parseInt(routeParams.id);
 
+  useEffect(() => {
+    const loadStates = async () => {
+      const receivedData = await axios.get('/state');
+      setStates(receivedData.data);
+    };
+
+    const loadCities = async () => {
+      const receivedData = await axios.get('/city');
+      setCitiesData(receivedData.data);
+      return receivedData.data;
+    };
+
+    const getData = async () => {
+      const user = await new User().getOne(id);
+      if (user) {
+        setEmployee(user);
+      }
+    };
+  }, []);
+
   const handlePerson = {
     handleNameChange: (e: ChangeEvent<HTMLInputElement>) => {
       setName(e.target.value);
+      (employee.employee.person as IndividualPerson).name = e.target.value;
     },
     handleRgChange: (e: ChangeEvent<HTMLInputElement>) => {
       setRg(e.target.value);
+      (employee.employee.person as IndividualPerson).rg = e.target.value;
     },
     handleCpfChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCpf(e.target.value);
+      (employee.employee.person as IndividualPerson).cpf = e.target.value;
     },
     handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setBirthDate(e.target.value);
+      (employee.employee.person as IndividualPerson).birthDate = e.target.value;
     },
   };
 
   const handleAdmChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAdmission(e.target.value);
+    employee.employee.admission = e.target.value;
   };
 
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
+    employee.employee.type = Number(e.target.value);
   };
 
   const handleContact = {
     handleStreetChange: (e: ChangeEvent<HTMLInputElement>) => {
       setStreet(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.address.street =
+        e.target.value;
     },
     handleNumberChange: (e: ChangeEvent<HTMLInputElement>) => {
       setNumber(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.address.number =
+        e.target.value;
     },
     handleNeighborhoodChange: (e: ChangeEvent<HTMLInputElement>) => {
       setNeighborhood(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.address.neighborhood =
+        e.target.value;
     },
     handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => {
       setComplement(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.address.complement =
+        e.target.value;
     },
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
     },
     handleCityChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCity(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.address.city = cities.find(
+        (item) => item.id == Number(e.target.value),
+      ) as City;
     },
     handleCodeChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCode(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.address.code =
+        e.target.value;
     },
     handlePhoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPhone(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.phone = e.target.value;
     },
     handleCellphoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCellphone(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.cellphone = e.target.value;
     },
     handleEmailChange: (e: ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value);
+      (employee.employee.person as IndividualPerson).contact.email = e.target.value;
     },
   };
 
   const handleAuth = {
     handleLevelChange: (e: ChangeEvent<HTMLInputElement>) => {
       setLevel(e.target.value);
+      employee.level.id = Number(e.target.value);
     },
     handleLoginChange: (e: ChangeEvent<HTMLInputElement>) => {
       setLogin(e.target.value);
+      employee.login = e.target.value;
     },
     handlePasswordChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPassword(e.target.value);
+      employee.password = e.target.value;
     },
     handlePasswordConfirmChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPasswordConfirm(e.target.value);
@@ -121,7 +177,7 @@ export function Employee(): JSX.Element {
   };
 
   const personFields = {
-    name,
+    name: (employee.employee.person as IndividualPerson).name,
     rg,
     cpf,
     birthDate,
@@ -134,7 +190,9 @@ export function Employee(): JSX.Element {
     complement,
     code,
     state,
+    states,
     city,
+    cities,
     phone,
     cellphone,
     email,
