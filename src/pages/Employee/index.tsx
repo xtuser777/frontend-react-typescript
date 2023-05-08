@@ -236,6 +236,155 @@ export function Employee(): JSX.Element {
       if (value.length == 0) setErrorRg('O RG precisa ser preenchido');
       else setErrorRg(undefined);
     },
+    cpf: async (value: string) => {
+      if (value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
+      else if (!validateCpf(value)) setErrorCpf('O CPF preenchido é inválido');
+      else if (await verifyCpf(value))
+        setErrorCpf('O CPF preenchido já existe no cadastro');
+      else setErrorCpf(undefined);
+    },
+    birthDate: (value: string) => {
+      const date = new Date(value);
+      if (value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
+      else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
+        setErrorBirthDate('A data preenchida é inválida');
+      else setErrorBirthDate(undefined);
+    },
+    admission: (value: string) => {
+      const val = new Date(value);
+      const now = new Date(Date.now());
+      if (value.length == 0)
+        setErrorAdmission('A data de admissão precisa ser preenchida');
+      else if (
+        now.getFullYear() == val.getFullYear() &&
+        now.getMonth() == val.getMonth() &&
+        now.getDate() < val.getDate()
+      )
+        setErrorAdmission('A data de admissão preenchida é inválida');
+      else setErrorAdmission(undefined);
+    },
+    type: (value: string) => {
+      if (value == '0') setErrorType('O tipo de funcionário precisa ser selecionado.');
+      else setErrorType(undefined);
+    },
+    street: (value: string) => {
+      if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
+      else setErrorStreet(undefined);
+    },
+    number: (value: string) => {
+      if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
+      else setErrorNumber(undefined);
+    },
+    neighborhood: (value: string) => {
+      if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
+      else setErrorNeighborhood(undefined);
+    },
+    code: (value: string) => {
+      if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
+      else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
+      else setErrorCode(undefined);
+    },
+    state: (value: string) => {
+      if (value == '0') setErrorState('O Estado precisa ser selecionado');
+      else setErrorState(undefined);
+    },
+    city: (value: string) => {
+      if (value == '0') setErrorCity('A cidade precisa ser selecionada');
+      else {
+        setErrorCity(undefined);
+        (employee.employee.person as IndividualPerson).contact.address.city = cities.find(
+          (item) => item.id == Number(value),
+        ) as City;
+      }
+    },
+    phone: (value: string) => {
+      if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
+      else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
+      else setErrorPhone(undefined);
+    },
+    cellphone: (value: string) => {
+      if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
+      else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
+      else setErrorCellphone(undefined);
+    },
+    email: (value: string) => {
+      if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
+      else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
+      else setErrorEmail(undefined);
+    },
+    level: async (value: string) => {
+      if (value == '0') setErrorLevel('O nível de usuário precisa ser selecionado.');
+      else if ((await verifyAdmin()) && value != '1')
+        setErrorLevel('O não é permitido alterar o último administrador.');
+      else {
+        setErrorLevel(undefined);
+        employee.level = levels.find((item) => item.id == Number(value)) as Level;
+      }
+    },
+    login: async (value: string) => {
+      if (value.length == 0) setErrorLogin('O login precisa ser preenchido');
+      else if (await vefifyLogin(value)) setErrorLogin('O login já exite no cadastro');
+      else setErrorLogin(undefined);
+    },
+    password: (value: string) => {
+      if (value.length == 0) setErrorPassword('A senha precisa ser preenchida');
+      else if (value.length < 6)
+        setErrorPassword('A senha preenchida tem tamanho inválido');
+      else setErrorPassword(undefined);
+    },
+    passwordConfirm: (value: string) => {
+      if (value.length == 0)
+        setErrorPasswordConfirm('A senha de confirmação precisa ser preenchida');
+      else if (value.length < 6)
+        setErrorPasswordConfirm('A senha preenchida tem tamanho inválido');
+      else if (value != password) setErrorPasswordConfirm('As senhas não conferem');
+      else setErrorPasswordConfirm(undefined);
+    },
+  };
+
+  const validateFields = async () => {
+    validate.name(name);
+    validate.rg(rg);
+    await validate.cpf(cpf);
+    validate.birthDate(birthDate);
+    validate.admission(admission);
+    validate.type(type);
+    validate.street(street);
+    validate.number(number);
+    validate.neighborhood(neighborhood);
+    validate.code(code);
+    validate.state(state);
+    validate.city(city);
+    validate.phone(phone);
+    validate.cellphone(cellphone);
+    validate.email(email);
+    if (type == '1') {
+      await validate.level(level);
+      await validate.login(login);
+      validate.password(password);
+      validate.passwordConfirm(passwordConfirm);
+    }
+
+    return (
+      !errorName &&
+      !errorRg &&
+      !errorCpf &&
+      !errorBirthDate &&
+      !errorAdmission &&
+      !errorType &&
+      !errorStreet &&
+      !errorNumber &&
+      !errorNeighborhood &&
+      !errorCode &&
+      !errorState &&
+      !errorCity &&
+      !errorPhone &&
+      !errorCellphone &&
+      !errorEmail &&
+      (type == '1'
+        ? !errorLevel && !errorLogin && !errorPassword && !errorPasswordConfirm
+        : true)
+    );
   };
 
   const handlePerson = {
@@ -252,45 +401,25 @@ export function Employee(): JSX.Element {
     handleCpfChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setCpf(e.target.value);
       (employee.employee.person as IndividualPerson).cpf = e.target.value;
-      if (e.target.value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
-      else if (!validateCpf(e.target.value)) setErrorCpf('O CPF preenchido é inválido');
-      else if (await verifyCpf(e.target.value))
-        setErrorCpf('O CPF preenchido já existe no cadastro');
-      else setErrorCpf(undefined);
+      validate.cpf(e.target.value);
     },
     handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setBirthDate(e.target.value);
       (employee.employee.person as IndividualPerson).birthDate = e.target.value;
-      const date = new Date(e.target.value);
-      if (e.target.value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
-      else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
-        setErrorBirthDate('A data preenchida é inválida');
-      else setErrorBirthDate(undefined);
+      validate.birthDate(e.target.value);
     },
   };
 
   const handleAdmChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAdmission(e.target.value);
     employee.employee.admission = e.target.value;
-    const value = new Date(e.target.value);
-    const now = new Date(Date.now());
-    if (e.target.value.length == 0)
-      setErrorAdmission('A data de admissão precisa ser preenchida');
-    else if (
-      now.getFullYear() == value.getFullYear() &&
-      now.getMonth() == value.getMonth() &&
-      now.getDate() < value.getDate()
-    )
-      setErrorAdmission('A data de admissão preenchida é inválida');
-    else setErrorAdmission(undefined);
+    validate.admission(e.target.value);
   };
 
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
     employee.employee.type = Number(e.target.value);
-    if (e.target.value == '0')
-      setErrorType('O tipo de funcionário precisa ser selecionado.');
-    else setErrorType(undefined);
+    validate.type(e.target.value);
   };
 
   const handleContact = {
@@ -298,23 +427,19 @@ export function Employee(): JSX.Element {
       setStreet(e.target.value);
       (employee.employee.person as IndividualPerson).contact.address.street =
         e.target.value;
-      if (e.target.value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else setErrorStreet(undefined);
+      validate.street(e.target.value);
     },
     handleNumberChange: (e: ChangeEvent<HTMLInputElement>) => {
       setNumber(e.target.value);
       (employee.employee.person as IndividualPerson).contact.address.number =
         e.target.value;
-      if (e.target.value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else setErrorNumber(undefined);
+      validate.number(e.target.value);
     },
     handleNeighborhoodChange: (e: ChangeEvent<HTMLInputElement>) => {
       setNeighborhood(e.target.value);
       (employee.employee.person as IndividualPerson).contact.address.neighborhood =
         e.target.value;
-      if (e.target.value.length == 0)
-        setErrorNeighborhood('O bairro precisa ser preenchido');
-      else setErrorNeighborhood(undefined);
+      validate.neighborhood(e.target.value);
     },
     handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => {
       setComplement(e.target.value);
@@ -324,8 +449,7 @@ export function Employee(): JSX.Element {
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
 
-      if (e.target.value == '0') setErrorState('O Estado precisa ser selecionado');
-      else setErrorState(undefined);
+      validate.state(e.target.value);
 
       setCities(
         citiesData.filter((item) => item.state == Number.parseInt(e.target.value)),
@@ -334,82 +458,49 @@ export function Employee(): JSX.Element {
     handleCityChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCity(e.target.value);
 
-      if (e.target.value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else {
-        setErrorCity(undefined);
-        (employee.employee.person as IndividualPerson).contact.address.city = cities.find(
-          (item) => item.id == Number(e.target.value),
-        ) as City;
-      }
+      validate.city(e.target.value);
     },
     handleCodeChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCode(e.target.value);
       (employee.employee.person as IndividualPerson).contact.address.code =
         e.target.value;
-      if (e.target.value.length == 0) setErrorCode('O CEP precisa ser preenchido');
-      else if (e.target.value.length < 10) setErrorCode('O CEP preenchido é inválido');
-      else setErrorCode(undefined);
+      validate.code(e.target.value);
     },
     handlePhoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPhone(e.target.value);
       (employee.employee.person as IndividualPerson).contact.phone = e.target.value;
-      if (e.target.value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
-      else if (e.target.value.length < 14)
-        setErrorPhone('O telefone preenchido é inválido');
-      else setErrorPhone(undefined);
+      validate.phone(e.target.value);
     },
     handleCellphoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCellphone(e.target.value);
       (employee.employee.person as IndividualPerson).contact.cellphone = e.target.value;
-      if (e.target.value.length == 0)
-        setErrorCellphone('O celular precisa ser preenchido');
-      else if (e.target.value.length < 15)
-        setErrorCellphone('O celular preenchido é inválido');
-      else setErrorCellphone(undefined);
+      validate.cellphone(e.target.value);
     },
     handleEmailChange: (e: ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value);
       (employee.employee.person as IndividualPerson).contact.email = e.target.value;
-      if (e.target.value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
-      else if (!isEmail(e.target.value)) setErrorEmail('O e-mail preenchido é inválido');
-      else setErrorEmail(undefined);
+      validate.email(e.target.value);
     },
   };
 
   const handleAuth = {
     handleLevelChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setLevel(e.target.value);
-      if (e.target.value == '0')
-        setErrorLevel('O nível de usuário precisa ser selecionado.');
-      else if ((await verifyAdmin()) && e.target.value != '1')
-        setErrorLevel('O não é permitido alterar o último administrador.');
-      else setErrorLevel(undefined);
+      validate.level(e.target.value);
     },
     handleLoginChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setLogin(e.target.value);
       employee.login = e.target.value;
-      if (e.target.value.length == 0) setErrorLogin('O login precisa ser preenchido');
-      else if (await vefifyLogin(e.target.value))
-        setErrorLogin('O login já exite no cadastro');
-      else setErrorLogin(undefined);
+      validate.login(e.target.value);
     },
     handlePasswordChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPassword(e.target.value);
       employee.password = e.target.value;
-      if (e.target.value.length == 0) setErrorPassword('A senha precisa ser preenchida');
-      else if (e.target.value.length < 6)
-        setErrorPassword('A senha preenchida tem tamanho inválido');
-      else setErrorPassword(undefined);
+      validate.password(e.target.value);
     },
     handlePasswordConfirmChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPasswordConfirm(e.target.value);
-      if (e.target.value.length == 0)
-        setErrorPasswordConfirm('A senha de confirmação precisa ser preenchida');
-      else if (e.target.value.length < 6)
-        setErrorPasswordConfirm('A senha preenchida tem tamanho inválido');
-      else if (e.target.value != password)
-        setErrorPasswordConfirm('As senhas não conferem');
-      else setErrorPasswordConfirm(undefined);
+      validate.passwordConfirm(e.target.value);
     },
   };
 
@@ -417,8 +508,11 @@ export function Employee(): JSX.Element {
     handleClearClick: (e: MouseEvent) => {
       alert('Limpar clicado.');
     },
-    handleSaveClick: (e: MouseEvent) => {
-      alert('Salvar clicado.');
+    handleSaveClick: async (e: MouseEvent) => {
+      if (await validateFields()) {
+        if (method == 'novo') await employee.save();
+        else await employee.update();
+      }
     },
   };
 
