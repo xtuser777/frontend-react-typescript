@@ -4,8 +4,10 @@ import { Row } from 'reactstrap';
 import { FormInputSelect } from './form-input-select';
 import { FormInputGroupText } from './form-input-group-text';
 import { FormInputGroupPassword } from './form-input-group-password';
+import { Level } from '../models/level';
 
 interface IFields {
+  levels?: Level[];
   level?: string;
   errorLevel?: string;
   login: string;
@@ -45,6 +47,13 @@ export function FormAuthenticationData(props: IProps): JSX.Element {
               message={props.fields.errorLevel}
             >
               <option value="0">SELECIONAR</option>
+              {props.fields.levels
+                ? props.fields.levels.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.description}
+                    </option>
+                  ))
+                : ''}
             </FormInputSelect>
             <FormInputGroupText
               colSm={6}
