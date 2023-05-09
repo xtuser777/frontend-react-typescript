@@ -34,7 +34,7 @@ interface IProps {
 export function FormAuthenticationData(props: IProps): JSX.Element {
   return (
     <>
-      {props.page == 'employee' && props.fields.level ? (
+      {props.page == 'employee' ? (
         <>
           <Row>
             <FormInputSelect

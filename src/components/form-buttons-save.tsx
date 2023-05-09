@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Button } from 'reactstrap';
 
 interface IHandle {
-  handleClearClick: (e: MouseEvent) => void;
-  handleSaveClick: (e: MouseEvent) => void;
+  handleClearClick: () => void;
+  handleSaveClick: () => void;
 }
 
 interface IProp {
@@ -32,7 +32,7 @@ export function FormButtonsSave(props: IProp): JSX.Element {
               id="limpar"
               size="sm"
               style={{ width: '100%' }}
-              onClick={(e: MouseEvent) => props.handle.handleClearClick(e)}
+              onClick={props.handle.handleClearClick}
             >
               LIMPAR
             </Button>
@@ -47,7 +47,7 @@ export function FormButtonsSave(props: IProp): JSX.Element {
           id="salvar"
           size="sm"
           style={{ width: '100%' }}
-          onClick={(e: MouseEvent) => props.handle.handleSaveClick(e)}
+          onClick={props.handle.handleSaveClick}
         >
           SALVAR
         </Button>

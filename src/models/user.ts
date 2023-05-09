@@ -147,6 +147,7 @@ export class User {
       }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return false;
     }
   }
 
@@ -195,6 +196,7 @@ export class User {
       }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return false;
     }
   }
 
@@ -243,6 +245,7 @@ export class User {
       }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return false;
     }
   }
 
@@ -258,6 +261,7 @@ export class User {
       }
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return false;
     }
   }
 

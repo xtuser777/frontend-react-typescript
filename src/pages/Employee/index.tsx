@@ -17,6 +17,8 @@ import { IndividualPerson } from '../../models/individual-person';
 import { formatarDataIso } from '../../utils/format';
 import { Level } from '../../models/level';
 import isEmail from 'validator/lib/isEmail';
+import { toast } from 'react-toastify';
+import { isAxiosError } from 'axios';
 
 export function Employee(): JSX.Element {
   const [employee, setEmployee] = useState(new User());
@@ -223,7 +225,7 @@ export function Employee(): JSX.Element {
     const users = await new User().get();
     const user = users.filter((item) => item.level.id == 1);
 
-    return user.length == 1 && employee.level.id == 1;
+    return user.length == 1 && employee.level && employee.level.id == 1;
   };
 
   const validate = {
@@ -327,15 +329,16 @@ export function Employee(): JSX.Element {
       else setErrorLogin(undefined);
     },
     password: (value: string) => {
-      if (value.length == 0) setErrorPassword('A senha precisa ser preenchida');
-      else if (value.length < 6)
+      if (value.length == 0 && method == 'novo')
+        setErrorPassword('A senha precisa ser preenchida');
+      else if (value.length < 6 && method == 'novo')
         setErrorPassword('A senha preenchida tem tamanho inválido');
       else setErrorPassword(undefined);
     },
     passwordConfirm: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0 && method == 'novo')
         setErrorPasswordConfirm('A senha de confirmação precisa ser preenchida');
-      else if (value.length < 6)
+      else if (value.length < 6 && method == 'novo')
         setErrorPasswordConfirm('A senha preenchida tem tamanho inválido');
       else if (value != password) setErrorPasswordConfirm('As senhas não conferem');
       else setErrorPasswordConfirm(undefined);
@@ -385,6 +388,34 @@ export function Employee(): JSX.Element {
         ? !errorLevel && !errorLogin && !errorPassword && !errorPasswordConfirm
         : true)
     );
+  };
+
+  const clearFields = () => {
+    setEmployee(new User());
+    setName('');
+    setRg('');
+    setCpf('');
+    setBirthDate('');
+
+    setAdmission('');
+    setType('0');
+
+    setStreet('');
+    setNumber('');
+    setNeighborhood('');
+    setComplement('');
+    setCode('');
+    setState('0');
+    setCity('0');
+    setCities([]);
+    setPhone('');
+    setCellphone('');
+    setEmail('');
+
+    setLevel('0');
+    setLogin('');
+    setPassword('');
+    setPasswordConfirm('');
   };
 
   const handlePerson = {
@@ -504,15 +535,116 @@ export function Employee(): JSX.Element {
     },
   };
 
-  const handleButtons = {
-    handleClearClick: (e: MouseEvent) => {
-      alert('Limpar clicado.');
-    },
-    handleSaveClick: async (e: MouseEvent) => {
-      if (await validateFields()) {
-        if (method == 'novo') await employee.save();
-        else await employee.update();
+  const persistData = async () => {
+    if (await validateFields()) {
+      if (method == 'novo') {
+        try {
+          const response = await axios.post('/employee', {
+            address: {
+              street: (employee.employee.person as IndividualPerson).contact.address
+                .street,
+              number: (employee.employee.person as IndividualPerson).contact.address
+                .number,
+              neighborhood: (employee.employee.person as IndividualPerson).contact.address
+                .neighborhood,
+              complement: (employee.employee.person as IndividualPerson).contact.address
+                .complement,
+              code: (employee.employee.person as IndividualPerson).contact.address.code,
+              city: (employee.employee.person as IndividualPerson).contact.address.city
+                .id,
+            },
+            contact: {
+              phone: (employee.employee.person as IndividualPerson).contact.phone,
+              cellphone: (employee.employee.person as IndividualPerson).contact.cellphone,
+              email: (employee.employee.person as IndividualPerson).contact.email,
+            },
+            person: {
+              name: (employee.employee.person as IndividualPerson).name,
+              rg: (employee.employee.person as IndividualPerson).rg,
+              cpf: (employee.employee.person as IndividualPerson).cpf,
+              birthDate: (
+                employee.employee.person as IndividualPerson
+              ).birthDate.substring(0, 10),
+            },
+            employee: {
+              type: employee.employee.type,
+              admission: employee.employee.admission.substring(0, 10),
+            },
+            user: {
+              login: employee.login,
+              password: employee.password,
+              level: employee.level.id,
+            },
+          });
+          if (response.data.length == 0) {
+            toast.success('Funcionário cadastrado com sucesso!');
+            clearFields();
+          } else {
+            toast.error(`Erro: ${response.data}`);
+          }
+        } catch (err) {
+          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+        }
+      } else {
+        try {
+          const response = await axios.put(`/employee/${employee.id}`, {
+            address: {
+              street: (employee.employee.person as IndividualPerson).contact.address
+                .street,
+              number: (employee.employee.person as IndividualPerson).contact.address
+                .number,
+              neighborhood: (employee.employee.person as IndividualPerson).contact.address
+                .neighborhood,
+              complement: (employee.employee.person as IndividualPerson).contact.address
+                .complement,
+              code: (employee.employee.person as IndividualPerson).contact.address.code,
+              city: (employee.employee.person as IndividualPerson).contact.address.city
+                .id,
+            },
+            contact: {
+              phone: (employee.employee.person as IndividualPerson).contact.phone,
+              cellphone: (employee.employee.person as IndividualPerson).contact.cellphone,
+              email: (employee.employee.person as IndividualPerson).contact.email,
+            },
+            person: {
+              name: (employee.employee.person as IndividualPerson).name,
+              rg: (employee.employee.person as IndividualPerson).rg,
+              cpf: (employee.employee.person as IndividualPerson).cpf,
+              birthDate: (
+                employee.employee.person as IndividualPerson
+              ).birthDate.substring(0, 10),
+            },
+            employee: {
+              type: employee.employee.type,
+              admission: employee.employee.admission.substring(0, 10),
+            },
+            user: {
+              login: employee.login,
+              password: employee.password,
+              level: employee.level.id,
+            },
+          });
+          if (response.data.length == 0) {
+            toast.success('Funcionário atualizado com sucesso!');
+            return true;
+          } else {
+            toast.error(`Erro: ${response.data}`);
+            return false;
+          }
+        } catch (err) {
+          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+          return false;
+        }
       }
+    }
+  };
+
+  const handleButtons = {
+    handleClearClick: () => {
+      clearFields();
+    },
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 
