@@ -1,7 +1,7 @@
 import { call, put, all, takeLatest } from 'redux-saga/effects';
 import { get } from 'lodash';
 import * as actions from './actions';
-import * as types from '../types';
+import * as types from './types';
 import axios from '../../../services/axios';
 import history from '../../../services/history';
 import { sendPost } from './requests';

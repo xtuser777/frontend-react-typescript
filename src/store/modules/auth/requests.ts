@@ -1,5 +1,5 @@
 import axios from '../../../services/axios';
-import * as types from '../types';
+import * as types from './types';
 
 export async function sendPost(
   url: string,
@@ -7,7 +7,7 @@ export async function sendPost(
 ): Promise<types.LoginRequestResult> {
   let result: types.LoginRequestResult = {
     token: false,
-    user: { id: 0, login: '', name: '' },
+    user: { id: 0, login: '', name: '', level: 0 },
   };
   const response = await axios.post(url, data);
   if (response.status == 200) result = { ...response.data };

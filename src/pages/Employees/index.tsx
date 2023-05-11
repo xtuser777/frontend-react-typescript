@@ -12,11 +12,15 @@ import { FaEdit, FaPowerOff, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { User } from '../../models/user';
 import { IndividualPerson } from '../../models/individual-person';
-import { toast } from 'react-toastify';
-import axios from '../../services/axios';
-import { isAxiosError } from 'axios';
+import * as actions from '../../store/modules/employee/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 export function Employees(): JSX.Element {
+  const employeeState = useSelector((state: RootState) => state.employee);
+
+  const dispatch = useDispatch();
+
   const [data, setData] = useState(new Array<User>());
   const [employees, setEmployees] = useState(new Array<User>());
 
@@ -221,32 +225,14 @@ export function Employees(): JSX.Element {
     } else {
       const response = confirm('Confirma o excluir deste funcionário?');
       if (response) {
-        const user = employees.find((item) => item.id == id) as User;
-        let result = false;
-        try {
-          const response = await axios.delete(`/employee/${user.id}`);
-          if (response.data.length == 0) {
-            toast.success('Funcionário excluído com sucesso!');
-            result = true;
-          } else toast.error(`Erro: ${response.data}`);
-        } catch (err) {
-          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
-        }
-        if (result) {
+        dispatch(actions.employeeDeleteRequest({ id }));
+        if (employeeState.success) {
           const newData = [...data];
-          setData(
-            newData.splice(
-              newData.findIndex((item) => item.id == id),
-              1,
-            ),
-          );
+          delete newData[newData.findIndex((item) => item.id == id)];
+          setData(newData);
           const newEmployees = [...employees];
-          setEmployees(
-            newEmployees.splice(
-              newEmployees.findIndex((item) => item.id == id),
-              1,
-            ),
-          );
+          delete newEmployees[newEmployees.findIndex((item) => item.id == id)];
+          setEmployees(newEmployees);
         }
       }
     }
@@ -261,9 +247,8 @@ export function Employees(): JSX.Element {
       const response = confirm('Confirma o desligamento deste funcionário?');
       if (response) {
         const user = employees.find((item) => item.id == id) as User;
-        let result = false;
-        try {
-          const response = await axios.put(`/employee/${user.id}`, {
+        dispatch(
+          actions.employeeUpdateRequest({
             address: {
               street: (user.employee.person as IndividualPerson).contact.address.street,
               number: (user.employee.person as IndividualPerson).contact.address.number,
@@ -294,20 +279,15 @@ export function Employees(): JSX.Element {
               demission: new Date().toISOString().substring(0, 10),
             },
             user: {
+              id: user.id,
               login: user.login,
-              password: user.password,
+              password: user.password as string,
               active: false,
               level: user.level.id,
             },
-          });
-          if (response.data.length == 0) {
-            toast.success('Funcionário desativado com sucesso!');
-            result = true;
-          } else toast.error(`Erro: ${response.data}`);
-        } catch (err) {
-          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
-        }
-        if (result) {
+          }),
+        );
+        if (employeeState.success) {
           const newData = [...data];
           newData[newData.findIndex((item) => item.id == id)].active = false;
           newData[newData.findIndex((item) => item.id == id)].employee.demission =
@@ -328,9 +308,8 @@ export function Employees(): JSX.Element {
     const response = confirm('Confirma a Reativação deste funcionário?');
     if (response) {
       const user = employees.find((item) => item.id == id) as User;
-      let result = false;
-      try {
-        const response = await axios.put(`/employee/${user.id}`, {
+      dispatch(
+        actions.employeeUpdateRequest({
           address: {
             street: (user.employee.person as IndividualPerson).contact.address.street,
             number: (user.employee.person as IndividualPerson).contact.address.number,
@@ -361,20 +340,15 @@ export function Employees(): JSX.Element {
             demission: undefined,
           },
           user: {
+            id: user.id,
             login: user.login,
-            password: user.password,
+            password: user.password as string,
             active: true,
             level: user.level.id,
           },
-        });
-        if (response.data.length == 0) {
-          toast.success('Funcionário reativado com sucesso!');
-          result = true;
-        } else toast.error(`Erro: ${response.data}`);
-      } catch (err) {
-        if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
-      }
-      if (result) {
+        }),
+      );
+      if (employeeState.success) {
         const newData = [...data];
         newData[newData.findIndex((item) => item.id == id)].active = true;
         newData[newData.findIndex((item) => item.id == id)].employee.demission =

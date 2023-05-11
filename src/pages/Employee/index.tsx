@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -17,10 +17,15 @@ import { IndividualPerson } from '../../models/individual-person';
 import { formatarDataIso } from '../../utils/format';
 import { Level } from '../../models/level';
 import isEmail from 'validator/lib/isEmail';
-import { toast } from 'react-toastify';
-import { isAxiosError } from 'axios';
+import * as actions from '../../store/modules/employee/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 export function Employee(): JSX.Element {
+  const employeeState = useSelector((state: RootState) => state.employee);
+
+  const dispatch = useDispatch();
+
   const [employee, setEmployee] = useState(new User());
 
   const [states, setStates] = useState(new Array<State>());
@@ -33,12 +38,12 @@ export function Employee(): JSX.Element {
   const [errorRg, setErrorRg] = useState<string | undefined>(undefined);
   const [cpf, setCpf] = useState('');
   const [errorCpf, setErrorCpf] = useState<string | undefined>(undefined);
-  const [birthDate, setBirthDate] = useState(new Date().toISOString().substring(0, 10));
+  const [birthDate, setBirthDate] = useState('');
   const [errorBirthDate, setErrorBirthDate] = useState<string | undefined>(undefined);
 
   const [type, setType] = useState('');
   const [errorType, setErrorType] = useState<string | undefined>(undefined);
-  const [admission, setAdmission] = useState(new Date().toISOString().substring(0, 10));
+  const [admission, setAdmission] = useState('');
   const [errorAdmission, setErrorAdmission] = useState<string | undefined>(undefined);
 
   const [street, setStreet] = useState('');
@@ -243,7 +248,10 @@ export function Employee(): JSX.Element {
       else if (!validateCpf(value)) setErrorCpf('O CPF preenchido é inválido');
       else if (await verifyCpf(value))
         setErrorCpf('O CPF preenchido já existe no cadastro');
-      else setErrorCpf(undefined);
+      else {
+        setErrorCpf(undefined);
+        (employee.employee.person as IndividualPerson).cpf = value;
+      }
     },
     birthDate: (value: string) => {
       const date = new Date(value);
@@ -431,8 +439,7 @@ export function Employee(): JSX.Element {
     },
     handleCpfChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setCpf(e.target.value);
-      (employee.employee.person as IndividualPerson).cpf = e.target.value;
-      validate.cpf(e.target.value);
+      await validate.cpf(e.target.value);
     },
     handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setBirthDate(e.target.value);
@@ -538,8 +545,8 @@ export function Employee(): JSX.Element {
   const persistData = async () => {
     if (await validateFields()) {
       if (method == 'novo') {
-        try {
-          const response = await axios.post('/employee', {
+        dispatch(
+          actions.employeeSaveRequest({
             address: {
               street: (employee.employee.person as IndividualPerson).contact.address
                 .street,
@@ -572,22 +579,15 @@ export function Employee(): JSX.Element {
             },
             user: {
               login: employee.login,
-              password: employee.password,
+              password: employee.password as string,
               level: employee.level.id,
             },
-          });
-          if (response.data.length == 0) {
-            toast.success('Funcionário cadastrado com sucesso!');
-            clearFields();
-          } else {
-            toast.error(`Erro: ${response.data}`);
-          }
-        } catch (err) {
-          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
-        }
+          }),
+        );
+        if (employeeState.success) clearFields();
       } else {
-        try {
-          const response = await axios.put(`/employee/${employee.id}`, {
+        dispatch(
+          actions.employeeUpdateRequest({
             address: {
               street: (employee.employee.person as IndividualPerson).contact.address
                 .street,
@@ -619,22 +619,13 @@ export function Employee(): JSX.Element {
               admission: employee.employee.admission.substring(0, 10),
             },
             user: {
+              id: employee.id,
               login: employee.login,
-              password: employee.password,
+              password: employee.password as string,
               level: employee.level.id,
             },
-          });
-          if (response.data.length == 0) {
-            toast.success('Funcionário atualizado com sucesso!');
-            return true;
-          } else {
-            toast.error(`Erro: ${response.data}`);
-            return false;
-          }
-        } catch (err) {
-          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
-          return false;
-        }
+          }),
+        );
       }
     }
   };
@@ -704,6 +695,7 @@ export function Employee(): JSX.Element {
             value={admission}
             onChange={(e) => handleAdmChange(e)}
             message={errorAdmission}
+            readonly={method == 'editar' ? true : false}
           />
           <FormInputSelect
             colSm={6}
@@ -713,6 +705,7 @@ export function Employee(): JSX.Element {
             value={type}
             onChange={(e) => handleTypeChange(e)}
             message={errorType}
+            disable={method == 'editar' ? true : false}
           >
             <option value="0">SELECIONE</option>
             <option value="1">INTERNO</option>
