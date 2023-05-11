@@ -8,6 +8,7 @@ interface AuthState {
     id: number;
     login: string;
     name: string;
+    level: number;
   };
 }
 
@@ -18,6 +19,7 @@ const initialState: AuthState = {
     id: 0,
     login: '',
     name: '',
+    level: 0,
   },
 };
 

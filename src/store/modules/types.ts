@@ -21,6 +21,7 @@ export interface LoginRequestResult {
     id: number;
     login: string;
     name: string;
+    level: number;
   };
 }
 

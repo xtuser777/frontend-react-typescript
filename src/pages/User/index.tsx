@@ -320,10 +320,10 @@ export function User(): JSX.Element {
   };
 
   const handleButtons = {
-    handleClearClick: (e: MouseEvent) => {
+    handleClearClick: () => {
       /* void */
     },
-    handleSaveClick: async (e: MouseEvent) => {
+    handleSaveClick: async () => {
       if (
         !errorName &&
         !errorRg &&
@@ -357,7 +357,7 @@ export function User(): JSX.Element {
           person: {
             name,
             rg,
-            currentCpf,
+            cpf: currentCpf,
             birthDate,
           },
           employee: {

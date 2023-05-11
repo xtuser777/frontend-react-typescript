@@ -17,6 +17,7 @@ export function loginSuccess(payload: {
     id: number;
     login: string;
     name: string;
+    level: number;
   };
 }): types.LoginSuccessAction {
   return {

@@ -61,9 +61,11 @@ export function Header(): JSX.Element {
                     Gerenciar
                   </DropdownToggle>
                   <DropdownMenu end>
-                    {/** if (userLevel == 1) { */}
-                    <DropdownItem href="/funcionarios/">Funcionários</DropdownItem>
-                    {/** } */}
+                    {authState.user.level == 1 ? (
+                      <DropdownItem href="/funcionarios/">Funcionários</DropdownItem>
+                    ) : (
+                      ''
+                    )}
                     <DropdownItem href="/clientes/">Clientes</DropdownItem>
                     <DropdownItem href="/motoristas/">Motoristas</DropdownItem>
                     <DropdownItem href="/proprietarios/">
@@ -110,68 +112,78 @@ export function Header(): JSX.Element {
                     <DropdownItem href="/pedidos/frete/status/">
                       Alterar Status
                     </DropdownItem>
-                    {/** if (userLevel == 1) { */}
-                    <DropdownItem href="/pedidos/frete/autorizar/">
-                      Autorizar Carregamento
-                    </DropdownItem>
-                    {/** } */}
+                    {authState.user.level == 1 ? (
+                      <DropdownItem href="/pedidos/frete/autorizar/">
+                        Autorizar Carregamento
+                      </DropdownItem>
+                    ) : (
+                      ''
+                    )}
                   </DropdownMenu>
                 </UncontrolledDropdown>
-                {/** if (userLevel == 1 || userLevel == 2) { */}
-                <UncontrolledDropdown nav inNavbar>
-                  <DropdownToggle
-                    style={{ color: '#fff' }}
-                    className="font-navbar"
-                    nav
-                    caret
-                  >
-                    Controlar
-                  </DropdownToggle>
-                  <DropdownMenu end>
-                    <DropdownItem href="/contas/pagar/">Contas a Pagar</DropdownItem>
-                    <DropdownItem href="/contas/receber/">Contas a Receber</DropdownItem>
-                    <DropdownItem href="/lancar/despesas/">Lançar Despesas</DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-                {/** } */}
-                {/** if (userLevel == 1) { */}
-                <UncontrolledDropdown nav inNavbar>
-                  <DropdownToggle
-                    style={{ color: '#fff' }}
-                    className="font-navbar"
-                    nav
-                    caret
-                  >
-                    Relatório
-                  </DropdownToggle>
-                  <DropdownMenu end>
-                    <DropdownItem href="/relatorio/cliente/">
-                      Relatório de Clientes
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/pedido/venda/">
-                      Relatório de Pedidos de Venda
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/pedido/frete/">
-                      Relatório de Pedidos de Frete
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/orcamento/venda/">
-                      Relatório de Orçamentos de Venda
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/orcamento/frete/">
-                      Relatório de Orçamentos de Frete
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/conta/pagar/">
-                      Relatório de Contas a Pagar
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/conta/receber/">
-                      relatório de Contas a Receber
-                    </DropdownItem>
-                    <DropdownItem href="/relatorio/produto/">
-                      Relatório de Produtos
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-                {/** } */}
+                {authState.user.level == 1 || authState.user.level == 2 ? (
+                  <UncontrolledDropdown nav inNavbar>
+                    <DropdownToggle
+                      style={{ color: '#fff' }}
+                      className="font-navbar"
+                      nav
+                      caret
+                    >
+                      Controlar
+                    </DropdownToggle>
+                    <DropdownMenu end>
+                      <DropdownItem href="/contas/pagar/">Contas a Pagar</DropdownItem>
+                      <DropdownItem href="/contas/receber/">
+                        Contas a Receber
+                      </DropdownItem>
+                      <DropdownItem href="/lancar/despesas/">
+                        Lançar Despesas
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledDropdown>
+                ) : (
+                  ''
+                )}
+                {authState.user.level == 1 ? (
+                  <UncontrolledDropdown nav inNavbar>
+                    <DropdownToggle
+                      style={{ color: '#fff' }}
+                      className="font-navbar"
+                      nav
+                      caret
+                    >
+                      Relatório
+                    </DropdownToggle>
+                    <DropdownMenu end>
+                      <DropdownItem href="/relatorio/cliente/">
+                        Relatório de Clientes
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/pedido/venda/">
+                        Relatório de Pedidos de Venda
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/pedido/frete/">
+                        Relatório de Pedidos de Frete
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/orcamento/venda/">
+                        Relatório de Orçamentos de Venda
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/orcamento/frete/">
+                        Relatório de Orçamentos de Frete
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/conta/pagar/">
+                        Relatório de Contas a Pagar
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/conta/receber/">
+                        relatório de Contas a Receber
+                      </DropdownItem>
+                      <DropdownItem href="/relatorio/produto/">
+                        Relatório de Produtos
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledDropdown>
+                ) : (
+                  ''
+                )}
               </Nav>
               <Nav className="navbar-right" navbar>
                 <NavItem>
@@ -194,9 +206,11 @@ export function Header(): JSX.Element {
                   </DropdownToggle>
                   <DropdownMenu end>
                     <DropdownItem header>Configurações</DropdownItem>
-                    {/** if (userLevel == 1) { */}
-                    <DropdownItem href="/parametrizacao/">Parametrização</DropdownItem>
-                    {/** } */}
+                    {authState.user.level == 1 ? (
+                      <DropdownItem href="/parametrizacao/">Parametrização</DropdownItem>
+                    ) : (
+                      ''
+                    )}
                     <DropdownItem href="/usuario/dados/">Meus Dados</DropdownItem>
                     <DropdownItem divider />
                     <DropdownItem onClick={handleLogout} href="/logout/">

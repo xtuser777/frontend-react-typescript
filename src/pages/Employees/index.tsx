@@ -12,6 +12,9 @@ import { FaEdit, FaPowerOff, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { User } from '../../models/user';
 import { IndividualPerson } from '../../models/individual-person';
+import { toast } from 'react-toastify';
+import axios from '../../services/axios';
+import { isAxiosError } from 'axios';
 
 export function Employees(): JSX.Element {
   const [data, setData] = useState(new Array<User>());
@@ -32,7 +35,7 @@ export function Employees(): JSX.Element {
   }, []);
 
   const filterData = (orderBy: string) => {
-    let filteredData: User[] = data;
+    let filteredData: User[] = [...data];
     if (admission.length == 10) {
       filteredData = filteredData.filter(
         (item) => item.employee.admission.substring(0, 10) == admission,
@@ -55,6 +58,150 @@ export function Employees(): JSX.Element {
       case '2':
         filteredData = filteredData.sort((x, y) => y.id - x.id);
         break;
+      case '3':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (x.employee.person as IndividualPerson).name.toUpperCase() >
+            (y.employee.person as IndividualPerson).name.toUpperCase()
+          )
+            return 1;
+          if (
+            (x.employee.person as IndividualPerson).name.toUpperCase() <
+            (y.employee.person as IndividualPerson).name.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '4':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (y.employee.person as IndividualPerson).name.toUpperCase() >
+            (x.employee.person as IndividualPerson).name.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.employee.person as IndividualPerson).name.toUpperCase() <
+            (x.employee.person as IndividualPerson).name.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '5':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.login.toUpperCase() > y.login.toUpperCase()) return 1;
+          if (x.login.toUpperCase() < y.login.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '6':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.login.toUpperCase() > x.login.toUpperCase()) return 1;
+          if (y.login.toUpperCase() < x.login.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '7':
+        filteredData = filteredData.sort((x, y) => x.level.id - y.level.id);
+        break;
+      case '8':
+        filteredData = filteredData.sort((x, y) => y.level.id - x.level.id);
+        break;
+      case '9':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (x.employee.person as IndividualPerson).cpf.toUpperCase() >
+            (y.employee.person as IndividualPerson).cpf.toUpperCase()
+          )
+            return 1;
+          if (
+            (x.employee.person as IndividualPerson).cpf.toUpperCase() <
+            (y.employee.person as IndividualPerson).cpf.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '10':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (y.employee.person as IndividualPerson).cpf.toUpperCase() >
+            (x.employee.person as IndividualPerson).cpf.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.employee.person as IndividualPerson).cpf.toUpperCase() <
+            (x.employee.person as IndividualPerson).cpf.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '11':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.employee.admission > y.employee.admission) return 1;
+          if (x.employee.admission < y.employee.admission) return -1;
+          return 0;
+        });
+        break;
+      case '12':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.employee.admission > x.employee.admission) return 1;
+          if (y.employee.admission < x.employee.admission) return -1;
+          return 0;
+        });
+        break;
+      case '13':
+        filteredData = filteredData.sort((x, y) => x.employee.type - y.employee.type);
+        break;
+      case '14':
+        filteredData = filteredData.sort((x, y) => y.employee.type - x.employee.type);
+        break;
+      case '15':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.active > y.active) return 1;
+          if (x.active < y.active) return -1;
+          return 0;
+        });
+        break;
+      case '16':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.active > x.active) return 1;
+          if (y.active < x.active) return -1;
+          return 0;
+        });
+        break;
+      case '17':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (x.employee.person as IndividualPerson).contact.email.toUpperCase() >
+            (y.employee.person as IndividualPerson).contact.email.toUpperCase()
+          )
+            return 1;
+          if (
+            (x.employee.person as IndividualPerson).contact.email.toUpperCase() <
+            (y.employee.person as IndividualPerson).contact.email.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '18':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (y.employee.person as IndividualPerson).contact.email.toUpperCase() >
+            (x.employee.person as IndividualPerson).contact.email.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.employee.person as IndividualPerson).contact.email.toUpperCase() <
+            (x.employee.person as IndividualPerson).contact.email.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
     }
 
     return filteredData;
@@ -74,15 +221,31 @@ export function Employees(): JSX.Element {
     } else {
       const response = confirm('Confirma o excluir deste funcionário?');
       if (response) {
-        const user = employees.find((item) => item.id == id);
-        if (await user?.delete()) {
-          employees.splice(
-            employees.findIndex((item) => item.id == id),
-            1,
+        const user = employees.find((item) => item.id == id) as User;
+        let result = false;
+        try {
+          const response = await axios.delete(`/employee/${user.id}`);
+          if (response.data.length == 0) {
+            toast.success('Funcionário excluído com sucesso!');
+            result = true;
+          } else toast.error(`Erro: ${response.data}`);
+        } catch (err) {
+          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+        }
+        if (result) {
+          const newData = [...data];
+          setData(
+            newData.splice(
+              newData.findIndex((item) => item.id == id),
+              1,
+            ),
           );
-          data.splice(
-            data.findIndex((item) => item.id == id),
-            1,
+          const newEmployees = [...employees];
+          setEmployees(
+            newEmployees.splice(
+              newEmployees.findIndex((item) => item.id == id),
+              1,
+            ),
           );
         }
       }
@@ -97,16 +260,65 @@ export function Employees(): JSX.Element {
     } else {
       const response = confirm('Confirma o desligamento deste funcionário?');
       if (response) {
-        const user = employees.find((item) => item.id == id);
-        if (await user?.desativar()) {
-          employees[employees.findIndex((item) => item.id == id)].active = false;
-          employees[employees.findIndex((item) => item.id == id)].employee.demission =
+        const user = employees.find((item) => item.id == id) as User;
+        let result = false;
+        try {
+          const response = await axios.put(`/employee/${user.id}`, {
+            address: {
+              street: (user.employee.person as IndividualPerson).contact.address.street,
+              number: (user.employee.person as IndividualPerson).contact.address.number,
+              neighborhood: (user.employee.person as IndividualPerson).contact.address
+                .neighborhood,
+              complement: (user.employee.person as IndividualPerson).contact.address
+                .complement,
+              code: (user.employee.person as IndividualPerson).contact.address.code,
+              city: (user.employee.person as IndividualPerson).contact.address.city.id,
+            },
+            contact: {
+              phone: (user.employee.person as IndividualPerson).contact.phone,
+              cellphone: (user.employee.person as IndividualPerson).contact.cellphone,
+              email: (user.employee.person as IndividualPerson).contact.email,
+            },
+            person: {
+              name: (user.employee.person as IndividualPerson).name,
+              rg: (user.employee.person as IndividualPerson).rg,
+              cpf: (user.employee.person as IndividualPerson).cpf,
+              birthDate: (user.employee.person as IndividualPerson).birthDate.substring(
+                0,
+                10,
+              ),
+            },
+            employee: {
+              type: user.employee.type,
+              admission: user.employee.admission.substring(0, 10),
+              demission: new Date().toISOString().substring(0, 10),
+            },
+            user: {
+              login: user.login,
+              password: user.password,
+              active: false,
+              level: user.level.id,
+            },
+          });
+          if (response.data.length == 0) {
+            toast.success('Funcionário desativado com sucesso!');
+            result = true;
+          } else toast.error(`Erro: ${response.data}`);
+        } catch (err) {
+          if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+        }
+        if (result) {
+          const newData = [...data];
+          newData[newData.findIndex((item) => item.id == id)].active = false;
+          newData[newData.findIndex((item) => item.id == id)].employee.demission =
             new Date().toISOString().substring(0, 10);
-
-          data[data.findIndex((item) => item.id == id)].active = false;
-          data[data.findIndex((item) => item.id == id)].employee.demission = new Date()
-            .toISOString()
-            .substring(0, 10);
+          setData(newData);
+          const newEmployees = [...employees];
+          newEmployees[newEmployees.findIndex((item) => item.id == id)].active = false;
+          newEmployees[
+            newEmployees.findIndex((item) => item.id == id)
+          ].employee.demission = new Date().toISOString().substring(0, 10);
+          setEmployees(newEmployees);
         }
       }
     }
@@ -115,14 +327,64 @@ export function Employees(): JSX.Element {
   async function reativar(id: number) {
     const response = confirm('Confirma a Reativação deste funcionário?');
     if (response) {
-      const user = employees.find((item) => item.id == id);
-      if (await user?.reativar()) {
-        employees[employees.findIndex((item) => item.id == id)].active = true;
-        employees[employees.findIndex((item) => item.id == id)].employee.demission =
+      const user = employees.find((item) => item.id == id) as User;
+      let result = false;
+      try {
+        const response = await axios.put(`/employee/${user.id}`, {
+          address: {
+            street: (user.employee.person as IndividualPerson).contact.address.street,
+            number: (user.employee.person as IndividualPerson).contact.address.number,
+            neighborhood: (user.employee.person as IndividualPerson).contact.address
+              .neighborhood,
+            complement: (user.employee.person as IndividualPerson).contact.address
+              .complement,
+            code: (user.employee.person as IndividualPerson).contact.address.code,
+            city: (user.employee.person as IndividualPerson).contact.address.city.id,
+          },
+          contact: {
+            phone: (user.employee.person as IndividualPerson).contact.phone,
+            cellphone: (user.employee.person as IndividualPerson).contact.cellphone,
+            email: (user.employee.person as IndividualPerson).contact.email,
+          },
+          person: {
+            name: (user.employee.person as IndividualPerson).name,
+            rg: (user.employee.person as IndividualPerson).rg,
+            cpf: (user.employee.person as IndividualPerson).cpf,
+            birthDate: (user.employee.person as IndividualPerson).birthDate.substring(
+              0,
+              10,
+            ),
+          },
+          employee: {
+            type: user.employee.type,
+            admission: user.employee.admission.substring(0, 10),
+            demission: undefined,
+          },
+          user: {
+            login: user.login,
+            password: user.password,
+            active: true,
+            level: user.level.id,
+          },
+        });
+        if (response.data.length == 0) {
+          toast.success('Funcionário reativado com sucesso!');
+          result = true;
+        } else toast.error(`Erro: ${response.data}`);
+      } catch (err) {
+        if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      }
+      if (result) {
+        const newData = [...data];
+        newData[newData.findIndex((item) => item.id == id)].active = true;
+        newData[newData.findIndex((item) => item.id == id)].employee.demission =
           undefined;
-
-        data[data.findIndex((item) => item.id == id)].active = true;
-        data[data.findIndex((item) => item.id == id)].employee.demission = undefined;
+        setData(newData);
+        const newEmployees = [...employees];
+        newEmployees[newEmployees.findIndex((item) => item.id == id)].active = true;
+        newEmployees[newEmployees.findIndex((item) => item.id == id)].employee.demission =
+          undefined;
+        setEmployees(newEmployees);
       }
     }
   }
@@ -146,9 +408,7 @@ export function Employees(): JSX.Element {
   };
 
   const handleFilterClick = () => {
-    const data = filterData(orderBy);
-
-    setEmployees(data);
+    setEmployees(filterData(orderBy));
   };
 
   return (
@@ -227,9 +487,9 @@ export function Employees(): JSX.Element {
               <th style={{ width: '10%' }}>USUÁRIO</th>
               <th style={{ width: '12%' }}>NÍVEL</th>
               <th style={{ width: '12%' }}>CPF</th>
-              <th style={{ width: '8%' }}>ADMISSÃO</th>
-              <th style={{ width: '10%' }}>TIPO</th>
-              <th style={{ width: '8%' }}>ATIVO</th>
+              <th style={{ width: '6%' }}>ADMISSÃO</th>
+              <th style={{ width: '8%' }}>TIPO</th>
+              <th style={{ width: '6%' }}>ATIVO</th>
               <th>EMAIL</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
@@ -255,10 +515,10 @@ export function Employees(): JSX.Element {
                     color="gray"
                     size={14}
                     title={item.active ? 'Desativar' : 'Reativar'}
-                    onClick={(e) =>
+                    onClick={async () =>
                       item.active
-                        ? desativar(item.id, item.level.description)
-                        : reativar(item.id)
+                        ? await desativar(item.id, item.level.description)
+                        : await reativar(item.id)
                     }
                   />
                 </td>
@@ -268,7 +528,7 @@ export function Employees(): JSX.Element {
                     color="blue"
                     size={14}
                     title="Editar"
-                    onClick={(e) => alterar(item.id)}
+                    onClick={() => alterar(item.id)}
                   />
                 </td>
                 <td>
@@ -277,7 +537,7 @@ export function Employees(): JSX.Element {
                     color="red"
                     size={14}
                     title="Excluir"
-                    onClick={(e) => excluir(item.id, item.level.description)}
+                    onClick={async () => await excluir(item.id, item.level.description)}
                   />
                 </td>
               </tr>
