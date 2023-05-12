@@ -13,8 +13,15 @@ import { EnterprisePerson } from '../../models/enterprise-person';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { formatarData } from '../../utils/format';
+import * as actions from '../../store/modules/client/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 export function Clients(): JSX.Element {
+  const clientState = useSelector((state: RootState) => state.client);
+
+  const dispatch = useDispatch();
+
   const [data, setData] = useState(new Array<Client>());
   const [clients, setClients] = useState(new Array<Client>());
 
@@ -273,9 +280,20 @@ export function Clients(): JSX.Element {
     setClients(filterData(orderBy));
   };
 
-  function excluir(id: number): void | PromiseLike<void> {
-    throw new Error('Function not implemented.');
-  }
+  const excluir = (id: number): void => {
+    const response = confirm('Confirma o exclusão deste cliente?');
+    if (response) {
+      dispatch(actions.clientDeleteRequest({ id }));
+      if (clientState.success) {
+        const newData = [...data];
+        delete newData[newData.findIndex((item) => item.id == id)];
+        setData(newData);
+        const newClients = [...clients];
+        delete newClients[newClients.findIndex((item) => item.id == id)];
+        setClients(newClients);
+      }
+    }
+  };
 
   return (
     <>

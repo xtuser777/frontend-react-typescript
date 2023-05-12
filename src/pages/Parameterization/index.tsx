@@ -260,10 +260,10 @@ export function Parameterization(): JSX.Element {
   };
 
   const handleButtons = {
-    handleClearClick: (e: MouseEvent) => {
+    handleClearClick: () => {
       alert('Limpar clicado.');
     },
-    handleSaveClick: async (e: MouseEvent) => {
+    handleSaveClick: async () => {
       if (
         !errorCorporateName &&
         !errorFantasyName &&
