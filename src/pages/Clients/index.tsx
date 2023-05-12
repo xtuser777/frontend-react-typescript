@@ -41,10 +41,12 @@ export function Clients(): JSX.Element {
     }
 
     if (filter.length > 0) {
-      filteredData = filteredData.filter(
-        (item) =>
-          (item.person as IndividualPerson).name.includes(filter) ||
-          (item.person as IndividualPerson).contact.email.includes(filter),
+      filteredData = filteredData.filter((item) =>
+        item.type == 1
+          ? (item.person as IndividualPerson).name.includes(filter) ||
+            (item.person as IndividualPerson).contact.email.includes(filter)
+          : (item.person as EnterprisePerson).fantasyName.includes(filter) ||
+            (item.person as EnterprisePerson).contact.email.includes(filter),
       );
     }
 
@@ -88,58 +90,114 @@ export function Clients(): JSX.Element {
       case '5':
         filteredData = filteredData.sort((x, y) => {
           if (x.type == 1) {
-            if (
-              (x.person as IndividualPerson).cpf.toUpperCase() >
-              (y.person as IndividualPerson).cpf.toUpperCase()
-            )
-              return 1;
-            if (
-              (x.person as IndividualPerson).cpf.toUpperCase() <
-              (y.person as IndividualPerson).cpf.toUpperCase()
-            )
-              return -1;
-            return 0;
+            if (y.type == 1) {
+              if (
+                (x.person as IndividualPerson).cpf.toUpperCase() >
+                (y.person as IndividualPerson).cpf.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person as IndividualPerson).cpf.toUpperCase() <
+                (y.person as IndividualPerson).cpf.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (x.person as IndividualPerson).cpf.toUpperCase() >
+                (y.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person as IndividualPerson).cpf.toUpperCase() <
+                (y.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
           } else {
-            if (
-              (x.person as EnterprisePerson).cnpj.toUpperCase() >
-              (y.person as EnterprisePerson).cnpj.toUpperCase()
-            )
-              return 1;
-            if (
-              (x.person as EnterprisePerson).cnpj.toUpperCase() <
-              (y.person as EnterprisePerson).cnpj.toUpperCase()
-            )
-              return -1;
-            return 0;
+            if (y.type == 1) {
+              if (
+                (x.person as EnterprisePerson).cnpj.toUpperCase() >
+                (y.person as IndividualPerson).cpf.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person as EnterprisePerson).cnpj.toUpperCase() <
+                (y.person as IndividualPerson).cpf.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (x.person as EnterprisePerson).cnpj.toUpperCase() >
+                (y.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person as EnterprisePerson).cnpj.toUpperCase() <
+                (y.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
           }
         });
         break;
       case '6':
         filteredData = filteredData.sort((x, y) => {
           if (y.type == 1) {
-            if (
-              (y.person as IndividualPerson).cpf.toUpperCase() >
-              (x.person as IndividualPerson).cpf.toUpperCase()
-            )
-              return 1;
-            if (
-              (y.person as IndividualPerson).cpf.toUpperCase() <
-              (x.person as IndividualPerson).cpf.toUpperCase()
-            )
-              return -1;
-            return 0;
+            if (x.type == 1) {
+              if (
+                (y.person as IndividualPerson).cpf.toUpperCase() >
+                (x.person as IndividualPerson).cpf.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person as IndividualPerson).cpf.toUpperCase() <
+                (x.person as IndividualPerson).cpf.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (y.person as IndividualPerson).cpf.toUpperCase() >
+                (x.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person as IndividualPerson).cpf.toUpperCase() <
+                (x.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
           } else {
-            if (
-              (y.person as EnterprisePerson).cnpj.toUpperCase() >
-              (x.person as EnterprisePerson).cnpj.toUpperCase()
-            )
-              return 1;
-            if (
-              (y.person as EnterprisePerson).cnpj.toUpperCase() <
-              (x.person as EnterprisePerson).cnpj.toUpperCase()
-            )
-              return -1;
-            return 0;
+            if (y.type == 1) {
+              if (
+                (y.person as IndividualPerson).cpf.toUpperCase() >
+                (x.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person as IndividualPerson).cpf.toUpperCase() <
+                (x.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (y.person as EnterprisePerson).cnpj.toUpperCase() >
+                (x.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person as EnterprisePerson).cnpj.toUpperCase() <
+                (x.person as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
           }
         });
         break;
