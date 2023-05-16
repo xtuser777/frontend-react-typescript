@@ -89,7 +89,6 @@ export interface DriverUpdateRequestPayload {
   };
   driver: {
     id: number;
-    register: string;
     cnh: string;
   };
 }

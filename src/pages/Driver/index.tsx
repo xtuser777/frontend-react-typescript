@@ -38,11 +38,16 @@ export function Driver(): JSX.Element {
   const [errorBirthDate, setErrorBirthDate] = useState<string | undefined>(undefined);
 
   const [cnh, setCnh] = useState('');
+  const [errorCnh, setErrorCnh] = useState<string | undefined>(undefined);
 
   const [bank, setBank] = useState('');
+  const [errorBank, setErrorBank] = useState<string | undefined>(undefined);
   const [agency, setAgency] = useState('');
+  const [errorAgency, setErrorAgency] = useState<string | undefined>(undefined);
   const [account, setAccount] = useState('');
+  const [errorAccount, setErrorAccount] = useState<string | undefined>(undefined);
   const [type, setType] = useState('');
+  const [errorType, setErrorType] = useState<string | undefined>(undefined);
 
   const [street, setStreet] = useState('');
   const [errorStreet, setErrorStreet] = useState<string | undefined>(undefined);
@@ -87,6 +92,13 @@ export function Driver(): JSX.Element {
         setRg(driver.person.rg);
         setCpf(driver.person.cpf);
         setBirthDate(formatarDataIso(driver.person.birthDate));
+
+        setCnh(driver.cnh);
+
+        setBank(driver.bankData.bank);
+        setAgency(driver.bankData.agency);
+        setAccount(driver.bankData.account);
+        setType(driver.bankData.type.toString());
 
         setStreet(driver.person.contact.address.street);
         setNumber(driver.person.contact.address.number);
@@ -200,6 +212,41 @@ export function Driver(): JSX.Element {
         driver.person.birthDate = value;
       }
     },
+    cnh: (value: string) => {
+      if (value.length == 0) setErrorCnh('A CNH do motorista precisa ser preenchida.');
+      else {
+        setErrorCnh(undefined);
+        driver.cnh = value;
+      }
+    },
+    bank: (value: string) => {
+      if (value.length == 0) setErrorBank('O número do banco precisa ser preenchido.');
+      else {
+        setErrorBank(undefined);
+        driver.bankData.bank = value;
+      }
+    },
+    agency: (value: string) => {
+      if (value.length == 0) setErrorAgency('A agência do banco precisa ser preenchida.');
+      else {
+        setErrorAgency(undefined);
+        driver.bankData.agency = value;
+      }
+    },
+    account: (value: string) => {
+      if (value.length == 0) setErrorAccount('A conta do banco precisa ser preenchida');
+      else {
+        setErrorAccount(undefined);
+        driver.bankData.account = value;
+      }
+    },
+    type: (value: string) => {
+      if (value == '0') setErrorType('O tipo de conta precisa ser selecionado.');
+      else {
+        setErrorType(undefined);
+        driver.bankData.type = Number(value);
+      }
+    },
     street: (value: string) => {
       if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
       else {
@@ -276,6 +323,11 @@ export function Driver(): JSX.Element {
     validate.rg(rg);
     await validate.cpf(cpf);
     validate.birthDate(birthDate);
+    validate.cnh(cnh);
+    validate.bank(bank);
+    validate.agency(agency);
+    validate.account(account);
+    validate.type(type);
     validate.street(street);
     validate.number(number);
     validate.neighborhood(neighborhood);
@@ -291,6 +343,11 @@ export function Driver(): JSX.Element {
       !errorRg &&
       !errorCpf &&
       !errorBirthDate &&
+      !errorCnh &&
+      !errorBank &&
+      !errorAgency &&
+      !errorAccount &&
+      !errorType &&
       !errorStreet &&
       !errorNumber &&
       !errorNeighborhood &&
@@ -309,6 +366,13 @@ export function Driver(): JSX.Element {
     setRg('');
     setCpf('');
     setBirthDate('');
+
+    setCnh('');
+
+    setBank('');
+    setAgency('');
+    setAccount('');
+    setType('0');
 
     setStreet('');
     setNumber('');
@@ -344,22 +408,27 @@ export function Driver(): JSX.Element {
 
   const handleCnhChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCnh(e.target.value);
+    validate.cnh(e.target.value);
   };
 
   const handleBankChange = (e: ChangeEvent<HTMLInputElement>) => {
     setBank(e.target.value);
+    validate.bank(e.target.value);
   };
 
   const handleAgencyChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAgency(e.target.value);
+    validate.agency(e.target.value);
   };
 
   const handleAccountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAccount(e.target.value);
+    validate.account(e.target.value);
   };
 
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
+    validate.type(e.target.value);
   };
 
   const handleContact = {
@@ -404,12 +473,87 @@ export function Driver(): JSX.Element {
     },
   };
 
+  const persistData = async () => {
+    if (await validateFields()) {
+      if (method == 'novo') {
+        dispatch(
+          actions.driverSaveRequest({
+            address: {
+              street: driver.person.contact.address.street,
+              number: driver.person.contact.address.number,
+              neighborhood: driver.person.contact.address.neighborhood,
+              complement: driver.person.contact.address.complement,
+              code: driver.person.contact.address.code,
+              city: driver.person.contact.address.city.id,
+            },
+            contact: {
+              phone: driver.person.contact.phone,
+              cellphone: driver.person.contact.cellphone,
+              email: driver.person.contact.email,
+            },
+            person: {
+              name: driver.person.name,
+              rg: driver.person.rg,
+              cpf: driver.person.cpf,
+              birthDate: driver.person.birthDate.substring(0, 10),
+            },
+            bank: {
+              bank: driver.bankData.bank,
+              agency: driver.bankData.agency,
+              account: driver.bankData.account,
+              type: driver.bankData.type,
+            },
+            driver: {
+              register: new Date().toISOString().substring(0, 10),
+              cnh: driver.cnh,
+            },
+          }),
+        );
+        if (driverState.success) clearFields();
+      } else {
+        dispatch(
+          actions.driverUpdateRequest({
+            address: {
+              street: driver.person.contact.address.street,
+              number: driver.person.contact.address.number,
+              neighborhood: driver.person.contact.address.neighborhood,
+              complement: driver.person.contact.address.complement,
+              code: driver.person.contact.address.code,
+              city: driver.person.contact.address.city.id,
+            },
+            contact: {
+              phone: driver.person.contact.phone,
+              cellphone: driver.person.contact.cellphone,
+              email: driver.person.contact.email,
+            },
+            person: {
+              name: driver.person.name,
+              rg: driver.person.rg,
+              cpf: driver.person.cpf,
+              birthDate: driver.person.birthDate.substring(0, 10),
+            },
+            bank: {
+              bank: driver.bankData.bank,
+              agency: driver.bankData.agency,
+              account: driver.bankData.account,
+              type: driver.bankData.type,
+            },
+            driver: {
+              id: driver.id,
+              cnh: driver.cnh,
+            },
+          }),
+        );
+      }
+    }
+  };
+
   const handleButtons = {
     handleClearClick: () => {
       clearFields();
     },
-    handleSaveClick: () => {
-      alert('Salvar clicado.');
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 
@@ -467,6 +611,7 @@ export function Driver(): JSX.Element {
                 obrigatory
                 value={cnh}
                 onChange={(e) => handleCnhChange(e)}
+                message={errorCnh}
               />
             </Row>
           </FieldsetCard>
@@ -481,6 +626,7 @@ export function Driver(): JSX.Element {
                 obrigatory
                 value={bank}
                 onChange={(e) => handleBankChange(e)}
+                message={errorBank}
               />
               <FormInputText
                 colSm={2}
@@ -489,6 +635,7 @@ export function Driver(): JSX.Element {
                 obrigatory
                 value={agency}
                 onChange={(e) => handleAgencyChange(e)}
+                message={errorAgency}
               />
               <FormInputText
                 colSm={4}
@@ -497,6 +644,7 @@ export function Driver(): JSX.Element {
                 obrigatory
                 value={account}
                 onChange={(e) => handleAccountChange(e)}
+                message={errorAccount}
               />
               <FormInputSelect
                 colSm={4}
@@ -505,6 +653,7 @@ export function Driver(): JSX.Element {
                 obrigatory
                 value={type}
                 onChange={(e) => handleTypeChange(e)}
+                message={errorType}
               >
                 <option value="0">SELECIONE</option>
                 <option value="1">Corrente</option>

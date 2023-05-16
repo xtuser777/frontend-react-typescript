@@ -2,17 +2,17 @@ import { call, put, all, takeLatest } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as types from './types';
 import { toast } from 'react-toastify';
-import { isAxiosError } from 'axios';
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../../../services/axios';
 
 function* driverSaveRequest({ payload }: types.DriverSaveRequestAction) {
   try {
-    const response: string = yield call(axios.post, '/driver', payload);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(axios.post, '/driver', payload);
+    if (response.data.length == 0) {
       toast.success('Motorista cadastrado com sucesso!');
-      yield put(actions.driverSaveSuccess(response));
+      yield put(actions.driverSaveSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.driverSaveFailure());
     }
   } catch (e) {
@@ -23,16 +23,16 @@ function* driverSaveRequest({ payload }: types.DriverSaveRequestAction) {
 
 function* driverUpdateRequest({ payload }: types.DriverUpdateRequestAction) {
   try {
-    const response: string = yield call(
+    const response: AxiosRequestConfig = yield call(
       axios.put,
       `/driver/${payload.driver.id}`,
       payload,
     );
-    if (response.length == 0) {
+    if (response.data == '') {
       toast.success('Motorista atualizado com sucesso!');
-      yield put(actions.driverUpdateSuccess(response));
+      yield put(actions.driverUpdateSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.driverUpdateFailure());
     }
   } catch (e) {
