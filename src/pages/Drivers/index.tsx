@@ -24,7 +24,7 @@ export function Drivers(): JSX.Element {
   const [drivers, setDrivers] = useState(new Array<Driver>());
 
   const [filter, setfilter] = useState('');
-  const [register, setRegister] = useState(new Date().toISOString().substring(0, 10));
+  const [register, setRegister] = useState('');
   const [orderBy, setOrderBy] = useState('1');
 
   useEffect(() => {
@@ -37,6 +37,93 @@ export function Drivers(): JSX.Element {
     getData();
   }, []);
 
+  const filterData = (orderBy: string) => {
+    let filteredData: Driver[] = [...data];
+    if (register.length == 10) {
+      filteredData = filteredData.filter(
+        (item) => item.register.substring(0, 10) == register,
+      );
+    }
+
+    if (filter.length > 0) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.person.name.includes(filter) || item.person.contact.email.includes(filter),
+      );
+    }
+
+    switch (orderBy) {
+      case '1':
+        filteredData = filteredData.sort((x, y) => x.id - y.id);
+        break;
+      case '2':
+        filteredData = filteredData.sort((x, y) => y.id - x.id);
+        break;
+      case '3':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.name.toUpperCase() > y.person.name.toUpperCase()) return 1;
+          if (x.person.name.toUpperCase() < y.person.name.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '4':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.name.toUpperCase() > x.person.name.toUpperCase()) return 1;
+          if (y.person.name.toUpperCase() < x.person.name.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '5':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.cpf.toUpperCase() > y.person.cpf.toUpperCase()) return 1;
+          if (x.person.cpf.toUpperCase() < y.person.cpf.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '6':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.cpf.toUpperCase() > x.person.cpf.toUpperCase()) return 1;
+          if (y.person.cpf.toUpperCase() < x.person.cpf.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '7':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.register > y.register) return 1;
+          if (x.register < y.register) return -1;
+          return 0;
+        });
+        break;
+      case '8':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.register > x.register) return 1;
+          if (y.register < x.register) return -1;
+          return 0;
+        });
+        break;
+      case '11':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
+            return 1;
+          if (x.person.contact.email.toUpperCase() < y.person.contact.email.toUpperCase())
+            return -1;
+          return 0;
+        });
+        break;
+      case '12':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
+            return 1;
+          if (y.person.contact.email.toUpperCase() < x.person.contact.email.toUpperCase())
+            return -1;
+          return 0;
+        });
+        break;
+    }
+
+    return filteredData;
+  };
+
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setfilter(e.target.value);
   };
@@ -47,10 +134,11 @@ export function Drivers(): JSX.Element {
 
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+    setDrivers(filterData(e.target.value));
   };
 
   const handleFilterClick = () => {
-    alert(`${filter}, ${register}, ${orderBy}`);
+    setDrivers(filterData(orderBy));
   };
 
   const excluir = (id: number): void => {
