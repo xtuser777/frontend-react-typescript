@@ -10,19 +10,19 @@ import { FormButtonLink } from '../../components/form-button-link';
 import { formatarData } from '../../utils/format';
 import { FaEdit, FaPowerOff, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
-import { User } from '../../models/user';
 import { IndividualPerson } from '../../models/individual-person';
 import * as actions from '../../store/modules/employee/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { Employee } from '../../models/employee';
 
 export function Employees(): JSX.Element {
   const employeeState = useSelector((state: RootState) => state.employee);
 
   const dispatch = useDispatch();
 
-  const [data, setData] = useState(new Array<User>());
-  const [employees, setEmployees] = useState(new Array<User>());
+  const [data, setData] = useState(new Array<Employee>());
+  const [employees, setEmployees] = useState(new Array<Employee>());
 
   const [filter, setfilter] = useState('');
   const [admission, setAdmission] = useState('');
@@ -30,7 +30,7 @@ export function Employees(): JSX.Element {
 
   useEffect(() => {
     const getData = async () => {
-      const users = await new User().get();
+      const users = await new Employee().get();
       setData(users);
       setEmployees(users);
     };
@@ -39,10 +39,10 @@ export function Employees(): JSX.Element {
   }, []);
 
   const filterData = (orderBy: string) => {
-    let filteredData: User[] = [...data];
+    let filteredData: Employee[] = [...data];
     if (admission.length == 10) {
       filteredData = filteredData.filter(
-        (item) => item.employee.admission.substring(0, 10) == admission,
+        (item) => item.admission.substring(0, 10) == admission,
       );
     }
 
@@ -50,8 +50,8 @@ export function Employees(): JSX.Element {
       filteredData = filteredData.filter(
         (item) =>
           item.login.includes(filter) ||
-          (item.employee.person as IndividualPerson).name.includes(filter) ||
-          (item.employee.person as IndividualPerson).contact.email.includes(filter),
+          (item.person.individual as IndividualPerson).name.includes(filter) ||
+          (item.person.individual as IndividualPerson).contact.email.includes(filter),
       );
     }
 
@@ -65,13 +65,13 @@ export function Employees(): JSX.Element {
       case '3':
         filteredData = filteredData.sort((x, y) => {
           if (
-            (x.employee.person as IndividualPerson).name.toUpperCase() >
-            (y.employee.person as IndividualPerson).name.toUpperCase()
+            (x.person.individual as IndividualPerson).name.toUpperCase() >
+            (y.person.individual as IndividualPerson).name.toUpperCase()
           )
             return 1;
           if (
-            (x.employee.person as IndividualPerson).name.toUpperCase() <
-            (y.employee.person as IndividualPerson).name.toUpperCase()
+            (x.person.individual as IndividualPerson).name.toUpperCase() <
+            (y.person.individual as IndividualPerson).name.toUpperCase()
           )
             return -1;
           return 0;
@@ -80,13 +80,13 @@ export function Employees(): JSX.Element {
       case '4':
         filteredData = filteredData.sort((x, y) => {
           if (
-            (y.employee.person as IndividualPerson).name.toUpperCase() >
-            (x.employee.person as IndividualPerson).name.toUpperCase()
+            (y.person.individual as IndividualPerson).name.toUpperCase() >
+            (x.person.individual as IndividualPerson).name.toUpperCase()
           )
             return 1;
           if (
-            (y.employee.person as IndividualPerson).name.toUpperCase() <
-            (x.employee.person as IndividualPerson).name.toUpperCase()
+            (y.person.individual as IndividualPerson).name.toUpperCase() <
+            (x.person.individual as IndividualPerson).name.toUpperCase()
           )
             return -1;
           return 0;
@@ -115,13 +115,13 @@ export function Employees(): JSX.Element {
       case '9':
         filteredData = filteredData.sort((x, y) => {
           if (
-            (x.employee.person as IndividualPerson).cpf.toUpperCase() >
-            (y.employee.person as IndividualPerson).cpf.toUpperCase()
+            (x.person.individual as IndividualPerson).cpf.toUpperCase() >
+            (y.person.individual as IndividualPerson).cpf.toUpperCase()
           )
             return 1;
           if (
-            (x.employee.person as IndividualPerson).cpf.toUpperCase() <
-            (y.employee.person as IndividualPerson).cpf.toUpperCase()
+            (x.person.individual as IndividualPerson).cpf.toUpperCase() <
+            (y.person.individual as IndividualPerson).cpf.toUpperCase()
           )
             return -1;
           return 0;
@@ -130,13 +130,13 @@ export function Employees(): JSX.Element {
       case '10':
         filteredData = filteredData.sort((x, y) => {
           if (
-            (y.employee.person as IndividualPerson).cpf.toUpperCase() >
-            (x.employee.person as IndividualPerson).cpf.toUpperCase()
+            (y.person.individual as IndividualPerson).cpf.toUpperCase() >
+            (x.person.individual as IndividualPerson).cpf.toUpperCase()
           )
             return 1;
           if (
-            (y.employee.person as IndividualPerson).cpf.toUpperCase() <
-            (x.employee.person as IndividualPerson).cpf.toUpperCase()
+            (y.person.individual as IndividualPerson).cpf.toUpperCase() <
+            (x.person.individual as IndividualPerson).cpf.toUpperCase()
           )
             return -1;
           return 0;
@@ -144,63 +144,49 @@ export function Employees(): JSX.Element {
         break;
       case '11':
         filteredData = filteredData.sort((x, y) => {
-          if (x.employee.admission > y.employee.admission) return 1;
-          if (x.employee.admission < y.employee.admission) return -1;
+          if (x.admission > y.admission) return 1;
+          if (x.admission < y.admission) return -1;
           return 0;
         });
         break;
       case '12':
         filteredData = filteredData.sort((x, y) => {
-          if (y.employee.admission > x.employee.admission) return 1;
-          if (y.employee.admission < x.employee.admission) return -1;
+          if (y.admission > x.admission) return 1;
+          if (y.admission < x.admission) return -1;
           return 0;
         });
         break;
       case '13':
-        filteredData = filteredData.sort((x, y) => x.employee.type - y.employee.type);
+        filteredData = filteredData.sort((x, y) => x.type - y.type);
         break;
       case '14':
-        filteredData = filteredData.sort((x, y) => y.employee.type - x.employee.type);
+        filteredData = filteredData.sort((x, y) => y.type - x.type);
         break;
       case '15':
         filteredData = filteredData.sort((x, y) => {
-          if (x.active > y.active) return 1;
-          if (x.active < y.active) return -1;
-          return 0;
-        });
-        break;
-      case '16':
-        filteredData = filteredData.sort((x, y) => {
-          if (y.active > x.active) return 1;
-          if (y.active < x.active) return -1;
-          return 0;
-        });
-        break;
-      case '17':
-        filteredData = filteredData.sort((x, y) => {
           if (
-            (x.employee.person as IndividualPerson).contact.email.toUpperCase() >
-            (y.employee.person as IndividualPerson).contact.email.toUpperCase()
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
           )
             return 1;
           if (
-            (x.employee.person as IndividualPerson).contact.email.toUpperCase() <
-            (y.employee.person as IndividualPerson).contact.email.toUpperCase()
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
           )
             return -1;
           return 0;
         });
         break;
-      case '18':
+      case '16':
         filteredData = filteredData.sort((x, y) => {
           if (
-            (y.employee.person as IndividualPerson).contact.email.toUpperCase() >
-            (x.employee.person as IndividualPerson).contact.email.toUpperCase()
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
           )
             return 1;
           if (
-            (y.employee.person as IndividualPerson).contact.email.toUpperCase() <
-            (x.employee.person as IndividualPerson).contact.email.toUpperCase()
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
           )
             return -1;
           return 0;
@@ -246,58 +232,49 @@ export function Employees(): JSX.Element {
     } else {
       const response = confirm('Confirma o desligamento deste funcionário?');
       if (response) {
-        const user = employees.find((item) => item.id == id) as User;
+        const user = employees.find((item) => item.id == id) as Employee;
         dispatch(
           actions.employeeUpdateRequest({
             address: {
-              street: (user.employee.person as IndividualPerson).contact.address.street,
-              number: (user.employee.person as IndividualPerson).contact.address.number,
-              neighborhood: (user.employee.person as IndividualPerson).contact.address
+              street: (user.person.individual as IndividualPerson).contact.address.street,
+              number: (user.person.individual as IndividualPerson).contact.address.number,
+              neighborhood: (user.person.individual as IndividualPerson).contact.address
                 .neighborhood,
-              complement: (user.employee.person as IndividualPerson).contact.address
+              complement: (user.person.individual as IndividualPerson).contact.address
                 .complement,
-              code: (user.employee.person as IndividualPerson).contact.address.code,
-              city: (user.employee.person as IndividualPerson).contact.address.city.id,
+              code: (user.person.individual as IndividualPerson).contact.address.code,
+              city: (user.person.individual as IndividualPerson).contact.address.city.id,
             },
             contact: {
-              phone: (user.employee.person as IndividualPerson).contact.phone,
-              cellphone: (user.employee.person as IndividualPerson).contact.cellphone,
-              email: (user.employee.person as IndividualPerson).contact.email,
+              phone: (user.person.individual as IndividualPerson).contact.phone,
+              cellphone: (user.person.individual as IndividualPerson).contact.cellphone,
+              email: (user.person.individual as IndividualPerson).contact.email,
             },
             person: {
-              name: (user.employee.person as IndividualPerson).name,
-              rg: (user.employee.person as IndividualPerson).rg,
-              cpf: (user.employee.person as IndividualPerson).cpf,
-              birthDate: (user.employee.person as IndividualPerson).birthDate.substring(
-                0,
-                10,
-              ),
+              name: (user.person.individual as IndividualPerson).name,
+              cpf: (user.person.individual as IndividualPerson).cpf,
+              birth: (user.person.individual as IndividualPerson).birth.substring(0, 10),
             },
             employee: {
-              type: user.employee.type,
-              admission: user.employee.admission.substring(0, 10),
-              demission: new Date().toISOString().substring(0, 10),
-            },
-            user: {
               id: user.id,
+              type: user.type,
               login: user.login,
               password: user.password as string,
-              active: false,
+              admission: user.admission.substring(0, 10),
+              demission: new Date().toISOString().substring(0, 10),
               level: user.level.id,
             },
           }),
         );
         if (employeeState.success) {
           const newData = [...data];
-          newData[newData.findIndex((item) => item.id == id)].active = false;
-          newData[newData.findIndex((item) => item.id == id)].employee.demission =
-            new Date().toISOString().substring(0, 10);
+          newData[newData.findIndex((item) => item.id == id)].demission = new Date()
+            .toISOString()
+            .substring(0, 10);
           setData(newData);
           const newEmployees = [...employees];
-          newEmployees[newEmployees.findIndex((item) => item.id == id)].active = false;
-          newEmployees[
-            newEmployees.findIndex((item) => item.id == id)
-          ].employee.demission = new Date().toISOString().substring(0, 10);
+          newEmployees[newEmployees.findIndex((item) => item.id == id)].demission =
+            new Date().toISOString().substring(0, 10);
           setEmployees(newEmployees);
         }
       }
@@ -307,56 +284,46 @@ export function Employees(): JSX.Element {
   async function reativar(id: number) {
     const response = confirm('Confirma a Reativação deste funcionário?');
     if (response) {
-      const user = employees.find((item) => item.id == id) as User;
+      const user = employees.find((item) => item.id == id) as Employee;
       dispatch(
         actions.employeeUpdateRequest({
           address: {
-            street: (user.employee.person as IndividualPerson).contact.address.street,
-            number: (user.employee.person as IndividualPerson).contact.address.number,
-            neighborhood: (user.employee.person as IndividualPerson).contact.address
+            street: (user.person.individual as IndividualPerson).contact.address.street,
+            number: (user.person.individual as IndividualPerson).contact.address.number,
+            neighborhood: (user.person.individual as IndividualPerson).contact.address
               .neighborhood,
-            complement: (user.employee.person as IndividualPerson).contact.address
+            complement: (user.person.individual as IndividualPerson).contact.address
               .complement,
-            code: (user.employee.person as IndividualPerson).contact.address.code,
-            city: (user.employee.person as IndividualPerson).contact.address.city.id,
+            code: (user.person.individual as IndividualPerson).contact.address.code,
+            city: (user.person.individual as IndividualPerson).contact.address.city.id,
           },
           contact: {
-            phone: (user.employee.person as IndividualPerson).contact.phone,
-            cellphone: (user.employee.person as IndividualPerson).contact.cellphone,
-            email: (user.employee.person as IndividualPerson).contact.email,
+            phone: (user.person.individual as IndividualPerson).contact.phone,
+            cellphone: (user.person.individual as IndividualPerson).contact.cellphone,
+            email: (user.person.individual as IndividualPerson).contact.email,
           },
           person: {
-            name: (user.employee.person as IndividualPerson).name,
-            rg: (user.employee.person as IndividualPerson).rg,
-            cpf: (user.employee.person as IndividualPerson).cpf,
-            birthDate: (user.employee.person as IndividualPerson).birthDate.substring(
-              0,
-              10,
-            ),
+            name: (user.person.individual as IndividualPerson).name,
+            cpf: (user.person.individual as IndividualPerson).cpf,
+            birth: (user.person.individual as IndividualPerson).birth.substring(0, 10),
           },
           employee: {
-            type: user.employee.type,
-            admission: user.employee.admission.substring(0, 10),
-            demission: undefined,
-          },
-          user: {
             id: user.id,
+            type: user.type,
             login: user.login,
             password: user.password as string,
-            active: true,
+            admission: user.admission.substring(0, 10),
+            demission: undefined,
             level: user.level.id,
           },
         }),
       );
       if (employeeState.success) {
         const newData = [...data];
-        newData[newData.findIndex((item) => item.id == id)].active = true;
-        newData[newData.findIndex((item) => item.id == id)].employee.demission =
-          undefined;
+        newData[newData.findIndex((item) => item.id == id)].demission = undefined;
         setData(newData);
         const newEmployees = [...employees];
-        newEmployees[newEmployees.findIndex((item) => item.id == id)].active = true;
-        newEmployees[newEmployees.findIndex((item) => item.id == id)].employee.demission =
+        newEmployees[newEmployees.findIndex((item) => item.id == id)].demission =
           undefined;
         setEmployees(newEmployees);
       }
@@ -440,10 +407,8 @@ export function Employees(): JSX.Element {
             <option value="12">ADMISSÃO (DECRESCENTE)</option>
             <option value="13">TIPO (CRESCENTE)</option>
             <option value="14">TIPO (DECRESCENTE)</option>
-            <option value="15">ATIVO (CRESCENTE)</option>
-            <option value="16">ATIVO (DECRESCENTE)</option>
-            <option value="17">EMAIL (CRESCENTE)</option>
-            <option value="18">EMAIL (DECRESCENTE)</option>
+            <option value="15">EMAIL (CRESCENTE)</option>
+            <option value="16">EMAIL (DECRESCENTE)</option>
           </FormInputSelect>
           <FormButtonLink
             colSm={2}
@@ -475,22 +440,22 @@ export function Employees(): JSX.Element {
             {employees.map((item) => (
               <tr key={item.id}>
                 <td>{item.id}</td>
-                <td>{(item.employee.person as IndividualPerson).name}</td>
+                <td>{(item.person.individual as IndividualPerson).name}</td>
                 <td>{item.login}</td>
                 <td>{item.level.description}</td>
-                <td>{(item.employee.person as IndividualPerson).cpf}</td>
-                <td>{formatarData(item.employee.admission)}</td>
-                <td>{item.employee.type == 1 ? 'Interno' : 'Vendedor'}</td>
-                <td>{item.active == true ? 'Sim' : 'Não'}</td>
-                <td>{(item.employee.person as IndividualPerson).contact.email}</td>
+                <td>{(item.person.individual as IndividualPerson).cpf}</td>
+                <td>{formatarData(item.admission)}</td>
+                <td>{item.type == 1 ? 'Interno' : 'Vendedor'}</td>
+                <td>{item.demission == undefined ? 'Sim' : 'Não'}</td>
+                <td>{(item.person.individual as IndividualPerson).contact.email}</td>
                 <td>
                   <FaPowerOff
                     role="button"
                     color="gray"
                     size={14}
-                    title={item.active ? 'Desativar' : 'Reativar'}
+                    title={item.demission == undefined ? 'Desativar' : 'Reativar'}
                     onClick={async () =>
-                      item.active
+                      item.demission == undefined
                         ? await desativar(item.id, item.level.description)
                         : await reativar(item.id)
                     }

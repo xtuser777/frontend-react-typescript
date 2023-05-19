@@ -9,7 +9,7 @@ import { Row } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputDate } from '../../components/form-input-date';
-import { User } from '../../models/user';
+import { Employee as EmployeeModel } from '../../models/employee';
 import { State } from '../../models/state';
 import { City } from '../../models/city';
 import axios from '../../services/axios';
@@ -26,19 +26,16 @@ export function Employee(): JSX.Element {
 
   const dispatch = useDispatch();
 
-  const [employee, setEmployee] = useState(new User());
+  const [employee, setEmployee] = useState(new EmployeeModel());
 
   const [states, setStates] = useState(new Array<State>());
-  const [citiesData, setCitiesData] = useState(new Array<City>());
   const [cities, setCities] = useState(new Array<City>());
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);
-  const [rg, setRg] = useState('');
-  const [errorRg, setErrorRg] = useState<string | undefined>(undefined);
   const [cpf, setCpf] = useState('');
   const [errorCpf, setErrorCpf] = useState<string | undefined>(undefined);
-  const [birthDate, setBirthDate] = useState('');
+  const [birth, setBirth] = useState('');
   const [errorBirthDate, setErrorBirthDate] = useState<string | undefined>(undefined);
 
   const [type, setType] = useState('');
@@ -90,11 +87,7 @@ export function Employee(): JSX.Element {
     const loadStates = async () => {
       const receivedData = await axios.get('/state');
       setStates(receivedData.data);
-    };
 
-    const loadCities = async () => {
-      const receivedData = await axios.get('/city');
-      setCitiesData(receivedData.data);
       return receivedData.data;
     };
 
@@ -103,47 +96,42 @@ export function Employee(): JSX.Element {
       setLevels(receivedData.data);
     };
 
-    const loadData = async (citiesData: City[]) => {
-      const user = await new User().getOne(id);
+    const loadData = async (states: State[]) => {
+      const user = await new EmployeeModel().getOne(id);
       if (user) {
         setEmployee(user);
-        setName((user.employee.person as IndividualPerson).name);
-        setRg((user.employee.person as IndividualPerson).rg);
-        setCpf((user.employee.person as IndividualPerson).cpf);
-        setBirthDate(
-          formatarDataIso((user.employee.person as IndividualPerson).birthDate),
-        );
+        setName((user.person.individual as IndividualPerson).name);
+        setCpf((user.person.individual as IndividualPerson).cpf);
+        setBirth(formatarDataIso((user.person.individual as IndividualPerson).birth));
 
-        setAdmission(formatarDataIso(user.employee.admission));
-        setType(user.employee.type.toString());
+        setAdmission(formatarDataIso(user.admission));
+        setType(user.type.toString());
 
-        setStreet((user.employee.person as IndividualPerson).contact.address.street);
-        setNumber((user.employee.person as IndividualPerson).contact.address.number);
+        setStreet((user.person.individual as IndividualPerson).contact.address.street);
+        setNumber((user.person.individual as IndividualPerson).contact.address.number);
         setNeighborhood(
-          (user.employee.person as IndividualPerson).contact.address.neighborhood,
+          (user.person.individual as IndividualPerson).contact.address.neighborhood,
         );
         setComplement(
-          (user.employee.person as IndividualPerson).contact.address.complement,
+          (user.person.individual as IndividualPerson).contact.address.complement,
         );
-        setCode((user.employee.person as IndividualPerson).contact.address.code);
+        setCode((user.person.individual as IndividualPerson).contact.address.code);
         setState(
           (
-            user.employee.person as IndividualPerson
-          ).contact.address.city.state.toString(),
+            user.person.individual as IndividualPerson
+          ).contact.address.city.state.id.toString(),
         );
         setCities(
-          citiesData.filter(
-            (item) =>
-              item.state ==
-              (user.employee.person as IndividualPerson).contact.address.city.state,
-          ),
+          states[
+            (user.person.individual as IndividualPerson).contact.address.city.state.id - 1
+          ].cities,
         );
         setCity(
-          (user.employee.person as IndividualPerson).contact.address.city.id.toString(),
+          (user.person.individual as IndividualPerson).contact.address.city.id.toString(),
         );
-        setPhone((user.employee.person as IndividualPerson).contact.phone);
-        setCellphone((user.employee.person as IndividualPerson).contact.cellphone);
-        setEmail((user.employee.person as IndividualPerson).contact.email);
+        setPhone((user.person.individual as IndividualPerson).contact.phone);
+        setCellphone((user.person.individual as IndividualPerson).contact.cellphone);
+        setEmail((user.person.individual as IndividualPerson).contact.email);
 
         setLevel(user.level.id.toString());
         setLogin(user.login);
@@ -151,9 +139,8 @@ export function Employee(): JSX.Element {
     };
 
     const loadPage = async () => {
-      await loadStates();
-      if (method == 'editar') await loadData(await loadCities());
-      else await loadCities();
+      if (method == 'editar') await loadData(await loadStates());
+      else await loadStates();
       await loadLevels();
     };
 
@@ -161,12 +148,12 @@ export function Employee(): JSX.Element {
   }, []);
 
   const verifyCpf = async (cpf: string) => {
-    const users = await new User().get();
+    const users = await new EmployeeModel().get();
     const user = users.find(
-      (item) => (item.employee.person as IndividualPerson).cpf == cpf,
+      (item) => (item.person.individual as IndividualPerson).cpf == cpf,
     );
 
-    return !!user && (employee.employee.person as IndividualPerson).cpf != cpf;
+    return !!user && (employee.person.individual as IndividualPerson).cpf != cpf;
   };
 
   const validateCpf = (cpf: string) => {
@@ -216,7 +203,7 @@ export function Employee(): JSX.Element {
   };
 
   const vefifyLogin = async (login: string): Promise<boolean> => {
-    const users = await new User().get();
+    const users = await new EmployeeModel().get();
     const user = users.find((item) => item.login == login);
     if (user) {
       if (user.id == employee.id) return false;
@@ -227,7 +214,7 @@ export function Employee(): JSX.Element {
   };
 
   const verifyAdmin = async () => {
-    const users = await new User().get();
+    const users = await new EmployeeModel().get();
     const user = users.filter((item) => item.level.id == 1);
 
     return user.length == 1 && employee.level && employee.level.id == 1;
@@ -237,11 +224,12 @@ export function Employee(): JSX.Element {
     name: (value: string) => {
       if (value.length == 0) setErrorName('O nome precisa ser preenchido');
       else if (value.length < 3) setErrorName('O nome preenchido é inválido');
-      else setErrorName(undefined);
-    },
-    rg: (value: string) => {
-      if (value.length == 0) setErrorRg('O RG precisa ser preenchido');
-      else setErrorRg(undefined);
+      else {
+        setErrorName(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).name = value;
+      }
     },
     cpf: async (value: string) => {
       if (value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
@@ -250,15 +238,22 @@ export function Employee(): JSX.Element {
         setErrorCpf('O CPF preenchido já existe no cadastro');
       else {
         setErrorCpf(undefined);
-        (employee.employee.person as IndividualPerson).cpf = value;
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).cpf = value;
       }
     },
-    birthDate: (value: string) => {
+    birth: (value: string) => {
       const date = new Date(value);
       if (value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
       else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
         setErrorBirthDate('A data preenchida é inválida');
-      else setErrorBirthDate(undefined);
+      else {
+        setErrorBirthDate(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).birth = value;
+      }
     },
     admission: (value: string) => {
       const val = new Date(value);
@@ -271,56 +266,102 @@ export function Employee(): JSX.Element {
         now.getDate() < val.getDate()
       )
         setErrorAdmission('A data de admissão preenchida é inválida');
-      else setErrorAdmission(undefined);
+      else {
+        setErrorAdmission(undefined);
+        employee.admission = value;
+      }
     },
     type: (value: string) => {
       if (value == '0') setErrorType('O tipo de funcionário precisa ser selecionado.');
-      else setErrorType(undefined);
+      else {
+        setErrorType(undefined);
+        employee.type = Number(value);
+      }
     },
     street: (value: string) => {
       if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else setErrorStreet(undefined);
+      else {
+        setErrorStreet(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.address.street = value;
+      }
     },
     number: (value: string) => {
       if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else setErrorNumber(undefined);
+      else {
+        setErrorNumber(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.address.number = value;
+      }
     },
     neighborhood: (value: string) => {
       if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else setErrorNeighborhood(undefined);
+      else {
+        setErrorNeighborhood(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.address.neighborhood =
+          value;
+      }
     },
     code: (value: string) => {
       if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
       else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
-      else setErrorCode(undefined);
+      else {
+        setErrorCode(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.address.code = value;
+      }
     },
     state: (value: string) => {
       if (value == '0') setErrorState('O Estado precisa ser selecionado');
-      else setErrorState(undefined);
+      else {
+        setErrorState(undefined);
+        setCities(states[Number(value) - 1].cities);
+      }
     },
     city: (value: string) => {
       if (value == '0') setErrorCity('A cidade precisa ser selecionada');
       else {
         setErrorCity(undefined);
-        (employee.employee.person as IndividualPerson).contact.address.city = cities.find(
-          (item) => item.id == Number(value),
-        ) as City;
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.address.city =
+          cities.find((item) => item.id == Number(value)) as City;
       }
     },
     phone: (value: string) => {
       if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
       else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else setErrorPhone(undefined);
+      else {
+        setErrorPhone(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.phone = value;
+      }
     },
     cellphone: (value: string) => {
       if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
       else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else setErrorCellphone(undefined);
+      else {
+        setErrorCellphone(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.cellphone = value;
+      }
     },
     email: (value: string) => {
       if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
       else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else setErrorEmail(undefined);
+      else {
+        setErrorEmail(undefined);
+        if (!employee.person.individual)
+          employee.person.individual = new IndividualPerson();
+        (employee.person.individual as IndividualPerson).contact.email = value;
+      }
     },
     level: async (value: string) => {
       if (value == '0') setErrorLevel('O nível de usuário precisa ser selecionado.');
@@ -355,9 +396,8 @@ export function Employee(): JSX.Element {
 
   const validateFields = async () => {
     validate.name(name);
-    validate.rg(rg);
     await validate.cpf(cpf);
-    validate.birthDate(birthDate);
+    validate.birth(birth);
     validate.admission(admission);
     validate.type(type);
     validate.street(street);
@@ -378,7 +418,6 @@ export function Employee(): JSX.Element {
 
     return (
       !errorName &&
-      !errorRg &&
       !errorCpf &&
       !errorBirthDate &&
       !errorAdmission &&
@@ -399,11 +438,10 @@ export function Employee(): JSX.Element {
   };
 
   const clearFields = () => {
-    setEmployee(new User());
+    setEmployee(new EmployeeModel());
     setName('');
-    setRg('');
     setCpf('');
-    setBirthDate('');
+    setBirth('');
 
     setAdmission('');
     setType('0');
@@ -429,69 +467,52 @@ export function Employee(): JSX.Element {
   const handlePerson = {
     handleNameChange: (e: ChangeEvent<HTMLInputElement>) => {
       setName(e.target.value);
-      (employee.employee.person as IndividualPerson).name = e.target.value;
       validate.name(e.target.value);
-    },
-    handleRgChange: (e: ChangeEvent<HTMLInputElement>) => {
-      setRg(e.target.value);
-      (employee.employee.person as IndividualPerson).rg = e.target.value;
-      validate.rg(e.target.value);
     },
     handleCpfChange: async (e: ChangeEvent<HTMLInputElement>) => {
       setCpf(e.target.value);
       await validate.cpf(e.target.value);
     },
-    handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
-      setBirthDate(e.target.value);
-      (employee.employee.person as IndividualPerson).birthDate = e.target.value;
-      validate.birthDate(e.target.value);
+    handleBirthChange: (e: ChangeEvent<HTMLInputElement>) => {
+      setBirth(e.target.value);
+      validate.birth(e.target.value);
     },
   };
 
   const handleAdmChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAdmission(e.target.value);
-    employee.employee.admission = e.target.value;
     validate.admission(e.target.value);
   };
 
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
-    employee.employee.type = Number(e.target.value);
     validate.type(e.target.value);
   };
 
   const handleContact = {
     handleStreetChange: (e: ChangeEvent<HTMLInputElement>) => {
       setStreet(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.address.street =
-        e.target.value;
       validate.street(e.target.value);
     },
     handleNumberChange: (e: ChangeEvent<HTMLInputElement>) => {
       setNumber(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.address.number =
-        e.target.value;
       validate.number(e.target.value);
     },
     handleNeighborhoodChange: (e: ChangeEvent<HTMLInputElement>) => {
       setNeighborhood(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.address.neighborhood =
-        e.target.value;
       validate.neighborhood(e.target.value);
     },
     handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => {
       setComplement(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.address.complement =
+      if (!employee.person.individual)
+        employee.person.individual = new IndividualPerson();
+      (employee.person.individual as IndividualPerson).contact.address.complement =
         e.target.value;
     },
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
 
       validate.state(e.target.value);
-
-      setCities(
-        citiesData.filter((item) => item.state == Number.parseInt(e.target.value)),
-      );
     },
     handleCityChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCity(e.target.value);
@@ -500,23 +521,18 @@ export function Employee(): JSX.Element {
     },
     handleCodeChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCode(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.address.code =
-        e.target.value;
       validate.code(e.target.value);
     },
     handlePhoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setPhone(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.phone = e.target.value;
       validate.phone(e.target.value);
     },
     handleCellphoneChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCellphone(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.cellphone = e.target.value;
       validate.cellphone(e.target.value);
     },
     handleEmailChange: (e: ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value);
-      (employee.employee.person as IndividualPerson).contact.email = e.target.value;
       validate.email(e.target.value);
     },
   };
@@ -548,38 +564,37 @@ export function Employee(): JSX.Element {
         dispatch(
           actions.employeeSaveRequest({
             address: {
-              street: (employee.employee.person as IndividualPerson).contact.address
+              street: (employee.person.individual as IndividualPerson).contact.address
                 .street,
-              number: (employee.employee.person as IndividualPerson).contact.address
+              number: (employee.person.individual as IndividualPerson).contact.address
                 .number,
-              neighborhood: (employee.employee.person as IndividualPerson).contact.address
-                .neighborhood,
-              complement: (employee.employee.person as IndividualPerson).contact.address
+              neighborhood: (employee.person.individual as IndividualPerson).contact
+                .address.neighborhood,
+              complement: (employee.person.individual as IndividualPerson).contact.address
                 .complement,
-              code: (employee.employee.person as IndividualPerson).contact.address.code,
-              city: (employee.employee.person as IndividualPerson).contact.address.city
+              code: (employee.person.individual as IndividualPerson).contact.address.code,
+              city: (employee.person.individual as IndividualPerson).contact.address.city
                 .id,
             },
             contact: {
-              phone: (employee.employee.person as IndividualPerson).contact.phone,
-              cellphone: (employee.employee.person as IndividualPerson).contact.cellphone,
-              email: (employee.employee.person as IndividualPerson).contact.email,
+              phone: (employee.person.individual as IndividualPerson).contact.phone,
+              cellphone: (employee.person.individual as IndividualPerson).contact
+                .cellphone,
+              email: (employee.person.individual as IndividualPerson).contact.email,
             },
             person: {
-              name: (employee.employee.person as IndividualPerson).name,
-              rg: (employee.employee.person as IndividualPerson).rg,
-              cpf: (employee.employee.person as IndividualPerson).cpf,
-              birthDate: (
-                employee.employee.person as IndividualPerson
-              ).birthDate.substring(0, 10),
+              name: (employee.person.individual as IndividualPerson).name,
+              cpf: (employee.person.individual as IndividualPerson).cpf,
+              birth: (employee.person.individual as IndividualPerson).birth.substring(
+                0,
+                10,
+              ),
             },
             employee: {
-              type: employee.employee.type,
-              admission: employee.employee.admission.substring(0, 10),
-            },
-            user: {
+              type: employee.type,
               login: employee.login,
               password: employee.password as string,
+              admission: employee.admission.substring(0, 10),
               level: employee.level.id,
             },
           }),
@@ -589,39 +604,38 @@ export function Employee(): JSX.Element {
         dispatch(
           actions.employeeUpdateRequest({
             address: {
-              street: (employee.employee.person as IndividualPerson).contact.address
+              street: (employee.person.individual as IndividualPerson).contact.address
                 .street,
-              number: (employee.employee.person as IndividualPerson).contact.address
+              number: (employee.person.individual as IndividualPerson).contact.address
                 .number,
-              neighborhood: (employee.employee.person as IndividualPerson).contact.address
-                .neighborhood,
-              complement: (employee.employee.person as IndividualPerson).contact.address
+              neighborhood: (employee.person.individual as IndividualPerson).contact
+                .address.neighborhood,
+              complement: (employee.person.individual as IndividualPerson).contact.address
                 .complement,
-              code: (employee.employee.person as IndividualPerson).contact.address.code,
-              city: (employee.employee.person as IndividualPerson).contact.address.city
+              code: (employee.person.individual as IndividualPerson).contact.address.code,
+              city: (employee.person.individual as IndividualPerson).contact.address.city
                 .id,
             },
             contact: {
-              phone: (employee.employee.person as IndividualPerson).contact.phone,
-              cellphone: (employee.employee.person as IndividualPerson).contact.cellphone,
-              email: (employee.employee.person as IndividualPerson).contact.email,
+              phone: (employee.person.individual as IndividualPerson).contact.phone,
+              cellphone: (employee.person.individual as IndividualPerson).contact
+                .cellphone,
+              email: (employee.person.individual as IndividualPerson).contact.email,
             },
             person: {
-              name: (employee.employee.person as IndividualPerson).name,
-              rg: (employee.employee.person as IndividualPerson).rg,
-              cpf: (employee.employee.person as IndividualPerson).cpf,
-              birthDate: (
-                employee.employee.person as IndividualPerson
-              ).birthDate.substring(0, 10),
+              name: (employee.person.individual as IndividualPerson).name,
+              cpf: (employee.person.individual as IndividualPerson).cpf,
+              birth: (employee.person.individual as IndividualPerson).birth.substring(
+                0,
+                10,
+              ),
             },
             employee: {
-              type: employee.employee.type,
-              admission: employee.employee.admission.substring(0, 10),
-            },
-            user: {
               id: employee.id,
+              type: employee.type,
               login: employee.login,
               password: employee.password as string,
+              admission: employee.admission.substring(0, 10),
               level: employee.level.id,
             },
           }),
@@ -642,11 +656,9 @@ export function Employee(): JSX.Element {
   const personFields = {
     name,
     errorName,
-    rg,
-    errorRg,
     cpf,
     errorCpf,
-    birthDate,
+    birth,
     errorBirthDate,
   };
 

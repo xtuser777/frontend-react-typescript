@@ -23,15 +23,13 @@ function* employeeSaveRequest({ payload }: types.EmployeeSaveRequestAction) {
 
 function* employeeUpdateRequest({ payload }: types.EmployeeUpdateRequestAction) {
   try {
-    const response: string = yield call(sendPut, `/employee/${payload.user.id}`, payload);
+    const response: string = yield call(
+      sendPut,
+      `/employee/${payload.employee.id}`,
+      payload,
+    );
     if (response.length == 0) {
-      toast.success(
-        payload.user.active == undefined
-          ? 'Funcionário atualizado com sucesso!'
-          : payload.user.active
-          ? 'Funcionário reativado com sucesso!'
-          : 'Funcionário desativado com sucesso!',
-      );
+      toast.success('Funcionário atualizado com sucesso!');
       yield put(actions.employeeUpdateSuccess(response));
     } else {
       toast.error(`Erro: ${response}`);

@@ -1,8 +1,10 @@
+import { State } from './state';
+
 export class City {
   constructor(
     private _id: number = 0,
     private _name: string = '',
-    private _state: number = 0,
+    private _state: State,
   ) {}
 
   get id(): number {
@@ -19,10 +21,10 @@ export class City {
     this._name = v;
   }
 
-  get state(): number {
+  get state(): State {
     return this._state;
   }
-  set state(v: number) {
+  set state(v: State) {
     this._state = v;
   }
 }

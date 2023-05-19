@@ -1,17 +1,13 @@
 import { Contact } from './contact';
-import { Person } from './person';
 
-export class IndividualPerson extends Person {
+export class IndividualPerson {
   constructor(
     protected _id: number = 0,
     private _name: string = '',
-    private _rg: string = '',
     private _cpf: string = '',
-    private _birthDate: string = '',
+    private _birth: string = '',
     private _contact: Contact = new Contact(),
-  ) {
-    super(_id);
-  }
+  ) {}
 
   get id(): number {
     return this._id;
@@ -27,13 +23,6 @@ export class IndividualPerson extends Person {
     this._name = v;
   }
 
-  get rg(): string {
-    return this._rg;
-  }
-  set rg(v: string) {
-    this._rg = v;
-  }
-
   get cpf(): string {
     return this._cpf;
   }
@@ -41,11 +30,11 @@ export class IndividualPerson extends Person {
     this._cpf = v;
   }
 
-  get birthDate(): string {
-    return this._birthDate;
+  get birth(): string {
+    return this._birth;
   }
-  set birthDate(v: string) {
-    this._birthDate = v;
+  set birth(v: string) {
+    this._birth = v;
   }
 
   get contact(): Contact {

@@ -1,16 +1,13 @@
 import { Contact } from './contact';
-import { Person } from './person';
 
-export class EnterprisePerson extends Person {
+export class EnterprisePerson {
   constructor(
     protected _id: number = 0,
     private _corporateName: string = '',
     private _fantasyName: string = '',
     private _cnpj: string = '',
     private _contact: Contact = new Contact(),
-  ) {
-    super(_id);
-  }
+  ) {}
 
   get id(): number {
     return this._id;

@@ -31,17 +31,14 @@ export interface EmployeeSaveRequestPayload {
   };
   person: {
     name: string;
-    rg: string;
     cpf: string;
-    birthDate: string;
+    birth: string;
   };
   employee: {
     type: number;
-    admission: string;
-  };
-  user: {
     login: string;
-    password: string;
+    password?: string;
+    admission: string;
     level: number;
   };
 }
@@ -76,20 +73,16 @@ export interface EmployeeUpdateRequestPayload {
   };
   person: {
     name: string;
-    rg: string;
     cpf: string;
-    birthDate: string;
+    birth: string;
   };
   employee: {
+    id: number;
     type: number;
+    login: string;
+    password?: string;
     admission: string;
     demission?: string;
-  };
-  user: {
-    id: number;
-    login: string;
-    password: string;
-    active?: boolean;
     level: number;
   };
 }

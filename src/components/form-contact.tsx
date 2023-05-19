@@ -6,9 +6,8 @@ import { FormInputText } from './form-input-text';
 import { FormInputGroupText } from './form-input-group-text';
 import { FormInputGroupEmail } from './form-input-group-email';
 import { FormInputSelect } from './form-input-select';
-
-type State = { id: number; name: string; acronym: string };
-type City = { id: number; name: string; state: number };
+import { State } from '../models/state';
+import { City } from '../models/city';
 
 interface IFields {
   street: string;
