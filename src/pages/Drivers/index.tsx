@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Row, Table } from 'reactstrap';
@@ -7,11 +7,122 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
+import history from '../../services/history';
+import { formatarData } from '../../utils/format';
+import * as actions from '../../store/modules/driver/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { Driver } from '../../models/driver';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 export function Drivers(): JSX.Element {
+  const driverState = useSelector((state: RootState) => state.driver);
+
+  const dispatch = useDispatch();
+
+  const [data, setData] = useState(new Array<Driver>());
+  const [drivers, setDrivers] = useState(new Array<Driver>());
+
   const [filter, setfilter] = useState('');
-  const [register, setRegister] = useState(new Date().toISOString().substring(0, 10));
+  const [register, setRegister] = useState('');
   const [orderBy, setOrderBy] = useState('1');
+
+  useEffect(() => {
+    const getData = async () => {
+      const driversDB = await new Driver().get();
+      setData(driversDB);
+      setDrivers(driversDB);
+    };
+
+    getData();
+  }, []);
+
+  const filterData = (orderBy: string) => {
+    let filteredData: Driver[] = [...data];
+    if (register.length == 10) {
+      filteredData = filteredData.filter(
+        (item) => item.register.substring(0, 10) == register,
+      );
+    }
+
+    if (filter.length > 0) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.person.name.includes(filter) || item.person.contact.email.includes(filter),
+      );
+    }
+
+    switch (orderBy) {
+      case '1':
+        filteredData = filteredData.sort((x, y) => x.id - y.id);
+        break;
+      case '2':
+        filteredData = filteredData.sort((x, y) => y.id - x.id);
+        break;
+      case '3':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.name.toUpperCase() > y.person.name.toUpperCase()) return 1;
+          if (x.person.name.toUpperCase() < y.person.name.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '4':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.name.toUpperCase() > x.person.name.toUpperCase()) return 1;
+          if (y.person.name.toUpperCase() < x.person.name.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '5':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.cpf.toUpperCase() > y.person.cpf.toUpperCase()) return 1;
+          if (x.person.cpf.toUpperCase() < y.person.cpf.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '6':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.cpf.toUpperCase() > x.person.cpf.toUpperCase()) return 1;
+          if (y.person.cpf.toUpperCase() < x.person.cpf.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '7':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.register > y.register) return 1;
+          if (x.register < y.register) return -1;
+          return 0;
+        });
+        break;
+      case '8':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.register > x.register) return 1;
+          if (y.register < x.register) return -1;
+          return 0;
+        });
+        break;
+      case '11':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
+            return 1;
+          if (x.person.contact.email.toUpperCase() < y.person.contact.email.toUpperCase())
+            return -1;
+          return 0;
+        });
+        break;
+      case '12':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
+            return 1;
+          if (y.person.contact.email.toUpperCase() < x.person.contact.email.toUpperCase())
+            return -1;
+          return 0;
+        });
+        break;
+    }
+
+    return filteredData;
+  };
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setfilter(e.target.value);
@@ -23,10 +134,26 @@ export function Drivers(): JSX.Element {
 
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+    setDrivers(filterData(e.target.value));
   };
 
   const handleFilterClick = () => {
-    alert(`${filter}, ${register}, ${orderBy}`);
+    setDrivers(filterData(orderBy));
+  };
+
+  const excluir = (id: number): void => {
+    const response = confirm('Confirma o exclusão deste motorista?');
+    if (response) {
+      dispatch(actions.driverDeleteRequest({ id }));
+      if (driverState.success) {
+        const newData = [...data];
+        delete newData[newData.findIndex((item) => item.id == id)];
+        setData(newData);
+        const newDrivers = [...drivers];
+        delete newDrivers[newDrivers.findIndex((item) => item.id == id)];
+        setDrivers(newDrivers);
+      }
+    }
   };
 
   return (
@@ -102,7 +229,38 @@ export function Drivers(): JSX.Element {
             </tr>
           </thead>
 
-          <tbody id="tbodyDrivers"></tbody>
+          <tbody id="tbodyDrivers">
+            {drivers.map((item) => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.person.name}</td>
+                <td>{item.person.cpf}</td>
+                <td>{formatarData(item.register)}</td>
+                <td>{item.person.contact.email}</td>
+                <td>
+                  <FaEdit
+                    role="button"
+                    color="blue"
+                    size={14}
+                    title="Editar"
+                    onClick={() => {
+                      history.push(`/motorista/editar/${item.id}`);
+                      window.location.reload();
+                    }}
+                  />
+                </td>
+                <td>
+                  <FaTrash
+                    role="button"
+                    color="red"
+                    size={14}
+                    title="Excluir"
+                    onClick={() => excluir(item.id)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </Table>
       </FieldsetCard>
     </>
