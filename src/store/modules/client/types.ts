@@ -31,15 +31,14 @@ export interface ClientSaveRequestPayload {
   };
   person: {
     name: string;
-    rg: string;
     cpf: string;
-    birthDate: string;
+    birth: string;
     corporateName: string;
     fantasyName: string;
     cnpj: string;
+    type: number;
   };
   client: {
-    type: number;
     register: string;
   };
 }
@@ -74,12 +73,12 @@ export interface ClientUpdateRequestPayload {
   };
   person: {
     name: string;
-    rg: string;
     cpf: string;
-    birthDate: string;
+    birth: string;
     corporateName: string;
     fantasyName: string;
     cnpj: string;
+    type: number;
   };
   client: {
     id: number;

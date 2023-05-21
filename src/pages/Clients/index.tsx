@@ -49,11 +49,11 @@ export function Clients(): JSX.Element {
 
     if (filter.length > 0) {
       filteredData = filteredData.filter((item) =>
-        item.type == 1
-          ? (item.person as IndividualPerson).name.includes(filter) ||
-            (item.person as IndividualPerson).contact.email.includes(filter)
-          : (item.person as EnterprisePerson).fantasyName.includes(filter) ||
-            (item.person as EnterprisePerson).contact.email.includes(filter),
+        item.person.type == 1
+          ? (item.person.individual as IndividualPerson).name.includes(filter) ||
+            (item.person.individual as IndividualPerson).contact.email.includes(filter)
+          : (item.person.enterprise as EnterprisePerson).fantasyName.includes(filter) ||
+            (item.person.enterprise as EnterprisePerson).contact.email.includes(filter),
       );
     }
 
@@ -66,84 +66,168 @@ export function Clients(): JSX.Element {
         break;
       case '3':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (x.person as IndividualPerson).name.toUpperCase() >
-            (y.person as IndividualPerson).name.toUpperCase()
-          )
-            return 1;
-          if (
-            (x.person as IndividualPerson).name.toUpperCase() <
-            (y.person as IndividualPerson).name.toUpperCase()
-          )
-            return -1;
-          return 0;
-        });
-        break;
-      case '4':
-        filteredData = filteredData.sort((x, y) => {
-          if (
-            (y.person as IndividualPerson).name.toUpperCase() >
-            (x.person as IndividualPerson).name.toUpperCase()
-          )
-            return 1;
-          if (
-            (y.person as IndividualPerson).name.toUpperCase() <
-            (x.person as IndividualPerson).name.toUpperCase()
-          )
-            return -1;
-          return 0;
-        });
-        break;
-      case '5':
-        filteredData = filteredData.sort((x, y) => {
-          if (x.type == 1) {
-            if (y.type == 1) {
+          if (x.person.type == 1) {
+            if (y.person.type == 1) {
               if (
-                (x.person as IndividualPerson).cpf.toUpperCase() >
-                (y.person as IndividualPerson).cpf.toUpperCase()
+                (x.person.individual as IndividualPerson).name.toUpperCase() >
+                (y.person.individual as IndividualPerson).name.toUpperCase()
               )
                 return 1;
               if (
-                (x.person as IndividualPerson).cpf.toUpperCase() <
-                (y.person as IndividualPerson).cpf.toUpperCase()
+                (x.person.individual as IndividualPerson).name.toUpperCase() <
+                (y.person.individual as IndividualPerson).name.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (x.person as IndividualPerson).cpf.toUpperCase() >
-                (y.person as EnterprisePerson).cnpj.toUpperCase()
+                (x.person.individual as IndividualPerson).name.toUpperCase() >
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
               )
                 return 1;
               if (
-                (x.person as IndividualPerson).cpf.toUpperCase() <
-                (y.person as EnterprisePerson).cnpj.toUpperCase()
+                (x.person.individual as IndividualPerson).name.toUpperCase() <
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
               )
                 return -1;
               return 0;
             }
           } else {
-            if (y.type == 1) {
+            if (y.person.type == 1) {
               if (
-                (x.person as EnterprisePerson).cnpj.toUpperCase() >
-                (y.person as IndividualPerson).cpf.toUpperCase()
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() >
+                (y.person.individual as IndividualPerson).name.toUpperCase()
               )
                 return 1;
               if (
-                (x.person as EnterprisePerson).cnpj.toUpperCase() <
-                (y.person as IndividualPerson).cpf.toUpperCase()
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() <
+                (y.person.individual as IndividualPerson).name.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (x.person as EnterprisePerson).cnpj.toUpperCase() >
-                (y.person as EnterprisePerson).cnpj.toUpperCase()
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() >
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
               )
                 return 1;
               if (
-                (x.person as EnterprisePerson).cnpj.toUpperCase() <
-                (y.person as EnterprisePerson).cnpj.toUpperCase()
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() <
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          }
+        });
+        break;
+      case '4':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.person.type == 1) {
+            if (x.person.type == 1) {
+              if (
+                (y.person.individual as IndividualPerson).name.toUpperCase() >
+                (x.person.individual as IndividualPerson).name.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.individual as IndividualPerson).name.toUpperCase() <
+                (x.person.individual as IndividualPerson).name.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (y.person.individual as IndividualPerson).name.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.individual as IndividualPerson).name.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          } else {
+            if (x.person.type == 1) {
+              if (
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() >
+                (x.person.individual as IndividualPerson).name.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() <
+                (x.person.individual as IndividualPerson).name.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.enterprise as EnterprisePerson).fantasyName.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).fantasyName.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          }
+        });
+        break;
+      case '5':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.person.type == 1) {
+            if (y.person.type == 1) {
+              if (
+                (x.person.individual as IndividualPerson).cpf.toUpperCase() >
+                (y.person.individual as IndividualPerson).cpf.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.individual as IndividualPerson).cpf.toUpperCase() <
+                (y.person.individual as IndividualPerson).cpf.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (x.person.individual as IndividualPerson).cpf.toUpperCase() >
+                (y.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.individual as IndividualPerson).cpf.toUpperCase() <
+                (y.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          } else {
+            if (y.person.type == 1) {
+              if (
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase() >
+                (y.person.individual as IndividualPerson).cpf.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase() <
+                (y.person.individual as IndividualPerson).cpf.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase() >
+                (y.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase() <
+                (y.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return -1;
               return 0;
@@ -153,54 +237,54 @@ export function Clients(): JSX.Element {
         break;
       case '6':
         filteredData = filteredData.sort((x, y) => {
-          if (y.type == 1) {
-            if (x.type == 1) {
+          if (y.person.type == 1) {
+            if (x.person.type == 1) {
               if (
-                (y.person as IndividualPerson).cpf.toUpperCase() >
-                (x.person as IndividualPerson).cpf.toUpperCase()
+                (y.person.individual as IndividualPerson).cpf.toUpperCase() >
+                (x.person.individual as IndividualPerson).cpf.toUpperCase()
               )
                 return 1;
               if (
-                (y.person as IndividualPerson).cpf.toUpperCase() <
-                (x.person as IndividualPerson).cpf.toUpperCase()
+                (y.person.individual as IndividualPerson).cpf.toUpperCase() <
+                (x.person.individual as IndividualPerson).cpf.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (y.person as IndividualPerson).cpf.toUpperCase() >
-                (x.person as EnterprisePerson).cnpj.toUpperCase()
+                (y.person.individual as IndividualPerson).cpf.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return 1;
               if (
-                (y.person as IndividualPerson).cpf.toUpperCase() <
-                (x.person as EnterprisePerson).cnpj.toUpperCase()
+                (y.person.individual as IndividualPerson).cpf.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return -1;
               return 0;
             }
           } else {
-            if (y.type == 1) {
+            if (y.person.type == 1) {
               if (
-                (y.person as IndividualPerson).cpf.toUpperCase() >
-                (x.person as EnterprisePerson).cnpj.toUpperCase()
+                (y.person.individual as IndividualPerson).cpf.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return 1;
               if (
-                (y.person as IndividualPerson).cpf.toUpperCase() <
-                (x.person as EnterprisePerson).cnpj.toUpperCase()
+                (y.person.individual as IndividualPerson).cpf.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (y.person as EnterprisePerson).cnpj.toUpperCase() >
-                (x.person as EnterprisePerson).cnpj.toUpperCase()
+                (y.person.enterprise as EnterprisePerson).cnpj.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return 1;
               if (
-                (y.person as EnterprisePerson).cnpj.toUpperCase() <
-                (x.person as EnterprisePerson).cnpj.toUpperCase()
+                (y.person.enterprise as EnterprisePerson).cnpj.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).cnpj.toUpperCase()
               )
                 return -1;
               return 0;
@@ -223,39 +307,123 @@ export function Clients(): JSX.Element {
         });
         break;
       case '9':
-        filteredData = filteredData.sort((x, y) => x.type - y.type);
+        filteredData = filteredData.sort((x, y) => x.person.type - y.person.type);
         break;
       case '10':
-        filteredData = filteredData.sort((x, y) => y.type - x.type);
+        filteredData = filteredData.sort((x, y) => y.person.type - x.person.type);
         break;
       case '11':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (x.person as IndividualPerson).contact.email.toUpperCase() >
-            (y.person as IndividualPerson).contact.email.toUpperCase()
-          )
-            return 1;
-          if (
-            (x.person as IndividualPerson).contact.email.toUpperCase() <
-            (y.person as IndividualPerson).contact.email.toUpperCase()
-          )
-            return -1;
-          return 0;
+          if (x.person.type == 1) {
+            if (y.person.type == 1) {
+              if (
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          } else {
+            if (y.person.type == 1) {
+              if (
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          }
         });
         break;
       case '12':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (y.person as IndividualPerson).contact.email.toUpperCase() >
-            (x.person as IndividualPerson).contact.email.toUpperCase()
-          )
-            return 1;
-          if (
-            (y.person as IndividualPerson).contact.email.toUpperCase() <
-            (x.person as IndividualPerson).contact.email.toUpperCase()
-          )
-            return -1;
-          return 0;
+          if (y.person.type == 1) {
+            if (x.person.type == 1) {
+              if (
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          } else {
+            if (x.person.type == 1) {
+              if (
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
+                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            } else {
+              if (
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return 1;
+              if (
+                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
+                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+              )
+                return -1;
+              return 0;
+            }
+          }
         });
         break;
     }
@@ -376,21 +544,21 @@ export function Clients(): JSX.Element {
               <tr key={item.id}>
                 <td>{item.id}</td>
                 <td>
-                  {item.type == 1
-                    ? (item.person as IndividualPerson).name
-                    : (item.person as EnterprisePerson).fantasyName}
+                  {item.person.type == 1
+                    ? (item.person.individual as IndividualPerson).name
+                    : (item.person.enterprise as EnterprisePerson).fantasyName}
                 </td>
                 <td>
-                  {item.type == 1
-                    ? (item.person as IndividualPerson).cpf
-                    : (item.person as EnterprisePerson).cnpj}
+                  {item.person.type == 1
+                    ? (item.person.individual as IndividualPerson).cpf
+                    : (item.person.enterprise as EnterprisePerson).cnpj}
                 </td>
                 <td>{formatarData(item.register)}</td>
-                <td>{item.type == 1 ? 'Física' : 'Juridica'}</td>
+                <td>{item.person.type == 1 ? 'Física' : 'Juridica'}</td>
                 <td>
-                  {item.type == 1
-                    ? (item.person as IndividualPerson).contact.email
-                    : (item.person as EnterprisePerson).contact.email}
+                  {item.person.type == 1
+                    ? (item.person.individual as IndividualPerson).contact.email
+                    : (item.person.enterprise as EnterprisePerson).contact.email}
                 </td>
                 <td>
                   <FaEdit

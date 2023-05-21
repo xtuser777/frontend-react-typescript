@@ -1,18 +1,18 @@
 import { call, put, all, takeLatest } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as types from './types';
-import { sendDelete, sendPost, sendPut } from './requests';
 import { toast } from 'react-toastify';
-import { isAxiosError } from 'axios';
+import { AxiosRequestConfig, isAxiosError } from 'axios';
+import axios from '../../../services/axios';
 
 function* clientSaveRequest({ payload }: types.ClientSaveRequestAction) {
   try {
-    const response: string = yield call(sendPost, '/client', payload);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(axios.post, '/client', payload);
+    if (response.data.length == 0) {
       toast.success('Cliente cadastrado com sucesso!');
-      yield put(actions.clientSaveSuccess(response));
+      yield put(actions.clientSaveSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.clientSaveFailure());
     }
   } catch (e) {
@@ -23,12 +23,16 @@ function* clientSaveRequest({ payload }: types.ClientSaveRequestAction) {
 
 function* clientUpdateRequest({ payload }: types.ClientUpdateRequestAction) {
   try {
-    const response: string = yield call(sendPut, `/client/${payload.client.id}`, payload);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(
+      axios.put,
+      `/client/${payload.client.id}`,
+      payload,
+    );
+    if (response.data.length == 0) {
       toast.success('Cliente atualizado com sucesso!');
-      yield put(actions.clientUpdateSuccess(response));
+      yield put(actions.clientUpdateSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.clientUpdateFailure());
     }
   } catch (e) {
@@ -39,12 +43,15 @@ function* clientUpdateRequest({ payload }: types.ClientUpdateRequestAction) {
 
 function* clientDeleteRequest({ payload }: types.ClientDeleteRequestAction) {
   try {
-    const response: string = yield call(sendDelete, `/client/${payload.id}`);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(
+      axios.delete,
+      `/client/${payload.id}`,
+    );
+    if (response.data.length == 0) {
       toast.success('Cliente excluído com sucesso!');
-      yield put(actions.clientDeleteSuccess(response));
+      yield put(actions.clientDeleteSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.clientDeleteFailure());
     }
   } catch (e) {

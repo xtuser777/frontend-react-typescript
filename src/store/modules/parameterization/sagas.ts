@@ -2,19 +2,23 @@ import { call, put, all, takeLatest } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as types from './types';
 import { toast } from 'react-toastify';
-import { isAxiosError } from 'axios';
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../../../services/axios';
 
 function* parameterizationSaveRequest({
   payload,
 }: types.ParameterizationSaveRequestAction) {
   try {
-    const response: string = yield call(axios.post, '/parameterization', payload);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(
+      axios.post,
+      '/parameterization',
+      payload,
+    );
+    if (response.data.length == 0) {
       toast.success('Parametrização cadastrada com sucesso!');
-      yield put(actions.parameterizationSaveSuccess(response));
+      yield put(actions.parameterizationSaveSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.parameterizationSaveFailure());
     }
   } catch (e) {
@@ -27,12 +31,16 @@ function* parameterizationUpdateRequest({
   payload,
 }: types.ParameterizationUpdateRequestAction) {
   try {
-    const response: string = yield call(axios.put, `/parameterization/`, payload);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(
+      axios.put,
+      `/parameterization/`,
+      payload,
+    );
+    if (response.data.length == 0) {
       toast.success('Parametrização atualizada com sucesso!');
-      yield put(actions.parameterizationUpdateSuccess(response));
+      yield put(actions.parameterizationUpdateSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.parameterizationUpdateFailure());
     }
   } catch (e) {

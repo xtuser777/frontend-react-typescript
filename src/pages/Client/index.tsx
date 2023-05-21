@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -28,7 +28,6 @@ export function Client(): JSX.Element {
   const [client, setClient] = useState(new ClientModel());
 
   const [states, setStates] = useState(new Array<State>());
-  // const [citiesData, setCitiesData] = useState(new Array<City>());
   const [cities, setCities] = useState(new Array<City>());
 
   const [name, setName] = useState('');
@@ -37,8 +36,8 @@ export function Client(): JSX.Element {
   const [errorRg, setErrorRg] = useState<string | undefined>(undefined);
   const [cpf, setCpf] = useState('');
   const [errorCpf, setErrorCpf] = useState<string | undefined>(undefined);
-  const [birthDate, setBirthDate] = useState('');
-  const [errorBirthDate, setErrorBirthDate] = useState<string | undefined>(undefined);
+  const [birth, setBirth] = useState('');
+  const [errorbirth, setErrorbirth] = useState<string | undefined>(undefined);
 
   const [corporateName, setCorporateName] = useState('');
   const [errorCorporateName, setErrorCorporateName] = useState<string | undefined>(
@@ -90,57 +89,84 @@ export function Client(): JSX.Element {
       if (client) {
         setClient(client);
 
-        setType(client.type.toString());
+        setType(client.person.type.toString());
 
-        if (client.type == 1) {
-          setName((client.person as IndividualPerson).name);
-          setRg((client.person as IndividualPerson).rg);
-          setCpf((client.person as IndividualPerson).cpf);
-          setBirthDate(formatarDataIso((client.person as IndividualPerson).birthDate));
+        if (client.person.type == 1) {
+          setName((client.person.individual as IndividualPerson).name);
+          setCpf((client.person.individual as IndividualPerson).cpf);
+          setBirth(formatarDataIso((client.person.individual as IndividualPerson).birth));
 
-          setStreet((client.person as IndividualPerson).contact.address.street);
-          setNumber((client.person as IndividualPerson).contact.address.number);
-          setNeighborhood(
-            (client.person as IndividualPerson).contact.address.neighborhood,
+          setStreet(
+            (client.person.individual as IndividualPerson).contact.address.street,
           );
-          setComplement((client.person as IndividualPerson).contact.address.complement);
-          setCode((client.person as IndividualPerson).contact.address.code);
+          setNumber(
+            (client.person.individual as IndividualPerson).contact.address.number,
+          );
+          setNeighborhood(
+            (client.person.individual as IndividualPerson).contact.address.neighborhood,
+          );
+          setComplement(
+            (client.person.individual as IndividualPerson).contact.address.complement,
+          );
+          setCode((client.person.individual as IndividualPerson).contact.address.code);
           setState(
-            (client.person as IndividualPerson).contact.address.city.state.toString(),
+            (
+              client.person.individual as IndividualPerson
+            ).contact.address.city.state.id.toString(),
           );
           setCities(
-            states[(client.person as IndividualPerson).contact.address.city.state - 1]
-              .cities,
+            states[
+              (client.person.individual as IndividualPerson).contact.address.city.state
+                .id - 1
+            ].cities,
           );
-          setCity((client.person as IndividualPerson).contact.address.city.id.toString());
+          setCity(
+            (
+              client.person.individual as IndividualPerson
+            ).contact.address.city.id.toString(),
+          );
 
-          setPhone((client.person as IndividualPerson).contact.phone);
-          setCellphone((client.person as IndividualPerson).contact.cellphone);
-          setEmail((client.person as IndividualPerson).contact.email);
+          setPhone((client.person.individual as IndividualPerson).contact.phone);
+          setCellphone((client.person.individual as IndividualPerson).contact.cellphone);
+          setEmail((client.person.individual as IndividualPerson).contact.email);
         } else {
-          setCorporateName((client.person as EnterprisePerson).corporateName);
-          setFantasyName((client.person as EnterprisePerson).fantasyName);
-          setCnpj((client.person as EnterprisePerson).cnpj);
+          setCorporateName((client.person.enterprise as EnterprisePerson).corporateName);
+          setFantasyName((client.person.enterprise as EnterprisePerson).fantasyName);
+          setCnpj((client.person.enterprise as EnterprisePerson).cnpj);
 
-          setStreet((client.person as EnterprisePerson).contact.address.street);
-          setNumber((client.person as EnterprisePerson).contact.address.number);
-          setNeighborhood(
-            (client.person as EnterprisePerson).contact.address.neighborhood,
+          setStreet(
+            (client.person.enterprise as EnterprisePerson).contact.address.street,
           );
-          setComplement((client.person as EnterprisePerson).contact.address.complement);
-          setCode((client.person as EnterprisePerson).contact.address.code);
+          setNumber(
+            (client.person.enterprise as EnterprisePerson).contact.address.number,
+          );
+          setNeighborhood(
+            (client.person.enterprise as EnterprisePerson).contact.address.neighborhood,
+          );
+          setComplement(
+            (client.person.enterprise as EnterprisePerson).contact.address.complement,
+          );
+          setCode((client.person.enterprise as EnterprisePerson).contact.address.code);
           setState(
-            (client.person as EnterprisePerson).contact.address.city.state.toString(),
+            (
+              client.person.enterprise as EnterprisePerson
+            ).contact.address.city.state.id.toString(),
           );
           setCities(
-            states[(client.person as EnterprisePerson).contact.address.city.state - 1]
-              .cities,
+            states[
+              (client.person.enterprise as EnterprisePerson).contact.address.city.state
+                .id - 1
+            ].cities,
           );
-          setCity((client.person as EnterprisePerson).contact.address.city.id.toString());
+          setCity(
+            (
+              client.person.enterprise as EnterprisePerson
+            ).contact.address.city.id.toString(),
+          );
 
-          setPhone((client.person as EnterprisePerson).contact.phone);
-          setCellphone((client.person as EnterprisePerson).contact.cellphone);
-          setEmail((client.person as EnterprisePerson).contact.email);
+          setPhone((client.person.enterprise as EnterprisePerson).contact.phone);
+          setCellphone((client.person.enterprise as EnterprisePerson).contact.cellphone);
+          setEmail((client.person.enterprise as EnterprisePerson).contact.email);
         }
       }
     };
@@ -155,9 +181,11 @@ export function Client(): JSX.Element {
 
   const verifyCpf = async (cpf: string) => {
     const clients = await new ClientModel().get();
-    const client = clients.find((item) => (item.person as IndividualPerson).cpf == cpf);
+    const client = clients.find(
+      (item) => (item.person.individual as IndividualPerson).cpf == cpf,
+    );
 
-    return !!client && (client.person as IndividualPerson).cpf != cpf;
+    return !!client && (client.person.individual as IndividualPerson).cpf != cpf;
   };
 
   const validateCpf = (cpf: string) => {
@@ -261,14 +289,7 @@ export function Client(): JSX.Element {
       else if (value.length < 3) setErrorName('O nome preenchido é inválido');
       else {
         setErrorName(undefined);
-        (client.person as IndividualPerson).name = value;
-      }
-    },
-    rg: (value: string) => {
-      if (value.length == 0) setErrorRg('O RG precisa ser preenchido');
-      else {
-        setErrorRg(undefined);
-        (client.person as IndividualPerson).rg = value;
+        (client.person.individual as IndividualPerson).name = value;
       }
     },
     cpf: async (value: string) => {
@@ -278,17 +299,17 @@ export function Client(): JSX.Element {
         setErrorCpf('O CPF preenchido já existe no cadastro');
       else {
         setErrorCpf(undefined);
-        (client.person as IndividualPerson).cpf = value;
+        (client.person.individual as IndividualPerson).cpf = value;
       }
     },
-    birthDate: (value: string) => {
+    birth: (value: string) => {
       const date = new Date(value);
-      if (value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
+      if (value.length == 0) setErrorbirth('A data precisa ser preenchida');
       else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
-        setErrorBirthDate('A data preenchida é inválida');
+        setErrorbirth('A data preenchida é inválida');
       else {
-        setErrorBirthDate(undefined);
-        (client.person as IndividualPerson).birthDate = value;
+        setErrorbirth(undefined);
+        (client.person.individual as IndividualPerson).birth = value;
       }
     },
     corporateName: (value: string) => {
@@ -297,7 +318,7 @@ export function Client(): JSX.Element {
       else if (value.length < 5) setErrorCorporateName('A razão social inválida.');
       else {
         setErrorCorporateName(undefined);
-        (client.person as EnterprisePerson).corporateName = value;
+        (client.person.enterprise as EnterprisePerson).corporateName = value;
       }
     },
     fantasyName: (value: string) => {
@@ -305,7 +326,7 @@ export function Client(): JSX.Element {
         setErrorFantasyName('O nome fantasia precisa ser preenchido.');
       else {
         setErrorFantasyName(undefined);
-        (client.person as EnterprisePerson).fantasyName = value;
+        (client.person.enterprise as EnterprisePerson).fantasyName = value;
       }
     },
     cnpj: (value: string) => {
@@ -313,14 +334,14 @@ export function Client(): JSX.Element {
       else if (!validateCnpj(value)) setErrorCnpj('O CNPJ preenchido é inválido.');
       else {
         setErrorCnpj(undefined);
-        (client.person as EnterprisePerson).cnpj = value;
+        (client.person.enterprise as EnterprisePerson).cnpj = value;
       }
     },
     type: (value: string) => {
-      if (value == '0') setErrorType('O tipo de funcionário precisa ser selecionado.');
+      if (value == '0') setErrorType('O tipo do cliente precisa ser selecionado.');
       else {
         setErrorType(undefined);
-        client.type = Number(value);
+        client.person.type = Number(value);
       }
     },
     street: (value: string) => {
@@ -328,8 +349,9 @@ export function Client(): JSX.Element {
       else {
         setErrorStreet(undefined);
         if (type == '1')
-          (client.person as IndividualPerson).contact.address.street = value;
-        else (client.person as EnterprisePerson).contact.address.street = value;
+          (client.person.individual as IndividualPerson).contact.address.street = value;
+        else
+          (client.person.enterprise as EnterprisePerson).contact.address.street = value;
       }
     },
     number: (value: string) => {
@@ -337,8 +359,9 @@ export function Client(): JSX.Element {
       else {
         setErrorNumber(undefined);
         if (type == '1')
-          (client.person as IndividualPerson).contact.address.number = value;
-        else (client.person as EnterprisePerson).contact.address.number = value;
+          (client.person.individual as IndividualPerson).contact.address.number = value;
+        else
+          (client.person.enterprise as EnterprisePerson).contact.address.number = value;
       }
     },
     neighborhood: (value: string) => {
@@ -346,8 +369,11 @@ export function Client(): JSX.Element {
       else {
         setErrorNeighborhood(undefined);
         if (type == '1')
-          (client.person as IndividualPerson).contact.address.neighborhood = value;
-        else (client.person as EnterprisePerson).contact.address.neighborhood = value;
+          (client.person.individual as IndividualPerson).contact.address.neighborhood =
+            value;
+        else
+          (client.person.enterprise as EnterprisePerson).contact.address.neighborhood =
+            value;
       }
     },
     code: (value: string) => {
@@ -355,8 +381,9 @@ export function Client(): JSX.Element {
       else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
-        if (type == '1') (client.person as IndividualPerson).contact.address.code = value;
-        else (client.person as EnterprisePerson).contact.address.code = value;
+        if (type == '1')
+          (client.person.individual as IndividualPerson).contact.address.code = value;
+        else (client.person.enterprise as EnterprisePerson).contact.address.code = value;
       }
     },
     state: (value: string) => {
@@ -371,13 +398,11 @@ export function Client(): JSX.Element {
       else {
         setErrorCity(undefined);
         if (type == '1')
-          (client.person as IndividualPerson).contact.address.city = cities.find(
-            (item) => item.id == Number(value),
-          ) as City;
+          (client.person.individual as IndividualPerson).contact.address.city =
+            cities.find((item) => item.id == Number(value)) as City;
         else
-          (client.person as EnterprisePerson).contact.address.city = cities.find(
-            (item) => item.id == Number(value),
-          ) as City;
+          (client.person.enterprise as EnterprisePerson).contact.address.city =
+            cities.find((item) => item.id == Number(value)) as City;
       }
     },
     phone: (value: string) => {
@@ -385,8 +410,9 @@ export function Client(): JSX.Element {
       else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
       else {
         setErrorPhone(undefined);
-        if (type == '1') (client.person as IndividualPerson).contact.phone = value;
-        else (client.person as EnterprisePerson).contact.phone = value;
+        if (type == '1')
+          (client.person.individual as IndividualPerson).contact.phone = value;
+        else (client.person.enterprise as EnterprisePerson).contact.phone = value;
       }
     },
     cellphone: (value: string) => {
@@ -394,8 +420,9 @@ export function Client(): JSX.Element {
       else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
       else {
         setErrorCellphone(undefined);
-        if (type == '1') (client.person as IndividualPerson).contact.cellphone = value;
-        else (client.person as EnterprisePerson).contact.cellphone = value;
+        if (type == '1')
+          (client.person.individual as IndividualPerson).contact.cellphone = value;
+        else (client.person.enterprise as EnterprisePerson).contact.cellphone = value;
       }
     },
     email: (value: string) => {
@@ -403,8 +430,9 @@ export function Client(): JSX.Element {
       else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
       else {
         setErrorEmail(undefined);
-        if (type == '1') (client.person as IndividualPerson).contact.email = value;
-        else (client.person as EnterprisePerson).contact.email = value;
+        if (type == '1')
+          (client.person.individual as IndividualPerson).contact.email = value;
+        else (client.person.enterprise as EnterprisePerson).contact.email = value;
       }
     },
   };
@@ -412,9 +440,8 @@ export function Client(): JSX.Element {
   const validateFields = async () => {
     if (type == '1') {
       validate.name(name);
-      validate.rg(rg);
       await validate.cpf(cpf);
-      validate.birthDate(birthDate);
+      validate.birth(birth);
     } else {
       validate.corporateName(corporateName);
       validate.fantasyName(fantasyName);
@@ -433,7 +460,7 @@ export function Client(): JSX.Element {
 
     return (
       (type == '1'
-        ? !errorName && !errorRg && !errorCpf && !errorBirthDate
+        ? !errorName && !errorRg && !errorCpf && !errorbirth
         : !errorCorporateName && !errorFantasyName && !errorCnpj) &&
       !errorType &&
       !errorStreet &&
@@ -453,7 +480,7 @@ export function Client(): JSX.Element {
     setName('');
     setRg('');
     setCpf('');
-    setBirthDate('');
+    setBirth('');
 
     setCorporateName('');
     setFantasyName('');
@@ -479,17 +506,13 @@ export function Client(): JSX.Element {
       setName(e.target.value);
       validate.name(e.target.value);
     },
-    handleRgChange: (e: ChangeEvent<HTMLInputElement>) => {
-      setRg(e.target.value);
-      validate.rg(e.target.value);
-    },
     handleCpfChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCpf(e.target.value);
       validate.cpf(e.target.value);
     },
-    handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
-      setBirthDate(e.target.value);
-      validate.birthDate(e.target.value);
+    handleBirthChange: (e: ChangeEvent<HTMLInputElement>) => {
+      setBirth(e.target.value);
+      validate.birth(e.target.value);
     },
   };
 
@@ -562,61 +585,78 @@ export function Client(): JSX.Element {
           actions.clientSaveRequest({
             address: {
               street:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.street
-                  : (client.person as EnterprisePerson).contact.address.street,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.street
+                  : (client.person.enterprise as EnterprisePerson).contact.address.street,
               number:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.number
-                  : (client.person as EnterprisePerson).contact.address.number,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.number
+                  : (client.person.enterprise as EnterprisePerson).contact.address.number,
               neighborhood:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.neighborhood
-                  : (client.person as EnterprisePerson).contact.address.neighborhood,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address
+                      .neighborhood
+                  : (client.person.enterprise as EnterprisePerson).contact.address
+                      .neighborhood,
               complement:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.complement
-                  : (client.person as EnterprisePerson).contact.address.complement,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address
+                      .complement
+                  : (client.person.enterprise as EnterprisePerson).contact.address
+                      .complement,
               code:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.code
-                  : (client.person as EnterprisePerson).contact.address.code,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.code
+                  : (client.person.enterprise as EnterprisePerson).contact.address.code,
               city:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.city.id
-                  : (client.person as EnterprisePerson).contact.address.city.id,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.city.id
+                  : (client.person.enterprise as EnterprisePerson).contact.address.city
+                      .id,
             },
             contact: {
               phone:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.phone
-                  : (client.person as EnterprisePerson).contact.phone,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.phone
+                  : (client.person.enterprise as EnterprisePerson).contact.phone,
               cellphone:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.cellphone
-                  : (client.person as EnterprisePerson).contact.cellphone,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.cellphone
+                  : (client.person.enterprise as EnterprisePerson).contact.cellphone,
               email:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.email
-                  : (client.person as EnterprisePerson).contact.email,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.email
+                  : (client.person.enterprise as EnterprisePerson).contact.email,
             },
             person: {
-              name: client.type == 1 ? (client.person as IndividualPerson).name : '',
-              rg: client.type == 1 ? (client.person as IndividualPerson).rg : '',
-              cpf: client.type == 1 ? (client.person as IndividualPerson).cpf : '',
-              birthDate:
-                client.type == 1
-                  ? (client.person as IndividualPerson).birthDate.substring(0, 10)
+              name:
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).name
+                  : '',
+              cpf:
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).cpf
+                  : '',
+              birth:
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).birth.substring(0, 10)
                   : '',
               corporateName:
-                client.type == 2 ? (client.person as EnterprisePerson).corporateName : '',
+                client.person.type == 2
+                  ? (client.person.enterprise as EnterprisePerson).corporateName
+                  : '',
               fantasyName:
-                client.type == 2 ? (client.person as EnterprisePerson).fantasyName : '',
-              cnpj: client.type == 2 ? (client.person as EnterprisePerson).cnpj : '',
+                client.person.type == 2
+                  ? (client.person.enterprise as EnterprisePerson).fantasyName
+                  : '',
+              cnpj:
+                client.person.type == 2
+                  ? (client.person.enterprise as EnterprisePerson).cnpj
+                  : '',
+              type: client.person.type,
             },
             client: {
               register: new Date().toISOString().substring(0, 10),
-              type: client.type,
             },
           }),
         );
@@ -626,57 +666,75 @@ export function Client(): JSX.Element {
           actions.clientUpdateRequest({
             address: {
               street:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.street
-                  : (client.person as EnterprisePerson).contact.address.street,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.street
+                  : (client.person.enterprise as EnterprisePerson).contact.address.street,
               number:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.number
-                  : (client.person as EnterprisePerson).contact.address.number,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.number
+                  : (client.person.enterprise as EnterprisePerson).contact.address.number,
               neighborhood:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.neighborhood
-                  : (client.person as EnterprisePerson).contact.address.neighborhood,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address
+                      .neighborhood
+                  : (client.person.enterprise as EnterprisePerson).contact.address
+                      .neighborhood,
               complement:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.complement
-                  : (client.person as EnterprisePerson).contact.address.complement,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address
+                      .complement
+                  : (client.person.enterprise as EnterprisePerson).contact.address
+                      .complement,
               code:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.code
-                  : (client.person as EnterprisePerson).contact.address.code,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.code
+                  : (client.person.enterprise as EnterprisePerson).contact.address.code,
               city:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.address.city.id
-                  : (client.person as EnterprisePerson).contact.address.city.id,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.address.city.id
+                  : (client.person.enterprise as EnterprisePerson).contact.address.city
+                      .id,
             },
             contact: {
               phone:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.phone
-                  : (client.person as EnterprisePerson).contact.phone,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.phone
+                  : (client.person.enterprise as EnterprisePerson).contact.phone,
               cellphone:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.cellphone
-                  : (client.person as EnterprisePerson).contact.cellphone,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.cellphone
+                  : (client.person.enterprise as EnterprisePerson).contact.cellphone,
               email:
-                client.type == 1
-                  ? (client.person as IndividualPerson).contact.email
-                  : (client.person as EnterprisePerson).contact.email,
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).contact.email
+                  : (client.person.enterprise as EnterprisePerson).contact.email,
             },
             person: {
-              name: client.type == 1 ? (client.person as IndividualPerson).name : '',
-              rg: client.type == 1 ? (client.person as IndividualPerson).rg : '',
-              cpf: client.type == 1 ? (client.person as IndividualPerson).cpf : '',
-              birthDate:
-                client.type == 1
-                  ? (client.person as IndividualPerson).birthDate.substring(0, 10)
+              name:
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).name
+                  : '',
+              cpf:
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).cpf
+                  : '',
+              birth:
+                client.person.type == 1
+                  ? (client.person.individual as IndividualPerson).birth.substring(0, 10)
                   : '',
               corporateName:
-                client.type == 2 ? (client.person as EnterprisePerson).corporateName : '',
+                client.person.type == 2
+                  ? (client.person.enterprise as EnterprisePerson).corporateName
+                  : '',
               fantasyName:
-                client.type == 2 ? (client.person as EnterprisePerson).fantasyName : '',
-              cnpj: client.type == 2 ? (client.person as EnterprisePerson).cnpj : '',
+                client.person.type == 2
+                  ? (client.person.enterprise as EnterprisePerson).fantasyName
+                  : '',
+              cnpj:
+                client.person.type == 2
+                  ? (client.person.enterprise as EnterprisePerson).cnpj
+                  : '',
+              type: client.person.type,
             },
             client: {
               id: client.id,
@@ -703,8 +761,8 @@ export function Client(): JSX.Element {
     errorRg,
     cpf,
     errorCpf,
-    birthDate,
-    errorBirthDate,
+    birth,
+    errorbirth,
   };
 
   const personEnterpriseFields = {

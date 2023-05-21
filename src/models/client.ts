@@ -1,6 +1,5 @@
 import { isAxiosError } from 'axios';
 import axios from '../services/axios';
-import { IndividualPerson } from './individual-person';
 import { Person } from './person';
 import { toast } from 'react-toastify';
 
@@ -8,8 +7,7 @@ export class Client {
   constructor(
     private _id: number = 0,
     private _register: string = '',
-    private _type: number = 0,
-    private _person: Person = new IndividualPerson(),
+    private _person: Person = new Person(),
   ) {}
 
   get id(): number {
@@ -24,13 +22,6 @@ export class Client {
   }
   set register(v: string) {
     this._register = v;
-  }
-
-  get type(): number {
-    return this._type;
-  }
-  set type(v: number) {
-    this._type = v;
   }
 
   get person(): Person {

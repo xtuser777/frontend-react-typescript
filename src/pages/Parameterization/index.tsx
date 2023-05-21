@@ -8,8 +8,6 @@ import { FormEnterprisePerson } from '../../components/form-enterprise-person';
 import { FormInputFile } from '../../components/form-input-file';
 import axios from '../../services/axios';
 import isEmail from 'validator/lib/isEmail';
-import { isAxiosError } from 'axios';
-import { toast } from 'react-toastify';
 import { State } from '../../models/state';
 import { City } from '../../models/city';
 import { Parameterization as ParameterizationModel } from '../../models/parameterization';
@@ -74,6 +72,7 @@ export function Parameterization(): JSX.Element {
     const loadData = async (states: State[]) => {
       const parameterization = await new ParameterizationModel().get();
       if (parameterization) {
+        setParameterization(parameterization);
         setMethod(2);
 
         setCorporateName(
@@ -186,34 +185,60 @@ export function Parameterization(): JSX.Element {
       if (value.length == 0)
         setErrorCorporateName('A razão social precisa ser preenchida.');
       else if (value.length < 5) setErrorCorporateName('A razão social inválida.');
-      else setErrorCorporateName(undefined);
+      else {
+        setErrorCorporateName(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).corporateName = value;
+      }
     },
     fantasyName: (value: string) => {
       if (value.length == 0)
         setErrorFantasyName('O nome fantasia precisa ser preenchido.');
-      else setErrorFantasyName(undefined);
+      else {
+        setErrorFantasyName(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).fantasyName = value;
+      }
     },
     cnpj: (value: string) => {
       if (value.length == 0) setErrorCnpj('O CNPJ precisa ser preenchido.');
       else if (!validateCnpj(value)) setErrorCnpj('O CNPJ preenchido é inválido.');
-      else setErrorCnpj(undefined);
+      else {
+        setErrorCnpj(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).cnpj = value;
+      }
     },
     street: (value: string) => {
       if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else setErrorStreet(undefined);
+      else {
+        setErrorStreet(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.address.street =
+          value;
+      }
     },
     number: (value: string) => {
       if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else setErrorNumber(undefined);
+      else {
+        setErrorNumber(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.address.number =
+          value;
+      }
     },
     neighborhood: (value: string) => {
       if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else setErrorNeighborhood(undefined);
+      else {
+        setErrorNeighborhood(undefined);
+        (
+          parameterization.person.enterprise as EnterprisePerson
+        ).contact.address.neighborhood = value;
+      }
     },
     code: (value: string) => {
       if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
       else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
-      else setErrorCode(undefined);
+      else {
+        setErrorCode(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.address.code =
+          value;
+      }
     },
     state: (value: string) => {
       if (value == '0') setErrorState('O Estado precisa ser selecionado');
@@ -229,22 +254,36 @@ export function Parameterization(): JSX.Element {
     },
     city: (value: string) => {
       if (value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else setErrorCity(undefined);
+      else {
+        setErrorCity(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.address.city =
+          cities.find((item) => item.id == Number(value)) as City;
+      }
     },
     phone: (value: string) => {
       if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
       else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else setErrorPhone(undefined);
+      else {
+        setErrorPhone(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.phone = value;
+      }
     },
     cellphone: (value: string) => {
       if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
       else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else setErrorCellphone(undefined);
+      else {
+        setErrorCellphone(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.cellphone =
+          value;
+      }
     },
     email: (value: string) => {
       if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
       else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else setErrorEmail(undefined);
+      else {
+        setErrorEmail(undefined);
+        (parameterization.person.enterprise as EnterprisePerson).contact.email = value;
+      }
     },
   };
 
