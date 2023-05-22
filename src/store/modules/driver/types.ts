@@ -31,9 +31,8 @@ export interface DriverSaveRequestPayload {
   };
   person: {
     name: string;
-    rg: string;
     cpf: string;
-    birthDate: string;
+    birth: string;
   };
   bank: {
     bank: string;
@@ -77,9 +76,8 @@ export interface DriverUpdateRequestPayload {
   };
   person: {
     name: string;
-    rg: string;
     cpf: string;
-    birthDate: string;
+    birth: string;
   };
   bank: {
     bank: string;

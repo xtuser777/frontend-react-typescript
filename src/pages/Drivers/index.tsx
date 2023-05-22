@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { Driver } from '../../models/driver';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { IndividualPerson } from '../../models/individual-person';
 
 export function Drivers(): JSX.Element {
   const driverState = useSelector((state: RootState) => state.driver);
@@ -48,7 +49,8 @@ export function Drivers(): JSX.Element {
     if (filter.length > 0) {
       filteredData = filteredData.filter(
         (item) =>
-          item.person.name.includes(filter) || item.person.contact.email.includes(filter),
+          (item.person.individual as IndividualPerson).name.includes(filter) ||
+          (item.person.individual as IndividualPerson).contact.email.includes(filter),
       );
     }
 
@@ -61,29 +63,61 @@ export function Drivers(): JSX.Element {
         break;
       case '3':
         filteredData = filteredData.sort((x, y) => {
-          if (x.person.name.toUpperCase() > y.person.name.toUpperCase()) return 1;
-          if (x.person.name.toUpperCase() < y.person.name.toUpperCase()) return -1;
+          if (
+            (x.person.individual as IndividualPerson).name.toUpperCase() >
+            (y.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return 1;
+          if (
+            (x.person.individual as IndividualPerson).name.toUpperCase() <
+            (y.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return -1;
           return 0;
         });
         break;
       case '4':
         filteredData = filteredData.sort((x, y) => {
-          if (y.person.name.toUpperCase() > x.person.name.toUpperCase()) return 1;
-          if (y.person.name.toUpperCase() < x.person.name.toUpperCase()) return -1;
+          if (
+            (y.person.individual as IndividualPerson).name.toUpperCase() >
+            (x.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.person.individual as IndividualPerson).name.toUpperCase() <
+            (x.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return -1;
           return 0;
         });
         break;
       case '5':
         filteredData = filteredData.sort((x, y) => {
-          if (x.person.cpf.toUpperCase() > y.person.cpf.toUpperCase()) return 1;
-          if (x.person.cpf.toUpperCase() < y.person.cpf.toUpperCase()) return -1;
+          if (
+            (x.person.individual as IndividualPerson).cpf.toUpperCase() >
+            (y.person.individual as IndividualPerson).cpf.toUpperCase()
+          )
+            return 1;
+          if (
+            (x.person.individual as IndividualPerson).cpf.toUpperCase() <
+            (y.person.individual as IndividualPerson).cpf.toUpperCase()
+          )
+            return -1;
           return 0;
         });
         break;
       case '6':
         filteredData = filteredData.sort((x, y) => {
-          if (y.person.cpf.toUpperCase() > x.person.cpf.toUpperCase()) return 1;
-          if (y.person.cpf.toUpperCase() < x.person.cpf.toUpperCase()) return -1;
+          if (
+            (y.person.individual as IndividualPerson).cpf.toUpperCase() >
+            (x.person.individual as IndividualPerson).cpf.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.person.individual as IndividualPerson).cpf.toUpperCase() <
+            (x.person.individual as IndividualPerson).cpf.toUpperCase()
+          )
+            return -1;
           return 0;
         });
         break;
@@ -103,18 +137,30 @@ export function Drivers(): JSX.Element {
         break;
       case '11':
         filteredData = filteredData.sort((x, y) => {
-          if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
+          if (
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+          )
             return 1;
-          if (x.person.contact.email.toUpperCase() < y.person.contact.email.toUpperCase())
+          if (
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+          )
             return -1;
           return 0;
         });
         break;
       case '12':
         filteredData = filteredData.sort((x, y) => {
-          if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
+          if (
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+          )
             return 1;
-          if (y.person.contact.email.toUpperCase() < x.person.contact.email.toUpperCase())
+          if (
+            (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
+            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+          )
             return -1;
           return 0;
         });
@@ -233,10 +279,10 @@ export function Drivers(): JSX.Element {
             {drivers.map((item) => (
               <tr key={item.id}>
                 <td>{item.id}</td>
-                <td>{item.person.name}</td>
-                <td>{item.person.cpf}</td>
+                <td>{(item.person.individual as IndividualPerson).name}</td>
+                <td>{(item.person.individual as IndividualPerson).cpf}</td>
                 <td>{formatarData(item.register)}</td>
-                <td>{item.person.contact.email}</td>
+                <td>{(item.person.individual as IndividualPerson).contact.email}</td>
                 <td>
                   <FaEdit
                     role="button"

@@ -43,12 +43,15 @@ function* driverUpdateRequest({ payload }: types.DriverUpdateRequestAction) {
 
 function* driverDeleteRequest({ payload }: types.DriverDeleteRequestAction) {
   try {
-    const response: string = yield call(axios.delete, `/driver/${payload.id}`);
-    if (response.length == 0) {
+    const response: AxiosRequestConfig = yield call(
+      axios.delete,
+      `/driver/${payload.id}`,
+    );
+    if (response.data.length == 0) {
       toast.success('Motorista excluído com sucesso!');
-      yield put(actions.driverDeleteSuccess(response));
+      yield put(actions.driverDeleteSuccess(response.data));
     } else {
-      toast.error(`Erro: ${response}`);
+      toast.error(`Erro: ${response.data}`);
       yield put(actions.driverDeleteFailure());
     }
   } catch (e) {

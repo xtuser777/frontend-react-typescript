@@ -3,13 +3,14 @@ import axios from '../services/axios';
 import { BankData } from './bank-data';
 import { IndividualPerson } from './individual-person';
 import { isAxiosError } from 'axios';
+import { Person } from './person';
 
 export class Driver {
   constructor(
     private _id: number = 0,
     private _register: string = '',
     private _cnh: string = '',
-    private _person: IndividualPerson = new IndividualPerson(),
+    private _person: Person = new Person(),
     private _bankData: BankData = new BankData(),
   ) {}
 
@@ -34,10 +35,10 @@ export class Driver {
     this._cnh = v;
   }
 
-  get person(): IndividualPerson {
+  get person(): Person {
     return this._person;
   }
-  set person(v: IndividualPerson) {
+  set person(v: Person) {
     this._person = v;
   }
 

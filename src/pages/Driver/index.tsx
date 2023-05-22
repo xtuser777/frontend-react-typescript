@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -17,6 +17,7 @@ import { State } from '../../models/state';
 import { City } from '../../models/city';
 import { Driver as DriverModel } from '../../models/driver';
 import axios from '../../services/axios';
+import { IndividualPerson } from '../../models/individual-person';
 
 export function Driver(): JSX.Element {
   const driverState = useSelector((state: RootState) => state.driver);
@@ -30,12 +31,10 @@ export function Driver(): JSX.Element {
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);
-  const [rg, setRg] = useState('');
-  const [errorRg, setErrorRg] = useState<string | undefined>(undefined);
   const [cpf, setCpf] = useState('');
   const [errorCpf, setErrorCpf] = useState<string | undefined>(undefined);
-  const [birthDate, setBirthDate] = useState('');
-  const [errorBirthDate, setErrorBirthDate] = useState<string | undefined>(undefined);
+  const [birth, setBirth] = useState('');
+  const [errorBirth, setErrorBirth] = useState<string | undefined>(undefined);
 
   const [cnh, setCnh] = useState('');
   const [errorCnh, setErrorCnh] = useState<string | undefined>(undefined);
@@ -88,10 +87,9 @@ export function Driver(): JSX.Element {
       if (driver) {
         setDriver(driver);
 
-        setName(driver.person.name);
-        setRg(driver.person.rg);
-        setCpf(driver.person.cpf);
-        setBirthDate(formatarDataIso(driver.person.birthDate));
+        setName((driver.person.individual as IndividualPerson).name);
+        setCpf((driver.person.individual as IndividualPerson).cpf);
+        setBirth(formatarDataIso((driver.person.individual as IndividualPerson).birth));
 
         setCnh(driver.cnh);
 
@@ -100,18 +98,35 @@ export function Driver(): JSX.Element {
         setAccount(driver.bankData.account);
         setType(driver.bankData.type.toString());
 
-        setStreet(driver.person.contact.address.street);
-        setNumber(driver.person.contact.address.number);
-        setNeighborhood(driver.person.contact.address.neighborhood);
-        setComplement(driver.person.contact.address.complement);
-        setCode(driver.person.contact.address.code);
-        setState(driver.person.contact.address.city.state.toString());
-        setCities(states[driver.person.contact.address.city.state - 1].cities);
-        setCity(driver.person.contact.address.city.id.toString());
+        setStreet((driver.person.individual as IndividualPerson).contact.address.street);
+        setNumber((driver.person.individual as IndividualPerson).contact.address.number);
+        setNeighborhood(
+          (driver.person.individual as IndividualPerson).contact.address.neighborhood,
+        );
+        setComplement(
+          (driver.person.individual as IndividualPerson).contact.address.complement,
+        );
+        setCode((driver.person.individual as IndividualPerson).contact.address.code);
+        setState(
+          (
+            driver.person.individual as IndividualPerson
+          ).contact.address.city.state.id.toString(),
+        );
+        setCities(
+          states[
+            (driver.person.individual as IndividualPerson).contact.address.city.state.id -
+              1
+          ].cities,
+        );
+        setCity(
+          (
+            driver.person.individual as IndividualPerson
+          ).contact.address.city.id.toString(),
+        );
 
-        setPhone(driver.person.contact.phone);
-        setCellphone(driver.person.contact.cellphone);
-        setEmail(driver.person.contact.email);
+        setPhone((driver.person.individual as IndividualPerson).contact.phone);
+        setCellphone((driver.person.individual as IndividualPerson).contact.cellphone);
+        setEmail((driver.person.individual as IndividualPerson).contact.email);
       }
     };
 
@@ -125,9 +140,11 @@ export function Driver(): JSX.Element {
 
   const verifyCpf = async (cpf: string) => {
     const drivers = await new DriverModel().get();
-    const driver = drivers.find((item) => item.person.cpf == cpf);
+    const driver = drivers.find(
+      (item) => (item.person.individual as IndividualPerson).cpf == cpf,
+    );
 
-    return !!driver && driver.person.cpf != cpf;
+    return !!driver && (driver.person.individual as IndividualPerson).cpf != cpf;
   };
 
   const validateCpf = (cpf: string) => {
@@ -182,14 +199,8 @@ export function Driver(): JSX.Element {
       else if (value.length < 3) setErrorName('O nome preenchido é inválido');
       else {
         setErrorName(undefined);
-        driver.person.name = value;
-      }
-    },
-    rg: (value: string) => {
-      if (value.length == 0) setErrorRg('O RG precisa ser preenchido');
-      else {
-        setErrorRg(undefined);
-        driver.person.rg = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).name = value;
       }
     },
     cpf: async (value: string) => {
@@ -199,17 +210,19 @@ export function Driver(): JSX.Element {
         setErrorCpf('O CPF preenchido já existe no cadastro');
       else {
         setErrorCpf(undefined);
-        driver.person.cpf = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).cpf = value;
       }
     },
-    birthDate: (value: string) => {
+    birth: (value: string) => {
       const date = new Date(value);
-      if (value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
+      if (value.length == 0) setErrorBirth('A data precisa ser preenchida');
       else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
-        setErrorBirthDate('A data preenchida é inválida');
+        setErrorBirth('A data preenchida é inválida');
       else {
-        setErrorBirthDate(undefined);
-        driver.person.birthDate = value;
+        setErrorBirth(undefined);
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).birth = value;
       }
     },
     cnh: (value: string) => {
@@ -251,21 +264,25 @@ export function Driver(): JSX.Element {
       if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
       else {
         setErrorStreet(undefined);
-        driver.person.contact.address.street = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.address.street = value;
       }
     },
     number: (value: string) => {
       if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
       else {
         setErrorNumber(undefined);
-        driver.person.contact.address.number = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.address.number = value;
       }
     },
     neighborhood: (value: string) => {
       if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
       else {
         setErrorNeighborhood(undefined);
-        driver.person.contact.address.neighborhood = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.address.neighborhood =
+          value;
       }
     },
     code: (value: string) => {
@@ -273,7 +290,8 @@ export function Driver(): JSX.Element {
       else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
-        driver.person.contact.address.code = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.address.code = value;
       }
     },
     state: (value: string) => {
@@ -287,7 +305,8 @@ export function Driver(): JSX.Element {
       if (value == '0') setErrorCity('A cidade precisa ser selecionada');
       else {
         setErrorCity(undefined);
-        driver.person.contact.address.city = cities.find(
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.address.city = cities.find(
           (item) => item.id == Number(value),
         ) as City;
       }
@@ -297,7 +316,8 @@ export function Driver(): JSX.Element {
       else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
       else {
         setErrorPhone(undefined);
-        driver.person.contact.phone = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.phone = value;
       }
     },
     cellphone: (value: string) => {
@@ -305,7 +325,8 @@ export function Driver(): JSX.Element {
       else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
       else {
         setErrorCellphone(undefined);
-        driver.person.contact.cellphone = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.cellphone = value;
       }
     },
     email: (value: string) => {
@@ -313,16 +334,16 @@ export function Driver(): JSX.Element {
       else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
       else {
         setErrorEmail(undefined);
-        driver.person.contact.email = value;
+        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
+        (driver.person.individual as IndividualPerson).contact.email = value;
       }
     },
   };
 
   const validateFields = async () => {
     validate.name(name);
-    validate.rg(rg);
     await validate.cpf(cpf);
-    validate.birthDate(birthDate);
+    validate.birth(birth);
     validate.cnh(cnh);
     validate.bank(bank);
     validate.agency(agency);
@@ -340,9 +361,8 @@ export function Driver(): JSX.Element {
 
     return (
       !errorName &&
-      !errorRg &&
       !errorCpf &&
-      !errorBirthDate &&
+      !errorBirth &&
       !errorCnh &&
       !errorBank &&
       !errorAgency &&
@@ -363,9 +383,8 @@ export function Driver(): JSX.Element {
   const clearFields = () => {
     setDriver(new DriverModel());
     setName('');
-    setRg('');
     setCpf('');
-    setBirthDate('');
+    setBirth('');
 
     setCnh('');
 
@@ -392,17 +411,13 @@ export function Driver(): JSX.Element {
       setName(e.target.value);
       validate.name(e.target.value);
     },
-    handleRgChange: (e: ChangeEvent<HTMLInputElement>) => {
-      setRg(e.target.value);
-      validate.rg(e.target.value);
-    },
     handleCpfChange: (e: ChangeEvent<HTMLInputElement>) => {
       setCpf(e.target.value);
       validate.cpf(e.target.value);
     },
-    handleBirthDateChange: (e: ChangeEvent<HTMLInputElement>) => {
-      setBirthDate(e.target.value);
-      validate.birthDate(e.target.value);
+    handleBirthChange: (e: ChangeEvent<HTMLInputElement>) => {
+      setBirth(e.target.value);
+      validate.birth(e.target.value);
     },
   };
 
@@ -479,23 +494,30 @@ export function Driver(): JSX.Element {
         dispatch(
           actions.driverSaveRequest({
             address: {
-              street: driver.person.contact.address.street,
-              number: driver.person.contact.address.number,
-              neighborhood: driver.person.contact.address.neighborhood,
-              complement: driver.person.contact.address.complement,
-              code: driver.person.contact.address.code,
-              city: driver.person.contact.address.city.id,
+              street: (driver.person.individual as IndividualPerson).contact.address
+                .street,
+              number: (driver.person.individual as IndividualPerson).contact.address
+                .number,
+              neighborhood: (driver.person.individual as IndividualPerson).contact.address
+                .neighborhood,
+              complement: (driver.person.individual as IndividualPerson).contact.address
+                .complement,
+              code: (driver.person.individual as IndividualPerson).contact.address.code,
+              city: (driver.person.individual as IndividualPerson).contact.address.city
+                .id,
             },
             contact: {
-              phone: driver.person.contact.phone,
-              cellphone: driver.person.contact.cellphone,
-              email: driver.person.contact.email,
+              phone: (driver.person.individual as IndividualPerson).contact.phone,
+              cellphone: (driver.person.individual as IndividualPerson).contact.cellphone,
+              email: (driver.person.individual as IndividualPerson).contact.email,
             },
             person: {
-              name: driver.person.name,
-              rg: driver.person.rg,
-              cpf: driver.person.cpf,
-              birthDate: driver.person.birthDate.substring(0, 10),
+              name: (driver.person.individual as IndividualPerson).name,
+              cpf: (driver.person.individual as IndividualPerson).cpf,
+              birth: (driver.person.individual as IndividualPerson).birth.substring(
+                0,
+                10,
+              ),
             },
             bank: {
               bank: driver.bankData.bank,
@@ -514,23 +536,30 @@ export function Driver(): JSX.Element {
         dispatch(
           actions.driverUpdateRequest({
             address: {
-              street: driver.person.contact.address.street,
-              number: driver.person.contact.address.number,
-              neighborhood: driver.person.contact.address.neighborhood,
-              complement: driver.person.contact.address.complement,
-              code: driver.person.contact.address.code,
-              city: driver.person.contact.address.city.id,
+              street: (driver.person.individual as IndividualPerson).contact.address
+                .street,
+              number: (driver.person.individual as IndividualPerson).contact.address
+                .number,
+              neighborhood: (driver.person.individual as IndividualPerson).contact.address
+                .neighborhood,
+              complement: (driver.person.individual as IndividualPerson).contact.address
+                .complement,
+              code: (driver.person.individual as IndividualPerson).contact.address.code,
+              city: (driver.person.individual as IndividualPerson).contact.address.city
+                .id,
             },
             contact: {
-              phone: driver.person.contact.phone,
-              cellphone: driver.person.contact.cellphone,
-              email: driver.person.contact.email,
+              phone: (driver.person.individual as IndividualPerson).contact.phone,
+              cellphone: (driver.person.individual as IndividualPerson).contact.cellphone,
+              email: (driver.person.individual as IndividualPerson).contact.email,
             },
             person: {
-              name: driver.person.name,
-              rg: driver.person.rg,
-              cpf: driver.person.cpf,
-              birthDate: driver.person.birthDate.substring(0, 10),
+              name: (driver.person.individual as IndividualPerson).name,
+              cpf: (driver.person.individual as IndividualPerson).cpf,
+              birth: (driver.person.individual as IndividualPerson).birth.substring(
+                0,
+                10,
+              ),
             },
             bank: {
               bank: driver.bankData.bank,
@@ -560,12 +589,10 @@ export function Driver(): JSX.Element {
   const personFields = {
     name,
     errorName,
-    rg,
-    errorRg,
     cpf,
     errorCpf,
-    birthDate,
-    errorBirthDate,
+    birth,
+    errorBirth,
   };
 
   const contactFields = {
