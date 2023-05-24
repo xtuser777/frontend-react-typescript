@@ -4,7 +4,7 @@ export class City {
   constructor(
     private _id: number = 0,
     private _name: string = '',
-    private _state: State,
+    private _state: State = new State(),
   ) {}
 
   get id(): number {

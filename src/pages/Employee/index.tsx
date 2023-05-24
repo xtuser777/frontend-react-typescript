@@ -107,31 +107,17 @@ export function Employee(): JSX.Element {
         setAdmission(formatarDataIso(user.admission));
         setType(user.type.toString());
 
-        setStreet((user.person.individual as IndividualPerson).contact.address.street);
-        setNumber((user.person.individual as IndividualPerson).contact.address.number);
-        setNeighborhood(
-          (user.person.individual as IndividualPerson).contact.address.neighborhood,
-        );
-        setComplement(
-          (user.person.individual as IndividualPerson).contact.address.complement,
-        );
-        setCode((user.person.individual as IndividualPerson).contact.address.code);
-        setState(
-          (
-            user.person.individual as IndividualPerson
-          ).contact.address.city.state.id.toString(),
-        );
-        setCities(
-          states[
-            (user.person.individual as IndividualPerson).contact.address.city.state.id - 1
-          ].cities,
-        );
-        setCity(
-          (user.person.individual as IndividualPerson).contact.address.city.id.toString(),
-        );
-        setPhone((user.person.individual as IndividualPerson).contact.phone);
-        setCellphone((user.person.individual as IndividualPerson).contact.cellphone);
-        setEmail((user.person.individual as IndividualPerson).contact.email);
+        setStreet(user.person.contact.address.street);
+        setNumber(user.person.contact.address.number);
+        setNeighborhood(user.person.contact.address.neighborhood);
+        setComplement(user.person.contact.address.complement);
+        setCode(user.person.contact.address.code);
+        setState(user.person.contact.address.city.state.id.toString());
+        setCities(states[user.person.contact.address.city.state.id - 1].cities);
+        setCity(user.person.contact.address.city.id.toString());
+        setPhone(user.person.contact.phone);
+        setCellphone(user.person.contact.cellphone);
+        setEmail(user.person.contact.email);
 
         setLevel(user.level.id.toString());
         setLogin(user.login);
@@ -284,7 +270,7 @@ export function Employee(): JSX.Element {
         setErrorStreet(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.address.street = value;
+        employee.person.contact.address.street = value;
       }
     },
     number: (value: string) => {
@@ -293,7 +279,7 @@ export function Employee(): JSX.Element {
         setErrorNumber(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.address.number = value;
+        employee.person.contact.address.number = value;
       }
     },
     neighborhood: (value: string) => {
@@ -302,8 +288,7 @@ export function Employee(): JSX.Element {
         setErrorNeighborhood(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.address.neighborhood =
-          value;
+        employee.person.contact.address.neighborhood = value;
       }
     },
     code: (value: string) => {
@@ -313,7 +298,7 @@ export function Employee(): JSX.Element {
         setErrorCode(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.address.code = value;
+        employee.person.contact.address.code = value;
       }
     },
     state: (value: string) => {
@@ -329,8 +314,9 @@ export function Employee(): JSX.Element {
         setErrorCity(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.address.city =
-          cities.find((item) => item.id == Number(value)) as City;
+        employee.person.contact.address.city = cities.find(
+          (item) => item.id == Number(value),
+        ) as City;
       }
     },
     phone: (value: string) => {
@@ -340,7 +326,7 @@ export function Employee(): JSX.Element {
         setErrorPhone(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.phone = value;
+        employee.person.contact.phone = value;
       }
     },
     cellphone: (value: string) => {
@@ -350,7 +336,7 @@ export function Employee(): JSX.Element {
         setErrorCellphone(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.cellphone = value;
+        employee.person.contact.cellphone = value;
       }
     },
     email: (value: string) => {
@@ -360,7 +346,7 @@ export function Employee(): JSX.Element {
         setErrorEmail(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
-        (employee.person.individual as IndividualPerson).contact.email = value;
+        employee.person.contact.email = value;
       }
     },
     level: async (value: string) => {
@@ -506,8 +492,7 @@ export function Employee(): JSX.Element {
       setComplement(e.target.value);
       if (!employee.person.individual)
         employee.person.individual = new IndividualPerson();
-      (employee.person.individual as IndividualPerson).contact.address.complement =
-        e.target.value;
+      employee.person.contact.address.complement = e.target.value;
     },
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
@@ -564,23 +549,17 @@ export function Employee(): JSX.Element {
         dispatch(
           actions.employeeSaveRequest({
             address: {
-              street: (employee.person.individual as IndividualPerson).contact.address
-                .street,
-              number: (employee.person.individual as IndividualPerson).contact.address
-                .number,
-              neighborhood: (employee.person.individual as IndividualPerson).contact
-                .address.neighborhood,
-              complement: (employee.person.individual as IndividualPerson).contact.address
-                .complement,
-              code: (employee.person.individual as IndividualPerson).contact.address.code,
-              city: (employee.person.individual as IndividualPerson).contact.address.city
-                .id,
+              street: employee.person.contact.address.street,
+              number: employee.person.contact.address.number,
+              neighborhood: employee.person.contact.address.neighborhood,
+              complement: employee.person.contact.address.complement,
+              code: employee.person.contact.address.code,
+              city: employee.person.contact.address.city.id,
             },
             contact: {
-              phone: (employee.person.individual as IndividualPerson).contact.phone,
-              cellphone: (employee.person.individual as IndividualPerson).contact
-                .cellphone,
-              email: (employee.person.individual as IndividualPerson).contact.email,
+              phone: employee.person.contact.phone,
+              cellphone: employee.person.contact.cellphone,
+              email: employee.person.contact.email,
             },
             person: {
               name: (employee.person.individual as IndividualPerson).name,
@@ -604,23 +583,17 @@ export function Employee(): JSX.Element {
         dispatch(
           actions.employeeUpdateRequest({
             address: {
-              street: (employee.person.individual as IndividualPerson).contact.address
-                .street,
-              number: (employee.person.individual as IndividualPerson).contact.address
-                .number,
-              neighborhood: (employee.person.individual as IndividualPerson).contact
-                .address.neighborhood,
-              complement: (employee.person.individual as IndividualPerson).contact.address
-                .complement,
-              code: (employee.person.individual as IndividualPerson).contact.address.code,
-              city: (employee.person.individual as IndividualPerson).contact.address.city
-                .id,
+              street: employee.person.contact.address.street,
+              number: employee.person.contact.address.number,
+              neighborhood: employee.person.contact.address.neighborhood,
+              complement: employee.person.contact.address.complement,
+              code: employee.person.contact.address.code,
+              city: employee.person.contact.address.city.id,
             },
             contact: {
-              phone: (employee.person.individual as IndividualPerson).contact.phone,
-              cellphone: (employee.person.individual as IndividualPerson).contact
-                .cellphone,
-              email: (employee.person.individual as IndividualPerson).contact.email,
+              phone: employee.person.contact.phone,
+              cellphone: employee.person.contact.cellphone,
+              email: employee.person.contact.email,
             },
             person: {
               name: (employee.person.individual as IndividualPerson).name,

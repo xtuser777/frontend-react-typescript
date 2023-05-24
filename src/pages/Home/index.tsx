@@ -75,7 +75,7 @@ export function Home(): JSX.Element {
     setEvents(data);
   };
 
-  const handlePdfClick = (e: MouseEvent) => {
+  const handlePdfClick = () => {
     alert('Gerar PDF clicado.');
   };
 
@@ -160,7 +160,7 @@ export function Home(): JSX.Element {
             id="pdf"
             style={{ width: '100%' }}
             size="sm"
-            onClick={(e) => handlePdfClick(e)}
+            onClick={(e) => handlePdfClick()}
           >
             Gerar PDF
           </Button>

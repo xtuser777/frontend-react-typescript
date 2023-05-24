@@ -32,8 +32,6 @@ export function Client(): JSX.Element {
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);
-  const [rg, setRg] = useState('');
-  const [errorRg, setErrorRg] = useState<string | undefined>(undefined);
   const [cpf, setCpf] = useState('');
   const [errorCpf, setErrorCpf] = useState<string | undefined>(undefined);
   const [birth, setBirth] = useState('');
@@ -96,77 +94,35 @@ export function Client(): JSX.Element {
           setCpf((client.person.individual as IndividualPerson).cpf);
           setBirth(formatarDataIso((client.person.individual as IndividualPerson).birth));
 
-          setStreet(
-            (client.person.individual as IndividualPerson).contact.address.street,
-          );
-          setNumber(
-            (client.person.individual as IndividualPerson).contact.address.number,
-          );
-          setNeighborhood(
-            (client.person.individual as IndividualPerson).contact.address.neighborhood,
-          );
-          setComplement(
-            (client.person.individual as IndividualPerson).contact.address.complement,
-          );
-          setCode((client.person.individual as IndividualPerson).contact.address.code);
-          setState(
-            (
-              client.person.individual as IndividualPerson
-            ).contact.address.city.state.id.toString(),
-          );
-          setCities(
-            states[
-              (client.person.individual as IndividualPerson).contact.address.city.state
-                .id - 1
-            ].cities,
-          );
-          setCity(
-            (
-              client.person.individual as IndividualPerson
-            ).contact.address.city.id.toString(),
-          );
+          setStreet(client.person.contact.address.street);
+          setNumber(client.person.contact.address.number);
+          setNeighborhood(client.person.contact.address.neighborhood);
+          setComplement(client.person.contact.address.complement);
+          setCode(client.person.contact.address.code);
+          setState(client.person.contact.address.city.state.id.toString());
+          setCities(states[client.person.contact.address.city.state.id - 1].cities);
+          setCity(client.person.contact.address.city.id.toString());
 
-          setPhone((client.person.individual as IndividualPerson).contact.phone);
-          setCellphone((client.person.individual as IndividualPerson).contact.cellphone);
-          setEmail((client.person.individual as IndividualPerson).contact.email);
+          setPhone(client.person.contact.phone);
+          setCellphone(client.person.contact.cellphone);
+          setEmail(client.person.contact.email);
         } else {
           setCorporateName((client.person.enterprise as EnterprisePerson).corporateName);
           setFantasyName((client.person.enterprise as EnterprisePerson).fantasyName);
           setCnpj((client.person.enterprise as EnterprisePerson).cnpj);
 
-          setStreet(
-            (client.person.enterprise as EnterprisePerson).contact.address.street,
-          );
-          setNumber(
-            (client.person.enterprise as EnterprisePerson).contact.address.number,
-          );
-          setNeighborhood(
-            (client.person.enterprise as EnterprisePerson).contact.address.neighborhood,
-          );
-          setComplement(
-            (client.person.enterprise as EnterprisePerson).contact.address.complement,
-          );
-          setCode((client.person.enterprise as EnterprisePerson).contact.address.code);
-          setState(
-            (
-              client.person.enterprise as EnterprisePerson
-            ).contact.address.city.state.id.toString(),
-          );
-          setCities(
-            states[
-              (client.person.enterprise as EnterprisePerson).contact.address.city.state
-                .id - 1
-            ].cities,
-          );
-          setCity(
-            (
-              client.person.enterprise as EnterprisePerson
-            ).contact.address.city.id.toString(),
-          );
+          setStreet(client.person.contact.address.street);
+          setNumber(client.person.contact.address.number);
+          setNeighborhood(client.person.contact.address.neighborhood);
+          setComplement(client.person.contact.address.complement);
+          setCode(client.person.contact.address.code);
+          setState(client.person.contact.address.city.state.id.toString());
+          setCities(states[client.person.contact.address.city.state.id - 1].cities);
+          setCity(client.person.contact.address.city.id.toString());
 
-          setPhone((client.person.enterprise as EnterprisePerson).contact.phone);
-          setCellphone((client.person.enterprise as EnterprisePerson).contact.cellphone);
-          setEmail((client.person.enterprise as EnterprisePerson).contact.email);
+          setPhone(client.person.contact.phone);
+          setCellphone(client.person.contact.cellphone);
+          setEmail(client.person.contact.email);
         }
       }
     };
@@ -348,32 +304,24 @@ export function Client(): JSX.Element {
       if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
       else {
         setErrorStreet(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.address.street = value;
-        else
-          (client.person.enterprise as EnterprisePerson).contact.address.street = value;
+        if (type == '1') client.person.contact.address.street = value;
+        else client.person.contact.address.street = value;
       }
     },
     number: (value: string) => {
       if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
       else {
         setErrorNumber(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.address.number = value;
-        else
-          (client.person.enterprise as EnterprisePerson).contact.address.number = value;
+        if (type == '1') client.person.contact.address.number = value;
+        else client.person.contact.address.number = value;
       }
     },
     neighborhood: (value: string) => {
       if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
       else {
         setErrorNeighborhood(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.address.neighborhood =
-            value;
-        else
-          (client.person.enterprise as EnterprisePerson).contact.address.neighborhood =
-            value;
+        if (type == '1') client.person.contact.address.neighborhood = value;
+        else client.person.contact.address.neighborhood = value;
       }
     },
     code: (value: string) => {
@@ -381,9 +329,8 @@ export function Client(): JSX.Element {
       else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.address.code = value;
-        else (client.person.enterprise as EnterprisePerson).contact.address.code = value;
+        if (type == '1') client.person.contact.address.code = value;
+        else client.person.contact.address.code = value;
       }
     },
     state: (value: string) => {
@@ -398,11 +345,13 @@ export function Client(): JSX.Element {
       else {
         setErrorCity(undefined);
         if (type == '1')
-          (client.person.individual as IndividualPerson).contact.address.city =
-            cities.find((item) => item.id == Number(value)) as City;
+          client.person.contact.address.city = cities.find(
+            (item) => item.id == Number(value),
+          ) as City;
         else
-          (client.person.enterprise as EnterprisePerson).contact.address.city =
-            cities.find((item) => item.id == Number(value)) as City;
+          client.person.contact.address.city = cities.find(
+            (item) => item.id == Number(value),
+          ) as City;
       }
     },
     phone: (value: string) => {
@@ -410,9 +359,8 @@ export function Client(): JSX.Element {
       else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
       else {
         setErrorPhone(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.phone = value;
-        else (client.person.enterprise as EnterprisePerson).contact.phone = value;
+        if (type == '1') client.person.contact.phone = value;
+        else client.person.contact.phone = value;
       }
     },
     cellphone: (value: string) => {
@@ -420,9 +368,8 @@ export function Client(): JSX.Element {
       else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
       else {
         setErrorCellphone(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.cellphone = value;
-        else (client.person.enterprise as EnterprisePerson).contact.cellphone = value;
+        if (type == '1') client.person.contact.cellphone = value;
+        else client.person.contact.cellphone = value;
       }
     },
     email: (value: string) => {
@@ -430,9 +377,8 @@ export function Client(): JSX.Element {
       else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
       else {
         setErrorEmail(undefined);
-        if (type == '1')
-          (client.person.individual as IndividualPerson).contact.email = value;
-        else (client.person.enterprise as EnterprisePerson).contact.email = value;
+        if (type == '1') client.person.contact.email = value;
+        else client.person.contact.email = value;
       }
     },
   };
@@ -460,7 +406,7 @@ export function Client(): JSX.Element {
 
     return (
       (type == '1'
-        ? !errorName && !errorRg && !errorCpf && !errorbirth
+        ? !errorName && !errorCpf && !errorbirth
         : !errorCorporateName && !errorFantasyName && !errorCnpj) &&
       !errorType &&
       !errorStreet &&
@@ -478,7 +424,6 @@ export function Client(): JSX.Element {
   const clearFields = () => {
     setClient(new ClientModel());
     setName('');
-    setRg('');
     setCpf('');
     setBirth('');
 
@@ -586,47 +531,42 @@ export function Client(): JSX.Element {
             address: {
               street:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.street
-                  : (client.person.enterprise as EnterprisePerson).contact.address.street,
+                  ? client.person.contact.address.street
+                  : client.person.contact.address.street,
               number:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.number
-                  : (client.person.enterprise as EnterprisePerson).contact.address.number,
+                  ? client.person.contact.address.number
+                  : client.person.contact.address.number,
               neighborhood:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address
-                      .neighborhood
-                  : (client.person.enterprise as EnterprisePerson).contact.address
-                      .neighborhood,
+                  ? client.person.contact.address.neighborhood
+                  : client.person.contact.address.neighborhood,
               complement:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address
-                      .complement
-                  : (client.person.enterprise as EnterprisePerson).contact.address
-                      .complement,
+                  ? client.person.contact.address.complement
+                  : client.person.contact.address.complement,
               code:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.code
-                  : (client.person.enterprise as EnterprisePerson).contact.address.code,
+                  ? client.person.contact.address.code
+                  : client.person.contact.address.code,
               city:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.city.id
-                  : (client.person.enterprise as EnterprisePerson).contact.address.city
-                      .id,
+                  ? client.person.contact.address.city.id
+                  : client.person.contact.address.city.id,
             },
             contact: {
               phone:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.phone
-                  : (client.person.enterprise as EnterprisePerson).contact.phone,
+                  ? client.person.contact.phone
+                  : client.person.contact.phone,
               cellphone:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.cellphone
-                  : (client.person.enterprise as EnterprisePerson).contact.cellphone,
+                  ? client.person.contact.cellphone
+                  : client.person.contact.cellphone,
               email:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.email
-                  : (client.person.enterprise as EnterprisePerson).contact.email,
+                  ? client.person.contact.email
+                  : client.person.contact.email,
             },
             person: {
               name:
@@ -667,47 +607,42 @@ export function Client(): JSX.Element {
             address: {
               street:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.street
-                  : (client.person.enterprise as EnterprisePerson).contact.address.street,
+                  ? client.person.contact.address.street
+                  : client.person.contact.address.street,
               number:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.number
-                  : (client.person.enterprise as EnterprisePerson).contact.address.number,
+                  ? client.person.contact.address.number
+                  : client.person.contact.address.number,
               neighborhood:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address
-                      .neighborhood
-                  : (client.person.enterprise as EnterprisePerson).contact.address
-                      .neighborhood,
+                  ? client.person.contact.address.neighborhood
+                  : client.person.contact.address.neighborhood,
               complement:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address
-                      .complement
-                  : (client.person.enterprise as EnterprisePerson).contact.address
-                      .complement,
+                  ? client.person.contact.address.complement
+                  : client.person.contact.address.complement,
               code:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.code
-                  : (client.person.enterprise as EnterprisePerson).contact.address.code,
+                  ? client.person.contact.address.code
+                  : client.person.contact.address.code,
               city:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.address.city.id
-                  : (client.person.enterprise as EnterprisePerson).contact.address.city
-                      .id,
+                  ? client.person.contact.address.city.id
+                  : client.person.contact.address.city.id,
             },
             contact: {
               phone:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.phone
-                  : (client.person.enterprise as EnterprisePerson).contact.phone,
+                  ? client.person.contact.phone
+                  : client.person.contact.phone,
               cellphone:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.cellphone
-                  : (client.person.enterprise as EnterprisePerson).contact.cellphone,
+                  ? client.person.contact.cellphone
+                  : client.person.contact.cellphone,
               email:
                 client.person.type == 1
-                  ? (client.person.individual as IndividualPerson).contact.email
-                  : (client.person.enterprise as EnterprisePerson).contact.email,
+                  ? client.person.contact.email
+                  : client.person.contact.email,
             },
             person: {
               name:
@@ -757,8 +692,6 @@ export function Client(): JSX.Element {
   const personIndividualFields = {
     name,
     errorName,
-    rg,
-    errorRg,
     cpf,
     errorCpf,
     birth,

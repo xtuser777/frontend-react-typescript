@@ -83,44 +83,19 @@ export function Parameterization(): JSX.Element {
         );
         setCnpj((parameterization.person.enterprise as EnterprisePerson).cnpj);
 
-        setStreet(
-          (parameterization.person.enterprise as EnterprisePerson).contact.address.street,
-        );
-        setNumber(
-          (parameterization.person.enterprise as EnterprisePerson).contact.address.number,
-        );
-        setNeighborhood(
-          (parameterization.person.enterprise as EnterprisePerson).contact.address
-            .neighborhood,
-        );
-        setComplement(
-          (parameterization.person.enterprise as EnterprisePerson).contact.address
-            .complement,
-        );
-        setCode(
-          (parameterization.person.enterprise as EnterprisePerson).contact.address.code,
-        );
-        setState(
-          (
-            parameterization.person.enterprise as EnterprisePerson
-          ).contact.address.city.state.id.toString(),
-        );
+        setStreet(parameterization.person.contact.address.street);
+        setNumber(parameterization.person.contact.address.number);
+        setNeighborhood(parameterization.person.contact.address.neighborhood);
+        setComplement(parameterization.person.contact.address.complement);
+        setCode(parameterization.person.contact.address.code);
+        setState(parameterization.person.contact.address.city.state.id.toString());
         setCities(
-          states[
-            (parameterization.person.enterprise as EnterprisePerson).contact.address.city
-              .state.id - 1
-          ].cities,
+          states[parameterization.person.contact.address.city.state.id - 1].cities,
         );
-        setCity(
-          (
-            parameterization.person.enterprise as EnterprisePerson
-          ).contact.address.city.id.toString(),
-        );
-        setPhone((parameterization.person.enterprise as EnterprisePerson).contact.phone);
-        setCellphone(
-          (parameterization.person.enterprise as EnterprisePerson).contact.cellphone,
-        );
-        setEmail((parameterization.person.enterprise as EnterprisePerson).contact.email);
+        setCity(parameterization.person.contact.address.city.id.toString());
+        setPhone(parameterization.person.contact.phone);
+        setCellphone(parameterization.person.contact.cellphone);
+        setEmail(parameterization.person.contact.email);
       }
     };
 
@@ -210,25 +185,21 @@ export function Parameterization(): JSX.Element {
       if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
       else {
         setErrorStreet(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.address.street =
-          value;
+        parameterization.person.contact.address.street = value;
       }
     },
     number: (value: string) => {
       if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
       else {
         setErrorNumber(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.address.number =
-          value;
+        parameterization.person.contact.address.number = value;
       }
     },
     neighborhood: (value: string) => {
       if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
       else {
         setErrorNeighborhood(undefined);
-        (
-          parameterization.person.enterprise as EnterprisePerson
-        ).contact.address.neighborhood = value;
+        parameterization.person.contact.address.neighborhood = value;
       }
     },
     code: (value: string) => {
@@ -236,8 +207,7 @@ export function Parameterization(): JSX.Element {
       else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.address.code =
-          value;
+        parameterization.person.contact.address.code = value;
       }
     },
     state: (value: string) => {
@@ -245,10 +215,7 @@ export function Parameterization(): JSX.Element {
       else {
         setErrorState(undefined);
         setCities(
-          states[
-            (parameterization.person.enterprise as EnterprisePerson).contact.address.city
-              .state.id - 1
-          ].cities,
+          states[parameterization.person.contact.address.city.state.id - 1].cities,
         );
       }
     },
@@ -256,8 +223,9 @@ export function Parameterization(): JSX.Element {
       if (value == '0') setErrorCity('A cidade precisa ser selecionada');
       else {
         setErrorCity(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.address.city =
-          cities.find((item) => item.id == Number(value)) as City;
+        parameterization.person.contact.address.city = cities.find(
+          (item) => item.id == Number(value),
+        ) as City;
       }
     },
     phone: (value: string) => {
@@ -265,7 +233,7 @@ export function Parameterization(): JSX.Element {
       else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
       else {
         setErrorPhone(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.phone = value;
+        parameterization.person.contact.phone = value;
       }
     },
     cellphone: (value: string) => {
@@ -273,8 +241,7 @@ export function Parameterization(): JSX.Element {
       else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
       else {
         setErrorCellphone(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.cellphone =
-          value;
+        parameterization.person.contact.cellphone = value;
       }
     },
     email: (value: string) => {
@@ -282,7 +249,7 @@ export function Parameterization(): JSX.Element {
       else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
       else {
         setErrorEmail(undefined);
-        (parameterization.person.enterprise as EnterprisePerson).contact.email = value;
+        parameterization.person.contact.email = value;
       }
     },
   };
@@ -406,26 +373,17 @@ export function Parameterization(): JSX.Element {
         dispatch(
           actions.parameterizationSaveRequest({
             address: {
-              street: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.street,
-              number: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.number,
-              neighborhood: (parameterization.person.enterprise as EnterprisePerson)
-                .contact.address.neighborhood,
-              complement: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.complement,
-              code: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.code,
-              city: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.city.id,
+              street: parameterization.person.contact.address.street,
+              number: parameterization.person.contact.address.number,
+              neighborhood: parameterization.person.contact.address.neighborhood,
+              complement: parameterization.person.contact.address.complement,
+              code: parameterization.person.contact.address.code,
+              city: parameterization.person.contact.address.city.id,
             },
             contact: {
-              phone: (parameterization.person.enterprise as EnterprisePerson).contact
-                .phone,
-              cellphone: (parameterization.person.enterprise as EnterprisePerson).contact
-                .cellphone,
-              email: (parameterization.person.enterprise as EnterprisePerson).contact
-                .email,
+              phone: parameterization.person.contact.phone,
+              cellphone: parameterization.person.contact.cellphone,
+              email: parameterization.person.contact.email,
             },
             person: {
               corporateName: (parameterization.person.enterprise as EnterprisePerson)
@@ -445,26 +403,17 @@ export function Parameterization(): JSX.Element {
         dispatch(
           actions.parameterizationUpdateRequest({
             address: {
-              street: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.street,
-              number: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.number,
-              neighborhood: (parameterization.person.enterprise as EnterprisePerson)
-                .contact.address.neighborhood,
-              complement: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.complement,
-              code: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.code,
-              city: (parameterization.person.enterprise as EnterprisePerson).contact
-                .address.city.id,
+              street: parameterization.person.contact.address.street,
+              number: parameterization.person.contact.address.number,
+              neighborhood: parameterization.person.contact.address.neighborhood,
+              complement: parameterization.person.contact.address.complement,
+              code: parameterization.person.contact.address.code,
+              city: parameterization.person.contact.address.city.id,
             },
             contact: {
-              phone: (parameterization.person.enterprise as EnterprisePerson).contact
-                .phone,
-              cellphone: (parameterization.person.enterprise as EnterprisePerson).contact
-                .cellphone,
-              email: (parameterization.person.enterprise as EnterprisePerson).contact
-                .email,
+              phone: parameterization.person.contact.phone,
+              cellphone: parameterization.person.contact.cellphone,
+              email: parameterization.person.contact.email,
             },
             person: {
               corporateName: (parameterization.person.enterprise as EnterprisePerson)

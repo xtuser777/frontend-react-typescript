@@ -50,7 +50,7 @@ export function Drivers(): JSX.Element {
       filteredData = filteredData.filter(
         (item) =>
           (item.person.individual as IndividualPerson).name.includes(filter) ||
-          (item.person.individual as IndividualPerson).contact.email.includes(filter),
+          item.person.contact.email.includes(filter),
       );
     }
 
@@ -137,30 +137,18 @@ export function Drivers(): JSX.Element {
         break;
       case '11':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
             return 1;
-          if (
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (x.person.contact.email.toUpperCase() < y.person.contact.email.toUpperCase())
             return -1;
           return 0;
         });
         break;
       case '12':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
             return 1;
-          if (
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (y.person.contact.email.toUpperCase() < x.person.contact.email.toUpperCase())
             return -1;
           return 0;
         });
@@ -282,7 +270,7 @@ export function Drivers(): JSX.Element {
                 <td>{(item.person.individual as IndividualPerson).name}</td>
                 <td>{(item.person.individual as IndividualPerson).cpf}</td>
                 <td>{formatarData(item.register)}</td>
-                <td>{(item.person.individual as IndividualPerson).contact.email}</td>
+                <td>{item.person.contact.email}</td>
                 <td>
                   <FaEdit
                     role="button"

@@ -98,35 +98,18 @@ export function Driver(): JSX.Element {
         setAccount(driver.bankData.account);
         setType(driver.bankData.type.toString());
 
-        setStreet((driver.person.individual as IndividualPerson).contact.address.street);
-        setNumber((driver.person.individual as IndividualPerson).contact.address.number);
-        setNeighborhood(
-          (driver.person.individual as IndividualPerson).contact.address.neighborhood,
-        );
-        setComplement(
-          (driver.person.individual as IndividualPerson).contact.address.complement,
-        );
-        setCode((driver.person.individual as IndividualPerson).contact.address.code);
-        setState(
-          (
-            driver.person.individual as IndividualPerson
-          ).contact.address.city.state.id.toString(),
-        );
-        setCities(
-          states[
-            (driver.person.individual as IndividualPerson).contact.address.city.state.id -
-              1
-          ].cities,
-        );
-        setCity(
-          (
-            driver.person.individual as IndividualPerson
-          ).contact.address.city.id.toString(),
-        );
+        setStreet(driver.person.contact.address.street);
+        setNumber(driver.person.contact.address.number);
+        setNeighborhood(driver.person.contact.address.neighborhood);
+        setComplement(driver.person.contact.address.complement);
+        setCode(driver.person.contact.address.code);
+        setState(driver.person.contact.address.city.state.id.toString());
+        setCities(states[driver.person.contact.address.city.state.id - 1].cities);
+        setCity(driver.person.contact.address.city.id.toString());
 
-        setPhone((driver.person.individual as IndividualPerson).contact.phone);
-        setCellphone((driver.person.individual as IndividualPerson).contact.cellphone);
-        setEmail((driver.person.individual as IndividualPerson).contact.email);
+        setPhone(driver.person.contact.phone);
+        setCellphone(driver.person.contact.cellphone);
+        setEmail(driver.person.contact.email);
       }
     };
 
@@ -265,7 +248,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorStreet(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.address.street = value;
+        driver.person.contact.address.street = value;
       }
     },
     number: (value: string) => {
@@ -273,7 +256,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorNumber(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.address.number = value;
+        driver.person.contact.address.number = value;
       }
     },
     neighborhood: (value: string) => {
@@ -281,8 +264,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorNeighborhood(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.address.neighborhood =
-          value;
+        driver.person.contact.address.neighborhood = value;
       }
     },
     code: (value: string) => {
@@ -291,7 +273,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorCode(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.address.code = value;
+        driver.person.contact.address.code = value;
       }
     },
     state: (value: string) => {
@@ -306,7 +288,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorCity(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.address.city = cities.find(
+        driver.person.contact.address.city = cities.find(
           (item) => item.id == Number(value),
         ) as City;
       }
@@ -317,7 +299,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorPhone(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.phone = value;
+        driver.person.contact.phone = value;
       }
     },
     cellphone: (value: string) => {
@@ -326,7 +308,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorCellphone(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.cellphone = value;
+        driver.person.contact.cellphone = value;
       }
     },
     email: (value: string) => {
@@ -335,7 +317,7 @@ export function Driver(): JSX.Element {
       else {
         setErrorEmail(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
-        (driver.person.individual as IndividualPerson).contact.email = value;
+        driver.person.contact.email = value;
       }
     },
   };
@@ -494,22 +476,17 @@ export function Driver(): JSX.Element {
         dispatch(
           actions.driverSaveRequest({
             address: {
-              street: (driver.person.individual as IndividualPerson).contact.address
-                .street,
-              number: (driver.person.individual as IndividualPerson).contact.address
-                .number,
-              neighborhood: (driver.person.individual as IndividualPerson).contact.address
-                .neighborhood,
-              complement: (driver.person.individual as IndividualPerson).contact.address
-                .complement,
-              code: (driver.person.individual as IndividualPerson).contact.address.code,
-              city: (driver.person.individual as IndividualPerson).contact.address.city
-                .id,
+              street: driver.person.contact.address.street,
+              number: driver.person.contact.address.number,
+              neighborhood: driver.person.contact.address.neighborhood,
+              complement: driver.person.contact.address.complement,
+              code: driver.person.contact.address.code,
+              city: driver.person.contact.address.city.id,
             },
             contact: {
-              phone: (driver.person.individual as IndividualPerson).contact.phone,
-              cellphone: (driver.person.individual as IndividualPerson).contact.cellphone,
-              email: (driver.person.individual as IndividualPerson).contact.email,
+              phone: driver.person.contact.phone,
+              cellphone: driver.person.contact.cellphone,
+              email: driver.person.contact.email,
             },
             person: {
               name: (driver.person.individual as IndividualPerson).name,
@@ -536,22 +513,17 @@ export function Driver(): JSX.Element {
         dispatch(
           actions.driverUpdateRequest({
             address: {
-              street: (driver.person.individual as IndividualPerson).contact.address
-                .street,
-              number: (driver.person.individual as IndividualPerson).contact.address
-                .number,
-              neighborhood: (driver.person.individual as IndividualPerson).contact.address
-                .neighborhood,
-              complement: (driver.person.individual as IndividualPerson).contact.address
-                .complement,
-              code: (driver.person.individual as IndividualPerson).contact.address.code,
-              city: (driver.person.individual as IndividualPerson).contact.address.city
-                .id,
+              street: driver.person.contact.address.street,
+              number: driver.person.contact.address.number,
+              neighborhood: driver.person.contact.address.neighborhood,
+              complement: driver.person.contact.address.complement,
+              code: driver.person.contact.address.code,
+              city: driver.person.contact.address.city.id,
             },
             contact: {
-              phone: (driver.person.individual as IndividualPerson).contact.phone,
-              cellphone: (driver.person.individual as IndividualPerson).contact.cellphone,
-              email: (driver.person.individual as IndividualPerson).contact.email,
+              phone: driver.person.contact.phone,
+              cellphone: driver.person.contact.cellphone,
+              email: driver.person.contact.email,
             },
             person: {
               name: (driver.person.individual as IndividualPerson).name,

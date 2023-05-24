@@ -51,9 +51,9 @@ export function Clients(): JSX.Element {
       filteredData = filteredData.filter((item) =>
         item.person.type == 1
           ? (item.person.individual as IndividualPerson).name.includes(filter) ||
-            (item.person.individual as IndividualPerson).contact.email.includes(filter)
+            item.person.contact.email.includes(filter)
           : (item.person.enterprise as EnterprisePerson).fantasyName.includes(filter) ||
-            (item.person.enterprise as EnterprisePerson).contact.email.includes(filter),
+            item.person.contact.email.includes(filter),
       );
     }
 
@@ -317,25 +317,25 @@ export function Clients(): JSX.Element {
           if (x.person.type == 1) {
             if (y.person.type == 1) {
               if (
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() >
+                y.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() <
+                y.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() >
+                y.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() <
+                y.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
@@ -343,25 +343,25 @@ export function Clients(): JSX.Element {
           } else {
             if (y.person.type == 1) {
               if (
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() >
+                y.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() <
+                y.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() >
+                y.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                x.person.contact.email.toUpperCase() <
+                y.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
@@ -374,25 +374,25 @@ export function Clients(): JSX.Element {
           if (y.person.type == 1) {
             if (x.person.type == 1) {
               if (
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() >
+                x.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() <
+                x.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() >
+                x.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() <
+                x.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
@@ -400,25 +400,25 @@ export function Clients(): JSX.Element {
           } else {
             if (x.person.type == 1) {
               if (
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() >
+                x.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
-                (x.person.individual as IndividualPerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() <
+                x.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
             } else {
               if (
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() >
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() >
+                x.person.contact.email.toUpperCase()
               )
                 return 1;
               if (
-                (y.person.enterprise as EnterprisePerson).contact.email.toUpperCase() <
-                (x.person.enterprise as EnterprisePerson).contact.email.toUpperCase()
+                y.person.contact.email.toUpperCase() <
+                x.person.contact.email.toUpperCase()
               )
                 return -1;
               return 0;
@@ -557,8 +557,8 @@ export function Clients(): JSX.Element {
                 <td>{item.person.type == 1 ? 'Física' : 'Juridica'}</td>
                 <td>
                   {item.person.type == 1
-                    ? (item.person.individual as IndividualPerson).contact.email
-                    : (item.person.enterprise as EnterprisePerson).contact.email}
+                    ? item.person.contact.email
+                    : item.person.contact.email}
                 </td>
                 <td>
                   <FaEdit

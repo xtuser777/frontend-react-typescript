@@ -1,12 +1,9 @@
-import { Contact } from './contact';
-
 export class EnterprisePerson {
   constructor(
     protected _id: number = 0,
     private _corporateName: string = '',
     private _fantasyName: string = '',
     private _cnpj: string = '',
-    private _contact: Contact = new Contact(),
   ) {}
 
   get id(): number {
@@ -35,12 +32,5 @@ export class EnterprisePerson {
   }
   set cnpj(v: string) {
     this._cnpj = v;
-  }
-
-  get contact(): Contact {
-    return this._contact;
-  }
-  set contact(v: Contact) {
-    this._contact = v;
   }
 }

@@ -1,3 +1,4 @@
+import { Contact } from './contact';
 import { EnterprisePerson } from './enterprise-person';
 import { IndividualPerson } from './individual-person';
 
@@ -7,6 +8,7 @@ export class Person {
     private _type: number = 0,
     private _individual: IndividualPerson | undefined = undefined,
     private _enterprise: EnterprisePerson | undefined = undefined,
+    private _contact: Contact = new Contact(),
   ) {}
 
   get id(): number {
@@ -35,5 +37,12 @@ export class Person {
   }
   set enterprise(v: EnterprisePerson | undefined) {
     this._enterprise = v;
+  }
+
+  get contact(): Contact {
+    return this._contact;
+  }
+  set contact(v: Contact) {
+    this._contact = v;
   }
 }

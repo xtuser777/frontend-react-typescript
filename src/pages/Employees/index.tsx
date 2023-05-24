@@ -51,7 +51,7 @@ export function Employees(): JSX.Element {
         (item) =>
           item.login.includes(filter) ||
           (item.person.individual as IndividualPerson).name.includes(filter) ||
-          (item.person.individual as IndividualPerson).contact.email.includes(filter),
+          item.person.contact.email.includes(filter),
       );
     }
 
@@ -164,30 +164,18 @@ export function Employees(): JSX.Element {
         break;
       case '15':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase() >
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
             return 1;
-          if (
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase() <
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (x.person.contact.email.toUpperCase() < y.person.contact.email.toUpperCase())
             return -1;
           return 0;
         });
         break;
       case '16':
         filteredData = filteredData.sort((x, y) => {
-          if (
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase() >
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
             return 1;
-          if (
-            (y.person.individual as IndividualPerson).contact.email.toUpperCase() <
-            (x.person.individual as IndividualPerson).contact.email.toUpperCase()
-          )
+          if (y.person.contact.email.toUpperCase() < x.person.contact.email.toUpperCase())
             return -1;
           return 0;
         });
@@ -236,19 +224,17 @@ export function Employees(): JSX.Element {
         dispatch(
           actions.employeeUpdateRequest({
             address: {
-              street: (user.person.individual as IndividualPerson).contact.address.street,
-              number: (user.person.individual as IndividualPerson).contact.address.number,
-              neighborhood: (user.person.individual as IndividualPerson).contact.address
-                .neighborhood,
-              complement: (user.person.individual as IndividualPerson).contact.address
-                .complement,
-              code: (user.person.individual as IndividualPerson).contact.address.code,
-              city: (user.person.individual as IndividualPerson).contact.address.city.id,
+              street: user.person.contact.address.street,
+              number: user.person.contact.address.number,
+              neighborhood: user.person.contact.address.neighborhood,
+              complement: user.person.contact.address.complement,
+              code: user.person.contact.address.code,
+              city: user.person.contact.address.city.id,
             },
             contact: {
-              phone: (user.person.individual as IndividualPerson).contact.phone,
-              cellphone: (user.person.individual as IndividualPerson).contact.cellphone,
-              email: (user.person.individual as IndividualPerson).contact.email,
+              phone: user.person.contact.phone,
+              cellphone: user.person.contact.cellphone,
+              email: user.person.contact.email,
             },
             person: {
               name: (user.person.individual as IndividualPerson).name,
@@ -288,19 +274,17 @@ export function Employees(): JSX.Element {
       dispatch(
         actions.employeeUpdateRequest({
           address: {
-            street: (user.person.individual as IndividualPerson).contact.address.street,
-            number: (user.person.individual as IndividualPerson).contact.address.number,
-            neighborhood: (user.person.individual as IndividualPerson).contact.address
-              .neighborhood,
-            complement: (user.person.individual as IndividualPerson).contact.address
-              .complement,
-            code: (user.person.individual as IndividualPerson).contact.address.code,
-            city: (user.person.individual as IndividualPerson).contact.address.city.id,
+            street: user.person.contact.address.street,
+            number: user.person.contact.address.number,
+            neighborhood: user.person.contact.address.neighborhood,
+            complement: user.person.contact.address.complement,
+            code: user.person.contact.address.code,
+            city: user.person.contact.address.city.id,
           },
           contact: {
-            phone: (user.person.individual as IndividualPerson).contact.phone,
-            cellphone: (user.person.individual as IndividualPerson).contact.cellphone,
-            email: (user.person.individual as IndividualPerson).contact.email,
+            phone: user.person.contact.phone,
+            cellphone: user.person.contact.cellphone,
+            email: user.person.contact.email,
           },
           person: {
             name: (user.person.individual as IndividualPerson).name,
@@ -447,7 +431,7 @@ export function Employees(): JSX.Element {
                 <td>{formatarData(item.admission)}</td>
                 <td>{item.type == 1 ? 'Interno' : 'Vendedor'}</td>
                 <td>{item.demission == undefined ? 'Sim' : 'Não'}</td>
-                <td>{(item.person.individual as IndividualPerson).contact.email}</td>
+                <td>{item.person.contact.email}</td>
                 <td>
                   <FaPowerOff
                     role="button"
