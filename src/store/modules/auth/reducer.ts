@@ -1,7 +1,7 @@
 import * as types from './types';
 import axios from '../../../services/axios';
 
-interface AuthState {
+export interface AuthState {
   isLoggedIn: boolean;
   token: boolean | string;
   user: {

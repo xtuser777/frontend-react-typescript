@@ -1,14 +1,20 @@
 import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
 import { CombinedState, Reducer } from 'redux';
-import { LoginAction } from './auth/types';
 
-export default (reducers: Reducer<CombinedState<any>, LoginAction>) => {
+export default (reducers: Reducer) => {
   const persistReducers = persistReducer(
     {
       key: 'SCR-FRONTEND',
       storage,
-      whitelist: ['auth'],
+      whitelist: [
+        'auth',
+        'parameterization',
+        'employee',
+        'client',
+        'driver',
+        'proprietary',
+      ],
     },
     reducers,
   );

@@ -1,6 +1,6 @@
 import * as types from './types';
 
-interface ParameterizationState {
+export interface ParameterizationState {
   success: boolean;
 }
 

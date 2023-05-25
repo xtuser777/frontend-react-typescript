@@ -31,6 +31,7 @@ interface IFields {
   errorCellphone?: string;
   email: string;
   errorEmail?: string;
+  readonly?: boolean;
 }
 
 interface IHandle {
@@ -63,6 +64,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.street}
           onChange={(e) => props.handleChanges.handleStreetChange(e)}
           message={props.fields.errorStreet}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputText
           colSm={1}
@@ -72,6 +74,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.number}
           onChange={(e) => props.handleChanges.handleNumberChange(e)}
           message={props.fields.errorNumber}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputText
           colSm={4}
@@ -81,6 +84,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.neighborhood}
           onChange={(e) => props.handleChanges.handleNeighborhoodChange(e)}
           message={props.fields.errorNeighborhood}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputText
           colSm={2}
@@ -89,6 +93,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory={false}
           value={props.fields.complement}
           onChange={(e) => props.handleChanges.handleComplementChange(e)}
+          readonly={props.fields.readonly ? true : false}
         />
       </Row>
       <Row>
@@ -100,6 +105,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.state}
           onChange={props.handleChanges.handleStateChange}
           message={props.fields.errorState}
+          disable={props.fields.readonly ? true : false}
         >
           <option value="0">SELECIONE</option>
           {props.fields.states.map((item) => (
@@ -114,7 +120,7 @@ export function FormContact(props: IProps): JSX.Element {
           label="Cidade"
           obrigatory
           value={props.fields.city}
-          disable={props.fields.state == '0' ? true : false}
+          disable={props.fields.state == '0' || props.fields.readonly ? true : false}
           onChange={(e) => props.handleChanges.handleCityChange(e)}
           message={props.fields.errorCity}
         >
@@ -134,6 +140,7 @@ export function FormContact(props: IProps): JSX.Element {
           obrigatory
           onChange={(e) => props.handleChanges.handleCodeChange(e)}
           message={props.fields.errorCode}
+          readonly={props.fields.readonly ? true : false}
         />
       </Row>
       <Row>
@@ -147,6 +154,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.phone}
           onChange={(e) => props.handleChanges.handlePhoneChange(e)}
           message={props.fields.errorPhone}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputGroupText
           colSm={3}
@@ -158,6 +166,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.cellphone}
           onChange={(e) => props.handleChanges.handleCellphoneChange(e)}
           message={props.fields.errorCellphone}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputGroupEmail
           colSm={6}
@@ -168,6 +177,7 @@ export function FormContact(props: IProps): JSX.Element {
           value={props.fields.email}
           onChange={(e) => props.handleChanges.handleEmailChange(e)}
           message={props.fields.errorEmail}
+          readonly={props.fields.readonly ? true : false}
         />
       </Row>
     </>

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
@@ -19,6 +19,7 @@ import { Proprietary as ProprietaryModel } from '../../models/Proprietary';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/individual-person';
 import { EnterprisePerson } from '../../models/enterprise-person';
+import { Driver } from '../../models/driver';
 
 export function Proprietary(): JSX.Element {
   const proprietaryState = useSelector((state: RootState) => state.proprietary);
@@ -27,6 +28,7 @@ export function Proprietary(): JSX.Element {
 
   const [proprietary, setProprietary] = useState(new ProprietaryModel());
 
+  const [drivers, setDrivers] = useState(new Array<Driver>());
   const [states, setStates] = useState(new Array<State>());
   const [cities, setCities] = useState(new Array<City>());
 
@@ -78,6 +80,11 @@ export function Proprietary(): JSX.Element {
   if (routeParams.id) id = Number.parseInt(routeParams.id);
 
   useEffect(() => {
+    const getDrivers = async () => {
+      const response = await new Driver().get();
+      setDrivers(response);
+    };
+
     const getStates = async () => {
       const response = await axios.get('/state');
       setStates(response.data);
@@ -118,6 +125,7 @@ export function Proprietary(): JSX.Element {
     };
 
     const loadPage = async () => {
+      await getDrivers();
       if (method == 'editar') await getData(await getStates());
       else await getStates();
     };
@@ -128,7 +136,8 @@ export function Proprietary(): JSX.Element {
   const verifyCpf = async (cpf: string) => {
     const props = await new ProprietaryModel().get();
     const prop = props.find(
-      (item) => (item.person.individual as IndividualPerson).cpf == cpf,
+      (item) =>
+        item.person.type == 1 && (item.person.individual as IndividualPerson).cpf == cpf,
     );
 
     return !!prop && (prop.person.individual as IndividualPerson).cpf != cpf;
@@ -235,6 +244,8 @@ export function Proprietary(): JSX.Element {
       else if (value.length < 3) setErrorName('O nome preenchido é inválido');
       else {
         setErrorName(undefined);
+        if (!proprietary.person.individual)
+          proprietary.person.individual = new IndividualPerson();
         (proprietary.person.individual as IndividualPerson).name = value;
       }
     },
@@ -245,6 +256,8 @@ export function Proprietary(): JSX.Element {
         setErrorCpf('O CPF preenchido já existe no cadastro');
       else {
         setErrorCpf(undefined);
+        if (!proprietary.person.individual)
+          proprietary.person.individual = new IndividualPerson();
         (proprietary.person.individual as IndividualPerson).cpf = value;
       }
     },
@@ -255,6 +268,8 @@ export function Proprietary(): JSX.Element {
         setErrorbirth('A data preenchida é inválida');
       else {
         setErrorbirth(undefined);
+        if (!proprietary.person.individual)
+          proprietary.person.individual = new IndividualPerson();
         (proprietary.person.individual as IndividualPerson).birth = value;
       }
     },
@@ -264,6 +279,8 @@ export function Proprietary(): JSX.Element {
       else if (value.length < 5) setErrorCorporateName('A razão social inválida.');
       else {
         setErrorCorporateName(undefined);
+        if (!proprietary.person.enterprise)
+          proprietary.person.enterprise = new EnterprisePerson();
         (proprietary.person.enterprise as EnterprisePerson).corporateName = value;
       }
     },
@@ -272,6 +289,8 @@ export function Proprietary(): JSX.Element {
         setErrorFantasyName('O nome fantasia precisa ser preenchido.');
       else {
         setErrorFantasyName(undefined);
+        if (!proprietary.person.enterprise)
+          proprietary.person.enterprise = new EnterprisePerson();
         (proprietary.person.enterprise as EnterprisePerson).fantasyName = value;
       }
     },
@@ -280,6 +299,8 @@ export function Proprietary(): JSX.Element {
       else if (!validateCnpj(value)) setErrorCnpj('O CNPJ preenchido é inválido.');
       else {
         setErrorCnpj(undefined);
+        if (!proprietary.person.enterprise)
+          proprietary.person.enterprise = new EnterprisePerson();
         (proprietary.person.enterprise as EnterprisePerson).cnpj = value;
       }
     },
@@ -421,7 +442,7 @@ export function Proprietary(): JSX.Element {
     setFantasyName('');
     setCnpj('');
 
-    setType('0');
+    setType('1');
 
     setStreet('');
     setNumber('');
@@ -468,10 +489,34 @@ export function Proprietary(): JSX.Element {
 
   const handleDriverChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriver(e.target.value);
+    if (e.target.value != '0') {
+      const drv = drivers.find(
+        (item) => item.id == Number.parseInt(e.target.value),
+      ) as Driver;
+      proprietary.driver = drv;
+      setType(drv.person.type.toString());
+      setName((drv.person.individual as IndividualPerson).name);
+      setCpf((drv.person.individual as IndividualPerson).cpf);
+      setBirth((drv.person.individual as IndividualPerson).birth);
+      setStreet(drv.person.contact.address.street);
+      setNumber(drv.person.contact.address.number);
+      setNeighborhood(drv.person.contact.address.neighborhood);
+      setComplement(drv.person.contact.address.complement);
+      setCode(drv.person.contact.address.code);
+      setState(drv.person.contact.address.city.state.id.toString());
+      setCities(states[drv.person.contact.address.city.state.id - 1].cities);
+      setCity(drv.person.contact.address.city.id.toString());
+      setPhone(drv.person.contact.phone);
+      setCellphone(drv.person.contact.cellphone);
+      setEmail(drv.person.contact.email);
+    } else {
+      clearFields();
+    }
   };
 
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
+    validate.type(e.target.value);
   };
 
   const handleContact = {
@@ -571,6 +616,7 @@ export function Proprietary(): JSX.Element {
           }),
         );
         if (proprietaryState.success) clearFields();
+        console.log(proprietaryState.success);
       } else {
         dispatch(
           actions.proprietaryUpdateRequest({
@@ -623,6 +669,7 @@ export function Proprietary(): JSX.Element {
             },
           }),
         );
+        console.log(proprietaryState.success);
       }
     }
   };
@@ -643,6 +690,7 @@ export function Proprietary(): JSX.Element {
     errorCpf,
     birth,
     errorbirth,
+    readonly: driver != '0' ? true : false,
   };
 
   const personEnterpriseFields = {
@@ -676,6 +724,7 @@ export function Proprietary(): JSX.Element {
     errorCellphone,
     email,
     errorEmail,
+    readonly: driver != '0' ? true : false,
   };
 
   return (
@@ -699,6 +748,11 @@ export function Proprietary(): JSX.Element {
             disable={method == 'editar' ? true : false}
           >
             <option value="0">SELECIONE</option>
+            {drivers.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.person.individual?.name}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputSelect
             colSm={6}
@@ -707,7 +761,7 @@ export function Proprietary(): JSX.Element {
             obrigatory
             value={type}
             onChange={(e) => handleTypeChange(e)}
-            disable={method == 'editar' ? true : false}
+            disable={method == 'editar' || driver != '0' ? true : false}
           >
             <option value="1">PESSOA FÍSICA</option>
             <option value="2">PESSOA JURÍDICA</option>

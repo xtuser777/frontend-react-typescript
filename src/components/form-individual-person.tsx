@@ -10,6 +10,7 @@ interface IFields {
   errorCpf?: string;
   birth: string;
   errorBirthDate?: string;
+  readonly?: boolean;
 }
 
 interface IHandle {
@@ -35,6 +36,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           value={props.fields.name}
           onChange={(e) => props.handleChanges.handleNameChange(e)}
           message={props.fields.errorName ? props.fields.errorName : undefined}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputText
           colSm={3}
@@ -45,6 +47,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           value={props.fields.cpf}
           onChange={(e) => props.handleChanges.handleCpfChange(e)}
           message={props.fields.errorCpf ? props.fields.errorCpf : undefined}
+          readonly={props.fields.readonly ? true : false}
         />
         <FormInputDate
           colSm={3}
@@ -54,6 +57,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           value={props.fields.birth}
           onChange={(e) => props.handleChanges.handleBirthChange(e)}
           message={props.fields.errorBirthDate ? props.fields.errorBirthDate : undefined}
+          readonly={props.fields.readonly ? true : false}
         />
       </Row>
     </>
