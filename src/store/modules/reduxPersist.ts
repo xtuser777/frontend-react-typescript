@@ -8,7 +8,7 @@ export default (reducers: Reducer<CombinedState<any>, LoginAction>) => {
     {
       key: 'SCR-FRONTEND',
       storage,
-      whitelist: ['auth', 'employee', 'client', 'driver', 'parameterization'],
+      whitelist: ['auth'],
     },
     reducers,
   );

@@ -5,6 +5,7 @@ import employee from './employee/reducer';
 import client from './client/reducer';
 import driver from './driver/reducer';
 import parameterization from './parameterization/reducer';
+import proprietary from './proprietary/reducer';
 
 export default combineReducers({
   auth,
@@ -12,4 +13,5 @@ export default combineReducers({
   client,
   driver,
   parameterization,
+  proprietary,
 });

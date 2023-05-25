@@ -314,116 +314,20 @@ export function Clients(): JSX.Element {
         break;
       case '11':
         filteredData = filteredData.sort((x, y) => {
-          if (x.person.type == 1) {
-            if (y.person.type == 1) {
-              if (
-                x.person.contact.email.toUpperCase() >
-                y.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                x.person.contact.email.toUpperCase() <
-                y.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            } else {
-              if (
-                x.person.contact.email.toUpperCase() >
-                y.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                x.person.contact.email.toUpperCase() <
-                y.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            }
-          } else {
-            if (y.person.type == 1) {
-              if (
-                x.person.contact.email.toUpperCase() >
-                y.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                x.person.contact.email.toUpperCase() <
-                y.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            } else {
-              if (
-                x.person.contact.email.toUpperCase() >
-                y.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                x.person.contact.email.toUpperCase() <
-                y.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            }
-          }
+          if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
+            return 1;
+          if (x.person.contact.email.toUpperCase() < y.person.contact.email.toUpperCase())
+            return -1;
+          return 0;
         });
         break;
       case '12':
         filteredData = filteredData.sort((x, y) => {
-          if (y.person.type == 1) {
-            if (x.person.type == 1) {
-              if (
-                y.person.contact.email.toUpperCase() >
-                x.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                y.person.contact.email.toUpperCase() <
-                x.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            } else {
-              if (
-                y.person.contact.email.toUpperCase() >
-                x.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                y.person.contact.email.toUpperCase() <
-                x.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            }
-          } else {
-            if (x.person.type == 1) {
-              if (
-                y.person.contact.email.toUpperCase() >
-                x.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                y.person.contact.email.toUpperCase() <
-                x.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            } else {
-              if (
-                y.person.contact.email.toUpperCase() >
-                x.person.contact.email.toUpperCase()
-              )
-                return 1;
-              if (
-                y.person.contact.email.toUpperCase() <
-                x.person.contact.email.toUpperCase()
-              )
-                return -1;
-              return 0;
-            }
-          }
+          if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
+            return 1;
+          if (y.person.contact.email.toUpperCase() < x.person.contact.email.toUpperCase())
+            return -1;
+          return 0;
         });
         break;
     }

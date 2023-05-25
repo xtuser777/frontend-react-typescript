@@ -93,37 +93,24 @@ export function Client(): JSX.Element {
           setName((client.person.individual as IndividualPerson).name);
           setCpf((client.person.individual as IndividualPerson).cpf);
           setBirth(formatarDataIso((client.person.individual as IndividualPerson).birth));
-
-          setStreet(client.person.contact.address.street);
-          setNumber(client.person.contact.address.number);
-          setNeighborhood(client.person.contact.address.neighborhood);
-          setComplement(client.person.contact.address.complement);
-          setCode(client.person.contact.address.code);
-          setState(client.person.contact.address.city.state.id.toString());
-          setCities(states[client.person.contact.address.city.state.id - 1].cities);
-          setCity(client.person.contact.address.city.id.toString());
-
-          setPhone(client.person.contact.phone);
-          setCellphone(client.person.contact.cellphone);
-          setEmail(client.person.contact.email);
         } else {
           setCorporateName((client.person.enterprise as EnterprisePerson).corporateName);
           setFantasyName((client.person.enterprise as EnterprisePerson).fantasyName);
           setCnpj((client.person.enterprise as EnterprisePerson).cnpj);
-
-          setStreet(client.person.contact.address.street);
-          setNumber(client.person.contact.address.number);
-          setNeighborhood(client.person.contact.address.neighborhood);
-          setComplement(client.person.contact.address.complement);
-          setCode(client.person.contact.address.code);
-          setState(client.person.contact.address.city.state.id.toString());
-          setCities(states[client.person.contact.address.city.state.id - 1].cities);
-          setCity(client.person.contact.address.city.id.toString());
-
-          setPhone(client.person.contact.phone);
-          setCellphone(client.person.contact.cellphone);
-          setEmail(client.person.contact.email);
         }
+
+        setStreet(client.person.contact.address.street);
+        setNumber(client.person.contact.address.number);
+        setNeighborhood(client.person.contact.address.neighborhood);
+        setComplement(client.person.contact.address.complement);
+        setCode(client.person.contact.address.code);
+        setState(client.person.contact.address.city.state.id.toString());
+        setCities(states[client.person.contact.address.city.state.id - 1].cities);
+        setCity(client.person.contact.address.city.id.toString());
+
+        setPhone(client.person.contact.phone);
+        setCellphone(client.person.contact.cellphone);
+        setEmail(client.person.contact.email);
       }
     };
 

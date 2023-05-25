@@ -5,11 +5,12 @@ import employee from './employee/sagas';
 import client from './client/sagas';
 import driver from './driver/sagas';
 import parameterization from './parameterization/sagas';
+import proprietary from './proprietary/sagas';
 
 export default function* rootSaga(): Generator<
   AllEffect<AllEffect<ForkEffect<never>>>,
   any,
   unknown
 > {
-  return yield all([auth, employee, client, driver, parameterization]);
+  return yield all([auth, employee, client, driver, parameterization, proprietary]);
 }
