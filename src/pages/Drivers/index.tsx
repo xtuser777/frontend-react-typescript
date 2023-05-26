@@ -135,7 +135,7 @@ export function Drivers(): JSX.Element {
           return 0;
         });
         break;
-      case '11':
+      case '9':
         filteredData = filteredData.sort((x, y) => {
           if (x.person.contact.email.toUpperCase() > y.person.contact.email.toUpperCase())
             return 1;
@@ -144,7 +144,7 @@ export function Drivers(): JSX.Element {
           return 0;
         });
         break;
-      case '12':
+      case '10':
         filteredData = filteredData.sort((x, y) => {
           if (y.person.contact.email.toUpperCase() > x.person.contact.email.toUpperCase())
             return 1;
