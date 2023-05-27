@@ -25,7 +25,7 @@ function* truckUpdateRequest({ payload }: types.TruckUpdateRequestAction) {
   try {
     const response: AxiosRequestConfig = yield call(
       axios.put,
-      `/truck/${payload.type.id}`,
+      `/truck/${payload.truck.id}`,
       payload,
     );
     if (response.data == '') {

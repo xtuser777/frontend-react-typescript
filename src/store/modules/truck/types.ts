@@ -16,10 +16,15 @@ export interface TruckSaveFailureAction {
 }
 
 export interface TruckSaveRequestPayload {
-  type: {
-    description: string;
-    axes: number;
-    capacity: number;
+  truck: {
+    plate: string;
+    brand: string;
+    model: string;
+    color: string;
+    manufactureYear: number;
+    modelYear: number;
+    type: number;
+    prop: number;
   };
 }
 
@@ -38,11 +43,16 @@ export interface TruckUpdateFailureAction {
   type: typeof TRUCK_UPDATE_FAILURE;
 }
 export interface TruckUpdateRequestPayload {
-  type: {
+  truck: {
     id: number;
-    description: string;
-    axes: number;
-    capacity: number;
+    plate: string;
+    brand: string;
+    model: string;
+    color: string;
+    manufactureYear: number;
+    modelYear: number;
+    type: number;
+    prop: number;
   };
 }
 
