@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../../../services/axios';
 
-function* clientSaveRequest({ payload }: types.ProprietarySaveRequestAction) {
+function* proprietarySaveRequest({ payload }: types.ProprietarySaveRequestAction) {
   try {
     const response: AxiosRequestConfig = yield call(axios.post, '/proprietary', payload);
     if (response.data.length == 0) {
@@ -21,7 +21,7 @@ function* clientSaveRequest({ payload }: types.ProprietarySaveRequestAction) {
   }
 }
 
-function* clientUpdateRequest({ payload }: types.ProprietaryUpdateRequestAction) {
+function* proprietaryUpdateRequest({ payload }: types.ProprietaryUpdateRequestAction) {
   try {
     const response: AxiosRequestConfig = yield call(
       axios.put,
@@ -41,7 +41,7 @@ function* clientUpdateRequest({ payload }: types.ProprietaryUpdateRequestAction)
   }
 }
 
-function* clientDeleteRequest({ payload }: types.ProprietaryDeleteRequestAction) {
+function* proprietaryDeleteRequest({ payload }: types.ProprietaryDeleteRequestAction) {
   try {
     const response: AxiosRequestConfig = yield call(
       axios.delete,
@@ -61,7 +61,7 @@ function* clientDeleteRequest({ payload }: types.ProprietaryDeleteRequestAction)
 }
 
 export default all([
-  takeLatest(types.PROPRIETARY_SAVE_REQUEST, clientSaveRequest),
-  takeLatest(types.PROPRIETARY_UPDATE_REQUEST, clientUpdateRequest),
-  takeLatest(types.PROPRIETARY_DELETE_REQUEST, clientDeleteRequest),
+  takeLatest(types.PROPRIETARY_SAVE_REQUEST, proprietarySaveRequest),
+  takeLatest(types.PROPRIETARY_UPDATE_REQUEST, proprietaryUpdateRequest),
+  takeLatest(types.PROPRIETARY_DELETE_REQUEST, proprietaryDeleteRequest),
 ]);

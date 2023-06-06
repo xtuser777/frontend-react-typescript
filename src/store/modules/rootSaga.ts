@@ -8,6 +8,7 @@ import parameterization from './parameterization/sagas';
 import proprietary from './proprietary/sagas';
 import truckType from './truck-type/sagas';
 import truck from './truck/sagas';
+import representation from './representation/sagas';
 
 export default function* rootSaga(): Generator<
   AllEffect<AllEffect<ForkEffect<never>>>,
@@ -23,5 +24,6 @@ export default function* rootSaga(): Generator<
     proprietary,
     truckType,
     truck,
+    representation,
   ]);
 }

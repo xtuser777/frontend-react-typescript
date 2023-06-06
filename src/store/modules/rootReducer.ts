@@ -8,6 +8,7 @@ import parameterization from './parameterization/reducer';
 import proprietary from './proprietary/reducer';
 import truckType from './truck-type/reducer';
 import truck from './truck/reducer';
+import representation from './representation/reducer';
 
 export default combineReducers({
   auth,
@@ -18,4 +19,5 @@ export default combineReducers({
   proprietary,
   truckType,
   truck,
+  representation,
 });

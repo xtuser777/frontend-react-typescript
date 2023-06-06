@@ -14,6 +14,7 @@ export default (reducers: Reducer) => {
         'client',
         'driver',
         'proprietary',
+        'representation',
         'truckType',
         'truck',
       ],
