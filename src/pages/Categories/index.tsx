@@ -31,7 +31,9 @@ export function Categories(): JSX.Element {
     let filteredData: BillPayCategory[] = [...data];
 
     if (filter.length > 0) {
-      filteredData = filteredData.filter((item) => item.description.includes(filter));
+      filteredData = filteredData.filter((item) =>
+        item.description.toUpperCase().includes(filter.toUpperCase()),
+      );
     }
 
     switch (orderBy) {

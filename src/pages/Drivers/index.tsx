@@ -9,18 +9,11 @@ import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
 import history from '../../services/history';
 import { formatarData } from '../../utils/format';
-import * as actions from '../../store/modules/driver/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { Driver } from '../../models/driver';
+import { Driver } from '../../models/Driver';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { IndividualPerson } from '../../models/individual-person';
 
 export function Drivers(): JSX.Element {
-  const driverState = useSelector((state: RootState) => state.driver);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<Driver>());
   const [drivers, setDrivers] = useState(new Array<Driver>());
 
@@ -175,11 +168,11 @@ export function Drivers(): JSX.Element {
     setDrivers(filterData(orderBy));
   };
 
-  const excluir = (id: number): void => {
+  const remove = async (id: number) => {
     const response = confirm('Confirma o exclusão deste motorista?');
     if (response) {
-      dispatch(actions.driverDeleteRequest({ id }));
-      if (driverState.success) {
+      const driver = drivers.find((item) => item.id == id) as Driver;
+      if (await driver.delete()) {
         const newData = [...data];
         delete newData[newData.findIndex((item) => item.id == id)];
         setData(newData);
@@ -289,7 +282,7 @@ export function Drivers(): JSX.Element {
                     color="red"
                     size={14}
                     title="Excluir"
-                    onClick={() => excluir(item.id)}
+                    onClick={async () => await remove(item.id)}
                   />
                 </td>
               </tr>

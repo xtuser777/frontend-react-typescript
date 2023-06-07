@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { State } from '../../models/state';
 import { City } from '../../models/city';
-import { Driver as DriverModel } from '../../models/driver';
+import { Driver as DriverModel } from '../../models/Driver';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/individual-person';
 
@@ -178,187 +178,232 @@ export function Driver(): JSX.Element {
 
   const validate = {
     name: (value: string) => {
-      if (value.length == 0) setErrorName('O nome precisa ser preenchido');
-      else if (value.length < 3) setErrorName('O nome preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorName('O nome precisa ser preenchido');
+        return false;
+      } else if (value.length < 3) {
+        setErrorName('O nome preenchido é inválido');
+        return false;
+      } else {
         setErrorName(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         (driver.person.individual as IndividualPerson).name = value;
+        return true;
       }
     },
     cpf: async (value: string) => {
-      if (value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
-      else if (!validateCpf(value)) setErrorCpf('O CPF preenchido é inválido');
-      else if (await verifyCpf(value))
+      if (value.length == 0) {
+        setErrorCpf('O CPF precisa ser preenchido');
+        return false;
+      } else if (!validateCpf(value)) {
+        setErrorCpf('O CPF preenchido é inválido');
+        return false;
+      } else if (await verifyCpf(value)) {
         setErrorCpf('O CPF preenchido já existe no cadastro');
-      else {
+        return false;
+      } else {
         setErrorCpf(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         (driver.person.individual as IndividualPerson).cpf = value;
+        return true;
       }
     },
     birth: (value: string) => {
       const date = new Date(value);
-      if (value.length == 0) setErrorBirth('A data precisa ser preenchida');
-      else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
+      if (value.length == 0) {
+        setErrorBirth('A data precisa ser preenchida');
+        return false;
+      } else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18) {
         setErrorBirth('A data preenchida é inválida');
-      else {
+        return false;
+      } else {
         setErrorBirth(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         (driver.person.individual as IndividualPerson).birth = value;
+        return true;
       }
     },
     cnh: (value: string) => {
-      if (value.length == 0) setErrorCnh('A CNH do motorista precisa ser preenchida.');
-      else {
+      if (value.length == 0) {
+        setErrorCnh('A CNH do motorista precisa ser preenchida.');
+        return false;
+      } else {
         setErrorCnh(undefined);
         driver.cnh = value;
+        return true;
       }
     },
     bank: (value: string) => {
-      if (value.length == 0) setErrorBank('O número do banco precisa ser preenchido.');
-      else {
+      if (value.length == 0) {
+        setErrorBank('O número do banco precisa ser preenchido.');
+        return false;
+      } else {
         setErrorBank(undefined);
         driver.bankData.bank = value;
+        return true;
       }
     },
     agency: (value: string) => {
-      if (value.length == 0) setErrorAgency('A agência do banco precisa ser preenchida.');
-      else {
+      if (value.length == 0) {
+        setErrorAgency('A agência do banco precisa ser preenchida.');
+        return false;
+      } else {
         setErrorAgency(undefined);
         driver.bankData.agency = value;
+        return true;
       }
     },
     account: (value: string) => {
-      if (value.length == 0) setErrorAccount('A conta do banco precisa ser preenchida');
-      else {
+      if (value.length == 0) {
+        setErrorAccount('A conta do banco precisa ser preenchida');
+        return false;
+      } else {
         setErrorAccount(undefined);
         driver.bankData.account = value;
+        return true;
       }
     },
     type: (value: string) => {
-      if (value == '0') setErrorType('O tipo de conta precisa ser selecionado.');
-      else {
+      if (value == '0') {
+        setErrorType('O tipo de conta precisa ser selecionado.');
+        return false;
+      } else {
         setErrorType(undefined);
         driver.bankData.type = Number(value);
+        return true;
       }
     },
     street: (value: string) => {
-      if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else {
+      if (value.length == 0) {
+        setErrorStreet('A rua precisa ser preenchida');
+        return false;
+      } else {
         setErrorStreet(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.street = value;
+        return true;
       }
     },
     number: (value: string) => {
-      if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNumber('O número precisa ser preenchido');
+        return false;
+      } else {
         setErrorNumber(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.number = value;
+        return true;
       }
     },
     neighborhood: (value: string) => {
-      if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNeighborhood('O bairro precisa ser preenchido');
+        return false;
+      } else {
         setErrorNeighborhood(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.neighborhood = value;
+        return true;
       }
     },
     code: (value: string) => {
-      if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
-      else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
+      if (value.length == 0) {
+        setErrorCode('O CEP precisa ser preenchido');
+        return false;
+      } else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.code = value;
+        return true;
       }
     },
     state: (value: string) => {
-      if (value == '0') setErrorState('O Estado precisa ser selecionado');
-      else {
+      if (value == '0') {
+        setErrorState('O Estado precisa ser selecionado');
+        return false;
+      } else {
         setErrorState(undefined);
         setCities(states[Number(value) - 1].cities);
+        return true;
       }
     },
     city: (value: string) => {
-      if (value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else {
+      if (value == '0') {
+        setErrorCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
         setErrorCity(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.city = cities.find(
           (item) => item.id == Number(value),
         ) as City;
+        return true;
       }
     },
     phone: (value: string) => {
-      if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
-      else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorPhone('O telefone precisa ser preenchido');
+        return false;
+      } else if (value.length < 14) {
+        setErrorPhone('O telefone preenchido é inválido');
+        return false;
+      } else {
         setErrorPhone(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.phone = value;
+        return true;
       }
     },
     cellphone: (value: string) => {
-      if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
-      else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCellphone('O celular precisa ser preenchido');
+        return false;
+      } else if (value.length < 15) {
+        setErrorCellphone('O celular preenchido é inválido');
+        return false;
+      } else {
         setErrorCellphone(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.cellphone = value;
+        return true;
       }
     },
     email: (value: string) => {
-      if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
-      else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorEmail('O e-mail precisa ser preenchido');
+        return false;
+      } else if (!isEmail(value)) {
+        setErrorEmail('O e-mail preenchido é inválido');
+        return false;
+      } else {
         setErrorEmail(undefined);
         if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.email = value;
+        return true;
       }
     },
   };
 
   const validateFields = async () => {
-    validate.name(name);
-    await validate.cpf(cpf);
-    validate.birth(birth);
-    validate.cnh(cnh);
-    validate.bank(bank);
-    validate.agency(agency);
-    validate.account(account);
-    validate.type(type);
-    validate.street(street);
-    validate.number(number);
-    validate.neighborhood(neighborhood);
-    validate.code(code);
-    validate.state(state);
-    validate.city(city);
-    validate.phone(phone);
-    validate.cellphone(cellphone);
-    validate.email(email);
-
     return (
-      !errorName &&
-      !errorCpf &&
-      !errorBirth &&
-      !errorCnh &&
-      !errorBank &&
-      !errorAgency &&
-      !errorAccount &&
-      !errorType &&
-      !errorStreet &&
-      !errorNumber &&
-      !errorNeighborhood &&
-      !errorCode &&
-      !errorState &&
-      !errorCity &&
-      !errorPhone &&
-      !errorCellphone &&
-      !errorEmail
+      validate.name(name) &&
+      (await validate.cpf(cpf)) &&
+      validate.birth(birth) &&
+      validate.cnh(cnh) &&
+      validate.bank(bank) &&
+      validate.agency(agency) &&
+      validate.account(account) &&
+      validate.type(type) &&
+      validate.street(street) &&
+      validate.number(number) &&
+      validate.neighborhood(neighborhood) &&
+      validate.code(code) &&
+      validate.state(state) &&
+      validate.city(city) &&
+      validate.phone(phone) &&
+      validate.cellphone(cellphone) &&
+      validate.email(email)
     );
   };
 
@@ -443,6 +488,7 @@ export function Driver(): JSX.Element {
     },
     handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => {
       setComplement(e.target.value);
+      driver.person.contact.address.complement = e.target.value;
     },
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
@@ -473,79 +519,8 @@ export function Driver(): JSX.Element {
   const persistData = async () => {
     if (await validateFields()) {
       if (method == 'novo') {
-        dispatch(
-          actions.driverSaveRequest({
-            address: {
-              street: driver.person.contact.address.street,
-              number: driver.person.contact.address.number,
-              neighborhood: driver.person.contact.address.neighborhood,
-              complement: driver.person.contact.address.complement,
-              code: driver.person.contact.address.code,
-              city: driver.person.contact.address.city.id,
-            },
-            contact: {
-              phone: driver.person.contact.phone,
-              cellphone: driver.person.contact.cellphone,
-              email: driver.person.contact.email,
-            },
-            person: {
-              name: (driver.person.individual as IndividualPerson).name,
-              cpf: (driver.person.individual as IndividualPerson).cpf,
-              birth: (driver.person.individual as IndividualPerson).birth.substring(
-                0,
-                10,
-              ),
-            },
-            bank: {
-              bank: driver.bankData.bank,
-              agency: driver.bankData.agency,
-              account: driver.bankData.account,
-              type: driver.bankData.type,
-            },
-            driver: {
-              register: new Date().toISOString().substring(0, 10),
-              cnh: driver.cnh,
-            },
-          }),
-        );
-        if (driverState.success) clearFields();
-      } else {
-        dispatch(
-          actions.driverUpdateRequest({
-            address: {
-              street: driver.person.contact.address.street,
-              number: driver.person.contact.address.number,
-              neighborhood: driver.person.contact.address.neighborhood,
-              complement: driver.person.contact.address.complement,
-              code: driver.person.contact.address.code,
-              city: driver.person.contact.address.city.id,
-            },
-            contact: {
-              phone: driver.person.contact.phone,
-              cellphone: driver.person.contact.cellphone,
-              email: driver.person.contact.email,
-            },
-            person: {
-              name: (driver.person.individual as IndividualPerson).name,
-              cpf: (driver.person.individual as IndividualPerson).cpf,
-              birth: (driver.person.individual as IndividualPerson).birth.substring(
-                0,
-                10,
-              ),
-            },
-            bank: {
-              bank: driver.bankData.bank,
-              agency: driver.bankData.agency,
-              account: driver.bankData.account,
-              type: driver.bankData.type,
-            },
-            driver: {
-              id: driver.id,
-              cnh: driver.cnh,
-            },
-          }),
-        );
-      }
+        if (await driver.save()) clearFields();
+      } else await driver.update();
     }
   };
 
@@ -609,6 +584,7 @@ export function Driver(): JSX.Element {
                 label="CNH"
                 obrigatory
                 value={cnh}
+                mask="00000000000"
                 onChange={(e) => handleCnhChange(e)}
                 message={errorCnh}
               />
@@ -623,6 +599,7 @@ export function Driver(): JSX.Element {
                 id="bank"
                 label="Banco"
                 obrigatory
+                mask="000"
                 value={bank}
                 onChange={(e) => handleBankChange(e)}
                 message={errorBank}
@@ -632,6 +609,7 @@ export function Driver(): JSX.Element {
                 id="agencia"
                 label="Agência"
                 obrigatory
+                mask="0000-0"
                 value={agency}
                 onChange={(e) => handleAgencyChange(e)}
                 message={errorAgency}
@@ -641,6 +619,7 @@ export function Driver(): JSX.Element {
                 id="conta"
                 label="Conta"
                 obrigatory
+                mask="0000000000-0"
                 value={account}
                 onChange={(e) => handleAccountChange(e)}
                 message={errorAccount}

@@ -7,17 +7,10 @@ import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
 import history from '../../services/history';
-import * as actions from '../../store/modules/truck-type/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { TruckType } from '../../models/truck-type';
+import { TruckType } from '../../models/TruckType';
 
 export function TruckTypes(): JSX.Element {
-  const typeState = useSelector((state: RootState) => state.truckType);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<TruckType>());
   const [types, setTypes] = useState(new Array<TruckType>());
 
@@ -37,7 +30,9 @@ export function TruckTypes(): JSX.Element {
   const filterData = (orderBy: string) => {
     let filteredData: TruckType[] = [...data];
     if (filter.length > 0) {
-      filteredData = filteredData.filter((item) => item.description.includes(filter));
+      filteredData = filteredData.filter((item) =>
+        item.description.toUpperCase().includes(filter.toUpperCase()),
+      );
     }
 
     switch (orderBy) {
@@ -91,11 +86,11 @@ export function TruckTypes(): JSX.Element {
     setTypes(filterData(orderBy));
   };
 
-  const remove = (id: number) => {
+  const remove = async (id: number) => {
     const response = confirm('Confirma o exclusão deste tipo de caminhão?');
     if (response) {
-      dispatch(actions.truckTypeDeleteRequest({ id }));
-      if (typeState.success) {
+      const type = types.find((item) => item.id == id) as TruckType;
+      if (await type.delete()) {
         const newData = [...data];
         delete newData[newData.findIndex((item) => item.id == id)];
         setData(newData);
@@ -193,7 +188,7 @@ export function TruckTypes(): JSX.Element {
                     color="red"
                     size={14}
                     title="Excluir"
-                    onClick={() => remove(item.id)}
+                    onClick={async () => await remove(item.id)}
                   />
                 </td>
               </tr>

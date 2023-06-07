@@ -1,29 +1,30 @@
 import { toast } from 'react-toastify';
 import axios from '../services/axios';
-import { Driver } from './Driver';
-import { Person } from './person';
+import { BankData } from './bank-data';
 import { AxiosRequestConfig, isAxiosError } from 'axios';
+import { Person } from './person';
 import { IndividualPerson } from './individual-person';
-import { EnterprisePerson } from './enterprise-person';
 
-interface IProprietary {
+interface IDriver {
   id: number;
   register: string;
-  driver: Driver | undefined;
+  cnh: string;
   person: Person;
+  bankData: BankData;
 }
 
-export class Proprietary {
-  private attributes: IProprietary;
+export class Driver {
+  private attributes: IDriver;
 
-  constructor(attributes?: IProprietary) {
+  constructor(attributes?: IDriver) {
     this.attributes = attributes
       ? attributes
       : {
           id: 0,
           register: '',
-          driver: undefined,
+          cnh: '',
           person: new Person(),
+          bankData: new BankData(),
         };
   }
 
@@ -41,11 +42,11 @@ export class Proprietary {
     this.attributes.register = v;
   }
 
-  get driver(): Driver | undefined {
-    return this.attributes.driver;
+  get cnh(): string {
+    return this.attributes.cnh;
   }
-  set driver(v: Driver | undefined) {
-    this.attributes.driver = v;
+  set cnh(v: string) {
+    this.attributes.cnh = v;
   }
 
   get person(): Person {
@@ -53,6 +54,13 @@ export class Proprietary {
   }
   set person(v: Person) {
     this.attributes.person = v;
+  }
+
+  get bankData(): BankData {
+    return this.attributes.bankData;
+  }
+  set bankData(v: BankData) {
+    this.attributes.bankData = v;
   }
 
   save = async () => {
@@ -71,36 +79,26 @@ export class Proprietary {
         email: this.person.contact.email,
       },
       person: {
-        name:
-          this.person.type == 1 ? (this.person.individual as IndividualPerson).name : '',
-        cpf:
-          this.person.type == 1 ? (this.person.individual as IndividualPerson).cpf : '',
-        birth:
-          this.person.type == 1
-            ? (this.person.individual as IndividualPerson).birth.substring(0, 10)
-            : '',
-        corporateName:
-          this.person.type == 2
-            ? (this.person.enterprise as EnterprisePerson).corporateName
-            : '',
-        fantasyName:
-          this.person.type == 2
-            ? (this.person.enterprise as EnterprisePerson).fantasyName
-            : '',
-        cnpj:
-          this.person.type == 2 ? (this.person.enterprise as EnterprisePerson).cnpj : '',
-        type: this.person.type,
+        name: (this.person.individual as IndividualPerson).name,
+        cpf: (this.person.individual as IndividualPerson).cpf,
+        birth: (this.person.individual as IndividualPerson).birth.substring(0, 10),
       },
-      prop: {
+      bank: {
+        bank: this.bankData.bank,
+        agency: this.bankData.agency,
+        account: this.bankData.account,
+        type: this.bankData.type,
+      },
+      driver: {
         register: new Date().toISOString().substring(0, 10),
-        driver: this.driver?.id,
+        cnh: this.cnh,
       },
     };
 
     try {
-      const response: AxiosRequestConfig = await axios.post('/proprietary', payload);
+      const response: AxiosRequestConfig = await axios.post('/driver', payload);
       if (response.data.length == 0) {
-        toast.success('Proprietário cadastrado com sucesso!');
+        toast.success('Motorista cadastrado com sucesso!');
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);
@@ -128,38 +126,25 @@ export class Proprietary {
         email: this.person.contact.email,
       },
       person: {
-        name:
-          this.person.type == 1 ? (this.person.individual as IndividualPerson).name : '',
-        cpf:
-          this.person.type == 1 ? (this.person.individual as IndividualPerson).cpf : '',
-        birth:
-          this.person.type == 1
-            ? (this.person.individual as IndividualPerson).birth.substring(0, 10)
-            : '',
-        corporateName:
-          this.person.type == 2
-            ? (this.person.enterprise as EnterprisePerson).corporateName
-            : '',
-        fantasyName:
-          this.person.type == 2
-            ? (this.person.enterprise as EnterprisePerson).fantasyName
-            : '',
-        cnpj:
-          this.person.type == 2 ? (this.person.enterprise as EnterprisePerson).cnpj : '',
-        type: this.person.type,
+        name: (this.person.individual as IndividualPerson).name,
+        cpf: (this.person.individual as IndividualPerson).cpf,
+        birth: (this.person.individual as IndividualPerson).birth.substring(0, 10),
       },
-      prop: {
-        driver: this.driver?.id,
+      bank: {
+        bank: this.bankData.bank,
+        agency: this.bankData.agency,
+        account: this.bankData.account,
+        type: this.bankData.type,
+      },
+      driver: {
+        cnh: this.cnh,
       },
     };
 
     try {
-      const response: AxiosRequestConfig = await axios.put(
-        '/proprietary/' + this.id,
-        payload,
-      );
+      const response: AxiosRequestConfig = await axios.put('/driver/' + this.id, payload);
       if (response.data.length == 0) {
-        toast.success('Proprietário atualizado com sucesso!');
+        toast.success('Motorista atualizado com sucesso!');
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);
@@ -173,9 +158,9 @@ export class Proprietary {
 
   delete = async () => {
     try {
-      const response: AxiosRequestConfig = await axios.delete('/proprietary/' + this.id);
+      const response: AxiosRequestConfig = await axios.delete('/driver/' + this.id);
       if (response.data.length == 0) {
-        toast.success('Proprietário removido com sucesso!');
+        toast.success('Motorista removido com sucesso!');
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);
@@ -189,10 +174,10 @@ export class Proprietary {
 
   async getOne(id: number) {
     try {
-      const response = await axios.get(`/proprietary/${id}`);
-      const prop = response.data ? new Proprietary(response.data) : undefined;
+      const response = await axios.get(`/driver/${id}`);
+      const driver = response.data ? new Driver(response.data) : undefined;
 
-      return prop;
+      return driver;
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
       return undefined;
@@ -201,11 +186,11 @@ export class Proprietary {
 
   async get() {
     try {
-      const response = await axios.get(`/proprietary`);
-      const props: Proprietary[] = [];
-      for (const data of response.data) props.push(new Proprietary(data));
+      const response = await axios.get(`/driver`);
+      const drivers: Driver[] = [];
+      for (const data of response.data) drivers.push(new Driver(data));
 
-      return props;
+      return drivers;
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
       return [];

@@ -1,7 +1,7 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { Representation } from './Representation';
-import { TruckType } from './truck-type';
+import { TruckType } from './TruckType';
 import { toast } from 'react-toastify';
 
 export class Product {

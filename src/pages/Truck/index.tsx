@@ -10,7 +10,7 @@ import * as actions from '../../store/modules/truck/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { Truck as TruckModel } from '../../models/Truck';
-import { TruckType } from '../../models/truck-type';
+import { TruckType } from '../../models/TruckType';
 import { Proprietary } from '../../models/Proprietary';
 import { IndividualPerson } from '../../models/individual-person';
 import { EnterprisePerson } from '../../models/enterprise-person';
@@ -87,69 +87,97 @@ export function Truck(): JSX.Element {
 
   const validate = {
     plate: (value: string) => {
-      if (value.length <= 0) setErrorPlate('A placa do caminhão precisa ser preenchida.');
-      else if (value.length < 8) setErrorPlate('A placa do caminhão é inválida.');
-      else {
+      if (value.length <= 0) {
+        setErrorPlate('A placa do caminhão precisa ser preenchida.');
+        return false;
+      } else if (value.length < 8) {
+        setErrorPlate('A placa do caminhão é inválida.');
+        return false;
+      } else {
         setErrorPlate(undefined);
         truck.plate = value;
+        return true;
       }
     },
     brand: (value: string) => {
-      if (value.length <= 0) setErrorBrand('A marca do caminhão precisa ser preenchida.');
-      else if (value.length < 3) setErrorBrand('A marca do caminhão é inválida.');
-      else {
+      if (value.length <= 0) {
+        setErrorBrand('A marca do caminhão precisa ser preenchida.');
+        return false;
+      } else if (value.length < 3) {
+        setErrorBrand('A marca do caminhão é inválida.');
+        return false;
+      } else {
         setErrorBrand(undefined);
         truck.brand = value;
+        return true;
       }
     },
     model: (value: string) => {
-      if (value.length <= 0)
+      if (value.length <= 0) {
         setErrorModel('O modelo do caminhão precisa ser preenchido.');
-      else if (value.length < 2) setErrorModel('O modelo do caminhão é inválido.');
-      else {
+        return false;
+      } else if (value.length < 2) {
+        setErrorModel('O modelo do caminhão é inválido.');
+        return false;
+      } else {
         setErrorModel(undefined);
         truck.model = value;
+        return true;
       }
     },
     color: (value: string) => {
-      if (value.length <= 0) setErrorColor('A cor do caminhão precisa ser preenchida.');
-      else if (value.length < 3) setErrorColor('A cor do caminhão é inválida.');
-      else {
+      if (value.length <= 0) {
+        setErrorColor('A cor do caminhão precisa ser preenchida.');
+        return false;
+      } else if (value.length < 3) {
+        setErrorColor('A cor do caminhão é inválida.');
+        return false;
+      } else {
         setErrorColor(undefined);
         truck.color = value;
+        return true;
       }
     },
     manufactureYear: (value: string) => {
-      if (Number(value) < 1980)
+      if (Number(value) < 1980) {
         setErrorManufactureYear('O ano de fabricação do caminhão é inválida.');
-      else {
+        return false;
+      } else {
         setErrorManufactureYear(undefined);
         truck.manufactureYear = Number(value);
+        return true;
       }
     },
     modelYear: (value: string) => {
-      if (Number(value) < 1980)
+      if (Number(value) < 1980) {
         setErrorModelYear('O ano do modelo do caminhão é inválida.');
-      else {
+        return false;
+      } else {
         setErrorModelYear(undefined);
         truck.modelYear = Number(value);
+        return true;
       }
     },
     type: (value: string) => {
-      if (value == '0') setErrorType('O tipo de caminhão precisa ser selecionado.');
-      else {
+      if (value == '0') {
+        setErrorType('O tipo de caminhão precisa ser selecionado.');
+        return false;
+      } else {
         setErrorType(undefined);
         truck.type = types.find((item) => item.id == Number(value)) as TruckType;
+        return true;
       }
     },
     proprietary: (value: string) => {
-      if (value == '0')
+      if (value == '0') {
         setErrorProprietary('O proprietário do caminhão precisa ser selecionado.');
-      else {
+        return false;
+      } else {
         setErrorProprietary(undefined);
         truck.proprietary = proprietaries.find(
           (item) => item.id == Number(value),
         ) as Proprietary;
+        return true;
       }
     },
   };
@@ -195,24 +223,15 @@ export function Truck(): JSX.Element {
   };
 
   const validateFields = () => {
-    validate.plate(plate);
-    validate.brand(brand);
-    validate.model(model);
-    validate.color(color);
-    validate.manufactureYear(manufactureYear);
-    validate.modelYear(modelYear);
-    validate.type(type);
-    validate.proprietary(proprietary);
-
     return (
-      !errorPlate &&
-      !errorBrand &&
-      !errorModel &&
-      !errorColor &&
-      !errorManufactureYear &&
-      !errorModelYear &&
-      !errorType &&
-      !errorProprietary
+      validate.plate(plate) &&
+      validate.brand(brand) &&
+      validate.model(model) &&
+      validate.color(color) &&
+      validate.manufactureYear(manufactureYear) &&
+      validate.modelYear(modelYear) &&
+      validate.type(type) &&
+      validate.proprietary(proprietary)
     );
   };
 
@@ -227,41 +246,11 @@ export function Truck(): JSX.Element {
     setProprietary('0');
   };
 
-  const persistData = () => {
+  const persistData = async () => {
     if (validateFields()) {
       if (method == 'novo') {
-        dispatch(
-          actions.truckSaveRequest({
-            truck: {
-              plate: truck.plate,
-              brand: truck.brand,
-              model: truck.model,
-              color: truck.color,
-              manufactureYear: truck.manufactureYear,
-              modelYear: truck.modelYear,
-              type: truck.type.id,
-              prop: truck.proprietary.id,
-            },
-          }),
-        );
-        if (truckState.success) clearFields();
-      } else {
-        dispatch(
-          actions.truckUpdateRequest({
-            truck: {
-              id: truck.id,
-              plate: truck.plate,
-              brand: truck.brand,
-              model: truck.model,
-              color: truck.color,
-              manufactureYear: truck.manufactureYear,
-              modelYear: truck.modelYear,
-              type: truck.type.id,
-              prop: truck.proprietary.id,
-            },
-          }),
-        );
-      }
+        if (await truck.save()) clearFields();
+      } else await truck.update();
     }
   };
 
@@ -269,8 +258,8 @@ export function Truck(): JSX.Element {
     handleClearClick: () => {
       clearFields();
     },
-    handleSaveClick: () => {
-      persistData();
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 

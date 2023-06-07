@@ -19,7 +19,7 @@ import { Proprietary as ProprietaryModel } from '../../models/Proprietary';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/individual-person';
 import { EnterprisePerson } from '../../models/enterprise-person';
-import { Driver } from '../../models/driver';
+import { Driver } from '../../models/Driver';
 
 export function Proprietary(): JSX.Element {
   const proprietaryState = useSelector((state: RootState) => state.proprietary);
@@ -240,195 +240,229 @@ export function Proprietary(): JSX.Element {
 
   const validate = {
     name: (value: string) => {
-      if (value.length == 0) setErrorName('O nome precisa ser preenchido');
-      else if (value.length < 3) setErrorName('O nome preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorName('O nome precisa ser preenchido');
+        return false;
+      } else if (value.length < 3) {
+        setErrorName('O nome preenchido é inválido');
+        return false;
+      } else {
         setErrorName(undefined);
         if (!proprietary.person.individual)
           proprietary.person.individual = new IndividualPerson();
         (proprietary.person.individual as IndividualPerson).name = value;
+        return true;
       }
     },
     cpf: async (value: string) => {
-      if (value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
-      else if (!validateCpf(value)) setErrorCpf('O CPF preenchido é inválido');
-      else if (await verifyCpf(value))
+      if (value.length == 0) {
+        setErrorCpf('O CPF precisa ser preenchido');
+        return false;
+      } else if (!validateCpf(value)) {
+        setErrorCpf('O CPF preenchido é inválido');
+        return false;
+      } else if (await verifyCpf(value)) {
         setErrorCpf('O CPF preenchido já existe no cadastro');
-      else {
+        return false;
+      } else {
         setErrorCpf(undefined);
         if (!proprietary.person.individual)
           proprietary.person.individual = new IndividualPerson();
         (proprietary.person.individual as IndividualPerson).cpf = value;
+        return true;
       }
     },
     birth: (value: string) => {
       const date = new Date(value);
-      if (value.length == 0) setErrorbirth('A data precisa ser preenchida');
-      else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
+      if (value.length == 0) {
+        setErrorbirth('A data precisa ser preenchida');
+        return false;
+      } else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18) {
         setErrorbirth('A data preenchida é inválida');
-      else {
+        return false;
+      } else {
         setErrorbirth(undefined);
         if (!proprietary.person.individual)
           proprietary.person.individual = new IndividualPerson();
         (proprietary.person.individual as IndividualPerson).birth = value;
+        return true;
       }
     },
     corporateName: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorCorporateName('A razão social precisa ser preenchida.');
-      else if (value.length < 5) setErrorCorporateName('A razão social inválida.');
-      else {
+        return false;
+      } else if (value.length < 5) {
+        setErrorCorporateName('A razão social inválida.');
+        return false;
+      } else {
         setErrorCorporateName(undefined);
         if (!proprietary.person.enterprise)
           proprietary.person.enterprise = new EnterprisePerson();
         (proprietary.person.enterprise as EnterprisePerson).corporateName = value;
+        return true;
       }
     },
     fantasyName: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorFantasyName('O nome fantasia precisa ser preenchido.');
-      else {
+        return false;
+      } else {
         setErrorFantasyName(undefined);
         if (!proprietary.person.enterprise)
           proprietary.person.enterprise = new EnterprisePerson();
         (proprietary.person.enterprise as EnterprisePerson).fantasyName = value;
+        return true;
       }
     },
     cnpj: (value: string) => {
-      if (value.length == 0) setErrorCnpj('O CNPJ precisa ser preenchido.');
-      else if (!validateCnpj(value)) setErrorCnpj('O CNPJ preenchido é inválido.');
-      else {
+      if (value.length == 0) {
+        setErrorCnpj('O CNPJ precisa ser preenchido.');
+        return false;
+      } else if (!validateCnpj(value)) {
+        setErrorCnpj('O CNPJ preenchido é inválido.');
+        return false;
+      } else {
         setErrorCnpj(undefined);
         if (!proprietary.person.enterprise)
           proprietary.person.enterprise = new EnterprisePerson();
         (proprietary.person.enterprise as EnterprisePerson).cnpj = value;
+        return true;
       }
     },
     type: (value: string) => {
-      if (value == '0') setErrorType('O tipo do pessoa precisa ser selecionado.');
-      else {
+      if (value == '0') {
+        setErrorType('O tipo do pessoa precisa ser selecionado.');
+        return false;
+      } else {
         setErrorType(undefined);
         proprietary.person.type = Number(value);
+        return true;
       }
     },
     street: (value: string) => {
-      if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else {
+      if (value.length == 0) {
+        setErrorStreet('A rua precisa ser preenchida');
+        return false;
+      } else {
         setErrorStreet(undefined);
-        if (type == '1') proprietary.person.contact.address.street = value;
-        else proprietary.person.contact.address.street = value;
+        proprietary.person.contact.address.street = value;
+        return true;
       }
     },
     number: (value: string) => {
-      if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNumber('O número precisa ser preenchido');
+        return false;
+      } else {
         setErrorNumber(undefined);
-        if (type == '1') proprietary.person.contact.address.number = value;
-        else proprietary.person.contact.address.number = value;
+        proprietary.person.contact.address.number = value;
+        return true;
       }
     },
     neighborhood: (value: string) => {
-      if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNeighborhood('O bairro precisa ser preenchido');
+        return false;
+      } else {
         setErrorNeighborhood(undefined);
-        if (type == '1') proprietary.person.contact.address.neighborhood = value;
-        else proprietary.person.contact.address.neighborhood = value;
+        proprietary.person.contact.address.neighborhood = value;
+        return true;
       }
     },
     code: (value: string) => {
-      if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
-      else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCode('O CEP precisa ser preenchido');
+        return false;
+      } else if (value.length < 10) {
+        setErrorCode('O CEP preenchido é inválido');
+        return false;
+      } else {
         setErrorCode(undefined);
-        if (type == '1') proprietary.person.contact.address.code = value;
-        else proprietary.person.contact.address.code = value;
+        proprietary.person.contact.address.code = value;
+        return true;
       }
     },
     state: (value: string) => {
-      if (value == '0') setErrorState('O Estado precisa ser selecionado');
-      else {
+      if (value == '0') {
+        setErrorState('O Estado precisa ser selecionado');
+        return false;
+      } else {
         setErrorState(undefined);
         setCities(states[Number(value) - 1].cities);
+        return true;
       }
     },
     city: (value: string) => {
-      if (value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else {
+      if (value == '0') {
+        setErrorCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
         setErrorCity(undefined);
-        if (type == '1')
-          proprietary.person.contact.address.city = cities.find(
-            (item) => item.id == Number(value),
-          ) as City;
-        else
-          proprietary.person.contact.address.city = cities.find(
-            (item) => item.id == Number(value),
-          ) as City;
+        proprietary.person.contact.address.city = cities.find(
+          (item) => item.id == Number(value),
+        ) as City;
+        return true;
       }
     },
     phone: (value: string) => {
-      if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
-      else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorPhone('O telefone precisa ser preenchido');
+        return false;
+      } else if (value.length < 14) {
+        setErrorPhone('O telefone preenchido é inválido');
+        return false;
+      } else {
         setErrorPhone(undefined);
-        if (type == '1') proprietary.person.contact.phone = value;
-        else proprietary.person.contact.phone = value;
+        proprietary.person.contact.phone = value;
+        return true;
       }
     },
     cellphone: (value: string) => {
-      if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
-      else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCellphone('O celular precisa ser preenchido');
+        return false;
+      } else if (value.length < 15) {
+        setErrorCellphone('O celular preenchido é inválido');
+        return false;
+      } else {
         setErrorCellphone(undefined);
-        if (type == '1') proprietary.person.contact.cellphone = value;
-        else proprietary.person.contact.cellphone = value;
+        proprietary.person.contact.cellphone = value;
+        return true;
       }
     },
     email: (value: string) => {
-      if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
-      else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorEmail('O e-mail precisa ser preenchido');
+        return false;
+      } else if (!isEmail(value)) {
+        setErrorEmail('O e-mail preenchido é inválido');
+        return false;
+      } else {
         setErrorEmail(undefined);
-        if (type == '1') proprietary.person.contact.email = value;
-        else proprietary.person.contact.email = value;
+        proprietary.person.contact.email = value;
+        return true;
       }
     },
   };
 
   const validateFields = async () => {
-    if (type == '1') {
-      validate.name(name);
-      await validate.cpf(cpf);
-      validate.birth(birth);
-    } else {
-      validate.corporateName(corporateName);
-      validate.fantasyName(fantasyName);
-      validate.cnpj(cnpj);
-    }
-    validate.type(type);
-    validate.street(street);
-    validate.number(number);
-    validate.neighborhood(neighborhood);
-    validate.code(code);
-    validate.state(state);
-    validate.city(city);
-    validate.phone(phone);
-    validate.cellphone(cellphone);
-    validate.email(email);
-
     return (
       (type == '1'
-        ? !errorName && !errorCpf && !errorbirth
-        : !errorCorporateName && !errorFantasyName && !errorCnpj) &&
-      !errorType &&
-      !errorStreet &&
-      !errorNumber &&
-      !errorNeighborhood &&
-      !errorCode &&
-      !errorState &&
-      !errorCity &&
-      !errorPhone &&
-      !errorCellphone &&
-      !errorEmail
+        ? validate.name(name) && (await validate.cpf(cpf)) && validate.birth(birth)
+        : validate.corporateName(corporateName) &&
+          validate.fantasyName(fantasyName) &&
+          validate.cnpj(cnpj)) &&
+      validate.type(type) &&
+      validate.street(street) &&
+      validate.number(number) &&
+      validate.neighborhood(neighborhood) &&
+      validate.code(code) &&
+      validate.state(state) &&
+      validate.city(city) &&
+      validate.phone(phone) &&
+      validate.cellphone(cellphone) &&
+      validate.email(email)
     );
   };
 
@@ -534,6 +568,7 @@ export function Proprietary(): JSX.Element {
     },
     handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => {
       setComplement(e.target.value);
+      proprietary.person.contact.address.complement = e.target.value;
     },
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
@@ -564,113 +599,8 @@ export function Proprietary(): JSX.Element {
   const persistData = async () => {
     if (await validateFields()) {
       if (method == 'novo') {
-        dispatch(
-          actions.proprietarySaveRequest({
-            address: {
-              street: proprietary.person.contact.address.street,
-              number: proprietary.person.contact.address.number,
-              neighborhood: proprietary.person.contact.address.neighborhood,
-              complement: proprietary.person.contact.address.complement,
-              code: proprietary.person.contact.address.code,
-              city: proprietary.person.contact.address.city.id,
-            },
-            contact: {
-              phone: proprietary.person.contact.phone,
-              cellphone: proprietary.person.contact.cellphone,
-              email: proprietary.person.contact.email,
-            },
-            person: {
-              name:
-                proprietary.person.type == 1
-                  ? (proprietary.person.individual as IndividualPerson).name
-                  : '',
-              cpf:
-                proprietary.person.type == 1
-                  ? (proprietary.person.individual as IndividualPerson).cpf
-                  : '',
-              birth:
-                proprietary.person.type == 1
-                  ? (proprietary.person.individual as IndividualPerson).birth.substring(
-                      0,
-                      10,
-                    )
-                  : '',
-              corporateName:
-                proprietary.person.type == 2
-                  ? (proprietary.person.enterprise as EnterprisePerson).corporateName
-                  : '',
-              fantasyName:
-                proprietary.person.type == 2
-                  ? (proprietary.person.enterprise as EnterprisePerson).fantasyName
-                  : '',
-              cnpj:
-                proprietary.person.type == 2
-                  ? (proprietary.person.enterprise as EnterprisePerson).cnpj
-                  : '',
-              type: proprietary.person.type,
-            },
-            prop: {
-              register: new Date().toISOString().substring(0, 10),
-              driver: proprietary.driver?.id,
-            },
-          }),
-        );
-        if (proprietaryState.success) clearFields();
-        console.log(proprietaryState.success);
-      } else {
-        dispatch(
-          actions.proprietaryUpdateRequest({
-            address: {
-              street: proprietary.person.contact.address.street,
-              number: proprietary.person.contact.address.number,
-              neighborhood: proprietary.person.contact.address.neighborhood,
-              complement: proprietary.person.contact.address.complement,
-              code: proprietary.person.contact.address.code,
-              city: proprietary.person.contact.address.city.id,
-            },
-            contact: {
-              phone: proprietary.person.contact.phone,
-              cellphone: proprietary.person.contact.cellphone,
-              email: proprietary.person.contact.email,
-            },
-            person: {
-              name:
-                proprietary.person.type == 1
-                  ? (proprietary.person.individual as IndividualPerson).name
-                  : '',
-              cpf:
-                proprietary.person.type == 1
-                  ? (proprietary.person.individual as IndividualPerson).cpf
-                  : '',
-              birth:
-                proprietary.person.type == 1
-                  ? (proprietary.person.individual as IndividualPerson).birth.substring(
-                      0,
-                      10,
-                    )
-                  : '',
-              corporateName:
-                proprietary.person.type == 2
-                  ? (proprietary.person.enterprise as EnterprisePerson).corporateName
-                  : '',
-              fantasyName:
-                proprietary.person.type == 2
-                  ? (proprietary.person.enterprise as EnterprisePerson).fantasyName
-                  : '',
-              cnpj:
-                proprietary.person.type == 2
-                  ? (proprietary.person.enterprise as EnterprisePerson).cnpj
-                  : '',
-              type: proprietary.person.type,
-            },
-            prop: {
-              id: proprietary.id,
-              driver: proprietary.driver?.id,
-            },
-          }),
-        );
-        console.log(proprietaryState.success);
-      }
+        if (await proprietary.save()) clearFields();
+      } else await proprietary.update();
     }
   };
 

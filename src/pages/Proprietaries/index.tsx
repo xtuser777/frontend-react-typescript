@@ -346,11 +346,11 @@ export function Proprietaries(): JSX.Element {
     setProprietaries(filterData(orderBy));
   };
 
-  const remove = (id: number) => {
+  const remove = async (id: number) => {
     const response = confirm('Confirma o exclusão deste proprietário?');
     if (response) {
-      dispatch(actions.proprietaryDeleteRequest({ id }));
-      if (proprietaryState.success) {
+      const prop = proprietaries.find((item) => item.id == id) as Proprietary;
+      if (await prop.delete()) {
         const newData = [...data];
         delete newData[newData.findIndex((item) => item.id == id)];
         setData(newData);
@@ -468,7 +468,7 @@ export function Proprietaries(): JSX.Element {
                     color="red"
                     size={14}
                     title="Excluir"
-                    onClick={() => remove(item.id)}
+                    onClick={async () => await remove(item.id)}
                   />
                 </td>
               </tr>

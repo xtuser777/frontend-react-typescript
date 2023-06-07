@@ -1,89 +1,181 @@
-import { isAxiosError } from 'axios';
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { Proprietary } from './Proprietary';
-import { TruckType } from './truck-type';
+import { TruckType } from './TruckType';
 import { toast } from 'react-toastify';
 
-export class Truck {
-  constructor(
-    private _id: number = 0,
-    private _plate: string = '',
-    private _brand: string = '',
-    private _model: string = '',
-    private _color: string = '',
-    private _manufactureYear: number = 0,
-    private _modelYear: number = 0,
-    private _type: TruckType = new TruckType(),
-    private _proprietary: Proprietary = new Proprietary(),
-  ) {}
+interface ITruck {
+  id: number;
+  plate: string;
+  brand: string;
+  model: string;
+  color: string;
+  manufactureYear: number;
+  modelYear: number;
+  type: TruckType;
+  proprietary: Proprietary;
+}
+
+export class Truck implements ITruck {
+  private attributes: ITruck;
+
+  constructor(attributes?: ITruck) {
+    this.attributes = attributes
+      ? attributes
+      : {
+          id: 0,
+          plate: '',
+          brand: '',
+          model: '',
+          color: '',
+          manufactureYear: 0,
+          modelYear: 0,
+          type: new TruckType(),
+          proprietary: new Proprietary(),
+        };
+  }
 
   get id(): number {
-    return this._id;
+    return this.attributes.id;
   }
   set id(v: number) {
-    this._id = v;
+    this.attributes.id = v;
   }
 
   get plate(): string {
-    return this._plate;
+    return this.attributes.plate;
   }
   set plate(v: string) {
-    this._plate = v;
+    this.attributes.plate = v;
   }
 
   get brand(): string {
-    return this._brand;
+    return this.attributes.brand;
   }
   set brand(v: string) {
-    this._brand = v;
+    this.attributes.brand = v;
   }
 
   get model(): string {
-    return this._model;
+    return this.attributes.model;
   }
   set model(v: string) {
-    this._model = v;
+    this.attributes.model = v;
   }
 
   get color(): string {
-    return this._color;
+    return this.attributes.color;
   }
   set color(v: string) {
-    this._color = v;
+    this.attributes.color = v;
   }
 
   get manufactureYear(): number {
-    return this._manufactureYear;
+    return this.attributes.manufactureYear;
   }
   set manufactureYear(v: number) {
-    this._manufactureYear = v;
+    this.attributes.manufactureYear = v;
   }
 
   get modelYear(): number {
-    return this._modelYear;
+    return this.attributes.modelYear;
   }
   set modelYear(v: number) {
-    this._modelYear = v;
+    this.attributes.modelYear = v;
   }
 
   get type(): TruckType {
-    return this._type;
+    return this.attributes.type;
   }
   set type(v: TruckType) {
-    this._type = v;
+    this.attributes.type = v;
   }
 
   get proprietary(): Proprietary {
-    return this._proprietary;
+    return this.attributes.proprietary;
   }
   set proprietary(v: Proprietary) {
-    this._proprietary = v;
+    this.attributes.proprietary = v;
   }
+
+  save = async () => {
+    const payload = {
+      truck: {
+        plate: this.plate,
+        brand: this.brand,
+        model: this.model,
+        color: this.color,
+        manufactureYear: this.manufactureYear,
+        modelYear: this.modelYear,
+        type: this.type.id,
+        prop: this.proprietary.id,
+      },
+    };
+
+    try {
+      const response: AxiosRequestConfig = await axios.post('/truck', payload);
+      if (response.data.length == 0) {
+        toast.success('Caminhão cadastrado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  };
+
+  update = async () => {
+    const payload = {
+      truck: {
+        plate: this.plate,
+        brand: this.brand,
+        model: this.model,
+        color: this.color,
+        manufactureYear: this.manufactureYear,
+        modelYear: this.modelYear,
+        type: this.type.id,
+        prop: this.proprietary.id,
+      },
+    };
+
+    try {
+      const response: AxiosRequestConfig = await axios.put('/truck/' + this.id, payload);
+      if (response.data.length == 0) {
+        toast.success('Caminhão atualizado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  };
+
+  delete = async () => {
+    try {
+      const response: AxiosRequestConfig = await axios.delete('/truck/' + this.id);
+      if (response.data.length == 0) {
+        toast.success('Caminhão removido com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  };
 
   async getOne(id: number) {
     try {
       const response = await axios.get(`/truck/${id}`);
-      const truck: Truck = response.data;
+      const truck = new Truck(response.data);
 
       return truck;
     } catch (err) {
@@ -95,7 +187,8 @@ export class Truck {
   async get() {
     try {
       const response = await axios.get(`/truck`);
-      const trucks: Truck[] = response.data;
+      const trucks: Truck[] = [];
+      for (const data of response.data) trucks.push(data);
 
       return trucks;
     } catch (err) {

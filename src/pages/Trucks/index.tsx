@@ -7,17 +7,10 @@ import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
 import history from '../../services/history';
-import * as actions from '../../store/modules/truck/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { Truck } from '../../models/Truck';
 
 export function Trucks(): JSX.Element {
-  const truckState = useSelector((state: RootState) => state.truck);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<Truck>());
   const [trucks, setTrucks] = useState(new Array<Truck>());
 
@@ -129,11 +122,11 @@ export function Trucks(): JSX.Element {
     setTrucks(filterData(orderBy));
   };
 
-  const remove = (id: number) => {
+  const remove = async (id: number) => {
     const response = confirm('Confirma o exclusão deste caminhão?');
     if (response) {
-      dispatch(actions.truckDeleteRequest({ id }));
-      if (truckState.success) {
+      const truck = trucks.find((item) => item.id == id) as Truck;
+      if (await truck.delete()) {
         const newData = [...data];
         delete newData[newData.findIndex((item) => item.id == id)];
         setData(newData);
@@ -237,7 +230,7 @@ export function Trucks(): JSX.Element {
                     color="red"
                     size={14}
                     title="Excluir"
-                    onClick={() => remove(item.id)}
+                    onClick={async () => await remove(item.id)}
                   />
                 </td>
               </tr>

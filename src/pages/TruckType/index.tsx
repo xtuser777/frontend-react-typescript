@@ -10,7 +10,7 @@ import { FormInputNumber } from '../../components/form-input-number';
 import * as actions from '../../store/modules/truck-type/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { TruckType as TruckTypeModel } from '../../models/truck-type';
+import { TruckType as TruckTypeModel } from '../../models/TruckType';
 
 export function TruckType(): JSX.Element {
   const typeState = useSelector((state: RootState) => state.truckType);
@@ -52,25 +52,33 @@ export function TruckType(): JSX.Element {
 
   const validate = {
     description: (value: string) => {
-      if (value.length <= 0)
+      if (value.length <= 0) {
         setErrorDescription('A descrição do tipo precisa ser preenchido.');
-      else {
+        return false;
+      } else {
         setErrorDescription(undefined);
         type.description = value;
+        return true;
       }
     },
     axes: (value: string) => {
-      if (value.length <= 0) setErrorAxes('O número de eixos precisa ser preenchido.');
-      else {
+      if (value.length <= 0 || Number(value) <= 0) {
+        setErrorAxes('O número de eixos precisa ser preenchido.');
+        return false;
+      } else {
         setErrorAxes(undefined);
         type.axes = Number(value);
+        return true;
       }
     },
     capacity: (value: string) => {
-      if (value.length <= 0) setErrorCapacity('A capacidade precisa ser preenchida.');
-      else {
+      if (value.length <= 0) {
+        setErrorCapacity('A capacidade precisa ser preenchida.');
+        return false;
+      } else {
         setErrorCapacity(undefined);
         type.capacity = Number(value);
+        return true;
       }
     },
   };
@@ -91,11 +99,11 @@ export function TruckType(): JSX.Element {
   };
 
   const validateFields = () => {
-    validate.description(description);
-    validate.axes(axes.toString());
-    validate.capacity(capacity);
+    const desc = validate.description(description);
+    const axs = validate.axes(axes.toString());
+    const cap = validate.capacity(capacity);
 
-    return !errorDescription && !errorAxes && !errorCapacity;
+    return desc && axs && cap;
   };
 
   const clearFields = () => {
@@ -104,32 +112,11 @@ export function TruckType(): JSX.Element {
     setCapacity('');
   };
 
-  const persistData = () => {
+  const persistData = async () => {
     if (validateFields()) {
       if (method == 'novo') {
-        dispatch(
-          actions.truckTypeSaveRequest({
-            type: {
-              description: type.description,
-              axes: type.axes,
-              capacity: type.capacity,
-            },
-          }),
-        );
-        console.log(typeState.success);
-        if (typeState.success) clearFields();
-      } else {
-        dispatch(
-          actions.truckTypeUpdateRequest({
-            type: {
-              id: type.id,
-              description: type.description,
-              axes: type.axes,
-              capacity: type.capacity,
-            },
-          }),
-        );
-      }
+        if (await type.save()) clearFields();
+      } else await type.update();
     }
   };
 
@@ -137,8 +124,8 @@ export function TruckType(): JSX.Element {
     handleClearClick: () => {
       clearFields();
     },
-    handleSaveClick: () => {
-      persistData();
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 

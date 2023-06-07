@@ -10,7 +10,7 @@ import { FormInputGroupText } from '../../components/form-input-group-text';
 import { Product as ProductModel } from '../../models/Product';
 import { Representation } from '../../models/Representation';
 import { formatarPeso, formatarValor } from '../../utils/format';
-import { TruckType } from '../../models/truck-type';
+import { TruckType } from '../../models/TruckType';
 import { FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import history from '../../services/history';

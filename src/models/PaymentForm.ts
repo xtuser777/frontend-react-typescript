@@ -2,15 +2,20 @@ import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
-interface IBillPayCategory {
+interface IPaymentForm {
   id: number;
   description: string;
+  link: number;
+  deadline: number;
 }
 
-export class BillPayCategory implements IBillPayCategory {
-  private attributes: IBillPayCategory;
-  constructor(attributes?: IBillPayCategory) {
-    this.attributes = attributes ? attributes : { id: 0, description: '' };
+export class PaymentForm implements IPaymentForm {
+  private attributes: IPaymentForm;
+
+  constructor(attributes?: IPaymentForm) {
+    this.attributes = attributes
+      ? attributes
+      : { id: 0, description: '', link: 0, deadline: 0 };
   }
 
   get id(): number {
@@ -27,20 +32,33 @@ export class BillPayCategory implements IBillPayCategory {
     this.attributes.description = v;
   }
 
+  get link(): number {
+    return this.attributes.link;
+  }
+  set link(v: number) {
+    this.attributes.link = v;
+  }
+
+  get deadline(): number {
+    return this.attributes.deadline;
+  }
+  set deadline(v: number) {
+    this.attributes.deadline = v;
+  }
+
   save = async () => {
     const payload = {
-      category: { description: this.description },
+      form: {
+        description: this.description,
+        link: this.link,
+        deadline: this.deadline,
+      },
     };
 
     try {
-      console.log(payload);
-
-      const response: AxiosRequestConfig = await axios.post(
-        '/bill-pay-category',
-        payload,
-      );
+      const response: AxiosRequestConfig = await axios.post('payment-form', payload);
       if (response.data.length == 0) {
-        toast.success('Categoria cadastrada com sucesso!');
+        toast.success('Forma de pagamento cadastrada com sucesso!');
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);
@@ -54,16 +72,20 @@ export class BillPayCategory implements IBillPayCategory {
 
   update = async () => {
     const payload = {
-      category: { description: this.description },
+      form: {
+        description: this.description,
+        link: this.link,
+        deadline: this.deadline,
+      },
     };
 
     try {
       const response: AxiosRequestConfig = await axios.put(
-        '/bill-pay-category/' + this.id,
+        'payment-form/' + this.id,
         payload,
       );
       if (response.data.length == 0) {
-        toast.success('Categoria atualizada com sucesso!');
+        toast.success('Forma de pagamento atualizada com sucesso!');
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);
@@ -77,11 +99,9 @@ export class BillPayCategory implements IBillPayCategory {
 
   delete = async () => {
     try {
-      const response: AxiosRequestConfig = await axios.delete(
-        '/bill-pay-category/' + this.id,
-      );
+      const response: AxiosRequestConfig = await axios.delete('payment-form/' + this.id);
       if (response.data.length == 0) {
-        toast.success('Categoria removida com sucesso!');
+        toast.success('Forma de pagamento removida com sucesso!');
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);
@@ -96,13 +116,13 @@ export class BillPayCategory implements IBillPayCategory {
   getOne = async (id: number) => {
     if (id <= 0) return undefined;
     try {
-      const response = await axios.get('/bill-pay-category/' + id);
+      const response = await axios.get('/payment-form/' + id);
       let data;
       if (response.data) data = response.data;
       else return undefined;
-      const category = new BillPayCategory(data);
+      const form = new PaymentForm(data);
 
-      return category;
+      return form;
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
       return undefined;
@@ -111,11 +131,11 @@ export class BillPayCategory implements IBillPayCategory {
 
   get = async () => {
     try {
-      const response = await axios.get('/bill-pay-category');
-      const categories: BillPayCategory[] = [];
-      for (const data of response.data) categories.push(new BillPayCategory(data));
+      const response = await axios.get('/payment-form');
+      const forms: PaymentForm[] = [];
+      for (const data of response.data) forms.push(new PaymentForm(data));
 
-      return categories;
+      return forms;
     } catch (err) {
       if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
       return [];
