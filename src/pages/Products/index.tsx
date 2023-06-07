@@ -11,6 +11,7 @@ import { Representation } from '../../models/Representation';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { EnterprisePerson } from '../../models/enterprise-person';
+import { formatarValor } from '../../utils/format';
 
 export function Products(): JSX.Element {
   const [data, setData] = useState(new Array<Product>());
@@ -46,7 +47,7 @@ export function Products(): JSX.Element {
     let filteredData: Product[] = [...data];
     if (Number(representation) > 0) {
       filteredData = filteredData.filter(
-        (item) => (item.representation.id = Number(representation)),
+        (item) => item.representation.id == Number(representation),
       );
     }
 
@@ -164,10 +165,11 @@ export function Products(): JSX.Element {
 
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+    setProducts(filterData(e.target.value));
   };
 
   const handleFilterClick = () => {
-    alert(`${filter}, ${representation}, ${orderBy}`);
+    setProducts(filterData(orderBy));
   };
 
   const remove = async (id: number) => {
@@ -260,7 +262,6 @@ export function Products(): JSX.Element {
               <th style={{ width: '16%' }}>MEDIDA</th>
               <th style={{ width: '10%' }}>PREÇO</th>
               <th style={{ width: '20%' }}>REPRESENTAÇÂO</th>
-              {/* <th style={{ width: '2%' }}>&nbsp;</th> */}
               <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
             </tr>
@@ -272,7 +273,7 @@ export function Products(): JSX.Element {
                 <td>{item.id}</td>
                 <td>{item.description}</td>
                 <td>{item.measure}</td>
-                <td>{item.price}</td>
+                <td>{formatarValor(item.price)}</td>
                 <td>{item.representation.person.enterprise?.fantasyName}</td>
                 <td>
                   <FaEdit
@@ -281,7 +282,7 @@ export function Products(): JSX.Element {
                     size={14}
                     title="Editar"
                     onClick={() => {
-                      history.push(`/representacao/editar/${item.id}`);
+                      history.push(`/produto/editar/${item.id}`);
                       window.location.reload();
                     }}
                   />

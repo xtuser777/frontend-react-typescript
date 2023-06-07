@@ -19,7 +19,7 @@ interface IProps {
   obrigatory: boolean;
   readonly?: boolean;
   mask?: string;
-  maskReversal?: true;
+  maskReversal?: boolean;
   maskPlaceholder?: string;
   value?: string;
   message?: string;
@@ -51,6 +51,7 @@ export function FormInputGroupText(props: IProps): JSX.Element {
             bsSize="sm"
             value={props.value}
             onChange={(e) => props.onChange(e)}
+            onBlur={(e) => props.onChange(e)}
             readOnly={props.readonly ? true : false}
           />
         </InputGroup>

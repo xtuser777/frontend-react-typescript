@@ -80,7 +80,7 @@ export class Product {
         weight: this.weight,
         price: this.price,
         priceOut: this.priceOut,
-        representation: this.representation,
+        representation: this.representation.id,
         types: this.types,
       },
     };
@@ -108,7 +108,7 @@ export class Product {
         weight: this.weight,
         price: this.price,
         priceOut: this.priceOut,
-        representation: this.representation,
+        representation: this.representation.id,
         types: this.types,
       },
     };
@@ -149,7 +149,7 @@ export class Product {
   getOne = async (id: number) => {
     if (id <= 0) return undefined;
     try {
-      const response = await axios.get('/product' + id);
+      const response = await axios.get('/product/' + id);
       let data;
       if (response.data) data = response.data;
       else return undefined;

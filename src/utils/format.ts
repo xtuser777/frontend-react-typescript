@@ -9,8 +9,7 @@ export function formatarDataIso(data: string) {
   return d[2] + '-' + d[1] + '-' + d[0];
 }
 
-/*
-function formatarPeso(peso) {
+export function formatarPeso(peso: number) {
   let pesoFormat = peso.toString();
   pesoFormat = pesoFormat.replace('.', '#');
   if (pesoFormat.search('#') < 0) {
@@ -22,7 +21,7 @@ function formatarPeso(peso) {
   return pesoFormat;
 }
 
-function formatarValor(valor) {
+export function formatarValor(valor: number) {
   let valorFormat = valor.toString();
   valorFormat = valorFormat.replace('.', '#');
   if (valorFormat.search('#') < 0) {
@@ -37,4 +36,3 @@ function formatarValor(valor) {
 
   return valorFormat;
 }
-*/
