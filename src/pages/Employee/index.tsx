@@ -9,7 +9,7 @@ import { Row } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputDate } from '../../components/form-input-date';
-import { Employee as EmployeeModel } from '../../models/employee';
+import { Employee as EmployeeModel } from '../../models/Employee';
 import { State } from '../../models/state';
 import { City } from '../../models/city';
 import axios from '../../services/axios';
@@ -17,15 +17,8 @@ import { IndividualPerson } from '../../models/individual-person';
 import { formatarDataIso } from '../../utils/format';
 import { Level } from '../../models/level';
 import isEmail from 'validator/lib/isEmail';
-import * as actions from '../../store/modules/employee/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 
 export function Employee(): JSX.Element {
-  const employeeState = useSelector((state: RootState) => state.employee);
-
-  const dispatch = useDispatch();
-
   const [employee, setEmployee] = useState(new EmployeeModel());
 
   const [states, setStates] = useState(new Array<State>());
@@ -208,217 +201,274 @@ export function Employee(): JSX.Element {
 
   const validate = {
     name: (value: string) => {
-      if (value.length == 0) setErrorName('O nome precisa ser preenchido');
-      else if (value.length < 3) setErrorName('O nome preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorName('O nome precisa ser preenchido');
+        return false;
+      } else if (value.length < 3) {
+        setErrorName('O nome preenchido é inválido');
+        return false;
+      } else {
         setErrorName(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         (employee.person.individual as IndividualPerson).name = value;
+        return true;
       }
     },
     cpf: async (value: string) => {
-      if (value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
-      else if (!validateCpf(value)) setErrorCpf('O CPF preenchido é inválido');
-      else if (await verifyCpf(value))
+      if (value.length == 0) {
+        setErrorCpf('O CPF precisa ser preenchido');
+        return false;
+      } else if (!validateCpf(value)) {
+        setErrorCpf('O CPF preenchido é inválido');
+        return false;
+      } else if (await verifyCpf(value)) {
         setErrorCpf('O CPF preenchido já existe no cadastro');
-      else {
+        return false;
+      } else {
         setErrorCpf(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         (employee.person.individual as IndividualPerson).cpf = value;
+        return true;
       }
     },
     birth: (value: string) => {
       const date = new Date(value);
-      if (value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
-      else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
+      if (value.length == 0) {
+        setErrorBirthDate('A data precisa ser preenchida');
+        return false;
+      } else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18) {
         setErrorBirthDate('A data preenchida é inválida');
-      else {
+        return false;
+      } else {
         setErrorBirthDate(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         (employee.person.individual as IndividualPerson).birth = value;
+        return true;
       }
     },
     admission: (value: string) => {
       const val = new Date(value);
       const now = new Date(Date.now());
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorAdmission('A data de admissão precisa ser preenchida');
-      else if (
+        return false;
+      } else if (
         now.getFullYear() == val.getFullYear() &&
         now.getMonth() == val.getMonth() &&
         now.getDate() < val.getDate()
-      )
+      ) {
         setErrorAdmission('A data de admissão preenchida é inválida');
-      else {
+        return false;
+      } else {
         setErrorAdmission(undefined);
         employee.admission = value;
+        return true;
       }
     },
     type: (value: string) => {
-      if (value == '0') setErrorType('O tipo de funcionário precisa ser selecionado.');
-      else {
+      if (value == '0') {
+        setErrorType('O tipo de funcionário precisa ser selecionado.');
+        return false;
+      } else {
         setErrorType(undefined);
         employee.type = Number(value);
+        return true;
       }
     },
     street: (value: string) => {
-      if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else {
+      if (value.length == 0) {
+        setErrorStreet('A rua precisa ser preenchida');
+        return false;
+      } else {
         setErrorStreet(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.street = value;
+        return true;
       }
     },
     number: (value: string) => {
-      if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNumber('O número precisa ser preenchido');
+        return false;
+      } else {
         setErrorNumber(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.number = value;
+        return true;
       }
     },
     neighborhood: (value: string) => {
-      if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNeighborhood('O bairro precisa ser preenchido');
+        return false;
+      } else {
         setErrorNeighborhood(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.neighborhood = value;
+        return true;
       }
     },
     code: (value: string) => {
-      if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
-      else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
+      if (value.length == 0) {
+        setErrorCode('O CEP precisa ser preenchido');
+        return false;
+      } else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.code = value;
+        return true;
       }
     },
     state: (value: string) => {
-      if (value == '0') setErrorState('O Estado precisa ser selecionado');
-      else {
+      if (value == '0') {
+        setErrorState('O Estado precisa ser selecionado');
+        return false;
+      } else {
         setErrorState(undefined);
         setCities(states[Number(value) - 1].cities);
+        return true;
       }
     },
     city: (value: string) => {
-      if (value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else {
+      if (value == '0') {
+        setErrorCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
         setErrorCity(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.city = cities.find(
           (item) => item.id == Number(value),
         ) as City;
+        return true;
       }
     },
     phone: (value: string) => {
-      if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
-      else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorPhone('O telefone precisa ser preenchido');
+        return false;
+      } else if (value.length < 14) {
+        setErrorPhone('O telefone preenchido é inválido');
+        return false;
+      } else {
         setErrorPhone(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.phone = value;
+        return true;
       }
     },
     cellphone: (value: string) => {
-      if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
-      else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCellphone('O celular precisa ser preenchido');
+        return false;
+      } else if (value.length < 15) {
+        setErrorCellphone('O celular preenchido é inválido');
+        return false;
+      } else {
         setErrorCellphone(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.cellphone = value;
+        return true;
       }
     },
     email: (value: string) => {
-      if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
-      else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorEmail('O e-mail precisa ser preenchido');
+        return false;
+      } else if (!isEmail(value)) {
+        setErrorEmail('O e-mail preenchido é inválido');
+        return false;
+      } else {
         setErrorEmail(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.email = value;
+        return true;
       }
     },
     level: async (value: string) => {
-      if (value == '0') setErrorLevel('O nível de usuário precisa ser selecionado.');
-      else if ((await verifyAdmin()) && value != '1')
+      if (value == '0') {
+        setErrorLevel('O nível de usuário precisa ser selecionado.');
+        return false;
+      } else if ((await verifyAdmin()) && value != '1') {
         setErrorLevel('O não é permitido alterar o último administrador.');
-      else {
+        return false;
+      } else {
         setErrorLevel(undefined);
         employee.level = levels.find((item) => item.id == Number(value)) as Level;
+        return true;
       }
     },
     login: async (value: string) => {
-      if (value.length == 0) setErrorLogin('O login precisa ser preenchido');
-      else if (await vefifyLogin(value)) setErrorLogin('O login já exite no cadastro');
-      else setErrorLogin(undefined);
+      if (value.length == 0) {
+        setErrorLogin('O login precisa ser preenchido');
+        return false;
+      } else if (await vefifyLogin(value)) {
+        setErrorLogin('O login já exite no cadastro');
+        return false;
+      } else {
+        setErrorLogin(undefined);
+        return true;
+      }
     },
     password: (value: string) => {
-      if (value.length == 0 && method == 'novo')
+      if (value.length == 0 && method == 'novo') {
         setErrorPassword('A senha precisa ser preenchida');
-      else if (value.length < 6 && method == 'novo')
+        return false;
+      } else if (value.length < 6 && method == 'novo') {
         setErrorPassword('A senha preenchida tem tamanho inválido');
-      else setErrorPassword(undefined);
+        return false;
+      } else {
+        setErrorPassword(undefined);
+        return true;
+      }
     },
     passwordConfirm: (value: string) => {
-      if (value.length == 0 && method == 'novo')
+      if (value.length == 0 && method == 'novo') {
         setErrorPasswordConfirm('A senha de confirmação precisa ser preenchida');
-      else if (value.length < 6 && method == 'novo')
+        return false;
+      } else if (value.length < 6 && method == 'novo') {
         setErrorPasswordConfirm('A senha preenchida tem tamanho inválido');
-      else if (value != password) setErrorPasswordConfirm('As senhas não conferem');
-      else setErrorPasswordConfirm(undefined);
+        return false;
+      } else if (value != password) setErrorPasswordConfirm('As senhas não conferem');
+      else {
+        setErrorPasswordConfirm(undefined);
+        return true;
+      }
     },
   };
 
   const validateFields = async () => {
-    validate.name(name);
-    await validate.cpf(cpf);
-    validate.birth(birth);
-    validate.admission(admission);
-    validate.type(type);
-    validate.street(street);
-    validate.number(number);
-    validate.neighborhood(neighborhood);
-    validate.code(code);
-    validate.state(state);
-    validate.city(city);
-    validate.phone(phone);
-    validate.cellphone(cellphone);
-    validate.email(email);
-    if (type == '1') {
-      await validate.level(level);
-      await validate.login(login);
-      validate.password(password);
-      validate.passwordConfirm(passwordConfirm);
-    }
-
     return (
-      !errorName &&
-      !errorCpf &&
-      !errorBirthDate &&
-      !errorAdmission &&
-      !errorType &&
-      !errorStreet &&
-      !errorNumber &&
-      !errorNeighborhood &&
-      !errorCode &&
-      !errorState &&
-      !errorCity &&
-      !errorPhone &&
-      !errorCellphone &&
-      !errorEmail &&
+      validate.name(name) &&
+      (await validate.cpf(cpf)) &&
+      validate.birth(birth) &&
+      validate.admission(admission) &&
+      validate.type(type) &&
+      validate.street(street) &&
+      validate.number(number) &&
+      validate.neighborhood(neighborhood) &&
+      validate.code(code) &&
+      validate.state(state) &&
+      validate.city(city) &&
+      validate.phone(phone) &&
+      validate.cellphone(cellphone) &&
+      validate.email(email) &&
       (type == '1'
-        ? !errorLevel && !errorLogin && !errorPassword && !errorPasswordConfirm
+        ? (await validate.level(level)) &&
+          (await validate.login(login)) &&
+          validate.password(password) &&
+          validate.passwordConfirm(passwordConfirm)
         : true)
     );
   };
@@ -546,74 +596,8 @@ export function Employee(): JSX.Element {
   const persistData = async () => {
     if (await validateFields()) {
       if (method == 'novo') {
-        dispatch(
-          actions.employeeSaveRequest({
-            address: {
-              street: employee.person.contact.address.street,
-              number: employee.person.contact.address.number,
-              neighborhood: employee.person.contact.address.neighborhood,
-              complement: employee.person.contact.address.complement,
-              code: employee.person.contact.address.code,
-              city: employee.person.contact.address.city.id,
-            },
-            contact: {
-              phone: employee.person.contact.phone,
-              cellphone: employee.person.contact.cellphone,
-              email: employee.person.contact.email,
-            },
-            person: {
-              name: (employee.person.individual as IndividualPerson).name,
-              cpf: (employee.person.individual as IndividualPerson).cpf,
-              birth: (employee.person.individual as IndividualPerson).birth.substring(
-                0,
-                10,
-              ),
-            },
-            employee: {
-              type: employee.type,
-              login: employee.login,
-              password: employee.password as string,
-              admission: employee.admission.substring(0, 10),
-              level: employee.level.id,
-            },
-          }),
-        );
-        if (employeeState.success) clearFields();
-      } else {
-        dispatch(
-          actions.employeeUpdateRequest({
-            address: {
-              street: employee.person.contact.address.street,
-              number: employee.person.contact.address.number,
-              neighborhood: employee.person.contact.address.neighborhood,
-              complement: employee.person.contact.address.complement,
-              code: employee.person.contact.address.code,
-              city: employee.person.contact.address.city.id,
-            },
-            contact: {
-              phone: employee.person.contact.phone,
-              cellphone: employee.person.contact.cellphone,
-              email: employee.person.contact.email,
-            },
-            person: {
-              name: (employee.person.individual as IndividualPerson).name,
-              cpf: (employee.person.individual as IndividualPerson).cpf,
-              birth: (employee.person.individual as IndividualPerson).birth.substring(
-                0,
-                10,
-              ),
-            },
-            employee: {
-              id: employee.id,
-              type: employee.type,
-              login: employee.login,
-              password: employee.password as string,
-              admission: employee.admission.substring(0, 10),
-              level: employee.level.id,
-            },
-          }),
-        );
-      }
+        if (await employee.save()) clearFields();
+      } else await employee.update();
     }
   };
 
@@ -637,17 +621,26 @@ export function Employee(): JSX.Element {
 
   const contactFields = {
     street,
+    errorStreet,
     number,
+    errorNumber,
     neighborhood,
+    errorNeighborhood,
     complement,
     code,
+    errorCode,
     state,
+    errorState,
     states,
     city,
+    errorCity,
     cities,
     phone,
+    errorPhone,
     cellphone,
+    errorCellphone,
     email,
+    errorEmail,
   };
 
   const authFields = {

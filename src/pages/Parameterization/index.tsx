@@ -10,17 +10,10 @@ import axios from '../../services/axios';
 import isEmail from 'validator/lib/isEmail';
 import { State } from '../../models/state';
 import { City } from '../../models/city';
-import { Parameterization as ParameterizationModel } from '../../models/parameterization';
+import { Parameterization as ParameterizationModel } from '../../models/Parameterization';
 import { EnterprisePerson } from '../../models/enterprise-person';
-import * as actions from '../../store/modules/parameterization/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 
 export function Parameterization(): JSX.Element {
-  const parameterizationState = useSelector((state: RootState) => state.parameterization);
-
-  const dispatch = useDispatch();
-
   const [parameterization, setParameterization] = useState(new ParameterizationModel());
 
   const [method, setMethod] = useState(1);
@@ -157,151 +150,168 @@ export function Parameterization(): JSX.Element {
 
   const validate = {
     corporateName: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorCorporateName('A razão social precisa ser preenchida.');
-      else if (value.length < 5) setErrorCorporateName('A razão social inválida.');
-      else {
+        return false;
+      } else if (value.length < 5) {
+        setErrorCorporateName('A razão social inválida.');
+        return false;
+      } else {
         setErrorCorporateName(undefined);
+        if (!parameterization.person.enterprise)
+          parameterization.person.enterprise = new EnterprisePerson();
         (parameterization.person.enterprise as EnterprisePerson).corporateName = value;
+        return true;
       }
     },
     fantasyName: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorFantasyName('O nome fantasia precisa ser preenchido.');
-      else {
+        return false;
+      } else {
         setErrorFantasyName(undefined);
+        if (!parameterization.person.enterprise)
+          parameterization.person.enterprise = new EnterprisePerson();
         (parameterization.person.enterprise as EnterprisePerson).fantasyName = value;
+        return true;
       }
     },
     cnpj: (value: string) => {
-      if (value.length == 0) setErrorCnpj('O CNPJ precisa ser preenchido.');
-      else if (!validateCnpj(value)) setErrorCnpj('O CNPJ preenchido é inválido.');
-      else {
+      if (value.length == 0) {
+        setErrorCnpj('O CNPJ precisa ser preenchido.');
+        return false;
+      } else if (!validateCnpj(value)) {
+        setErrorCnpj('O CNPJ preenchido é inválido.');
+        return false;
+      } else {
         setErrorCnpj(undefined);
+        if (!parameterization.person.enterprise)
+          parameterization.person.enterprise = new EnterprisePerson();
         (parameterization.person.enterprise as EnterprisePerson).cnpj = value;
+        return true;
       }
     },
     street: (value: string) => {
-      if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else {
+      if (value.length == 0) {
+        setErrorStreet('A rua precisa ser preenchida');
+        return false;
+      } else {
         setErrorStreet(undefined);
         parameterization.person.contact.address.street = value;
+        return true;
       }
     },
     number: (value: string) => {
-      if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNumber('O número precisa ser preenchido');
+        return false;
+      } else {
         setErrorNumber(undefined);
         parameterization.person.contact.address.number = value;
+        return true;
       }
     },
     neighborhood: (value: string) => {
-      if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNeighborhood('O bairro precisa ser preenchido');
+        return false;
+      } else {
         setErrorNeighborhood(undefined);
         parameterization.person.contact.address.neighborhood = value;
+        return true;
       }
     },
     code: (value: string) => {
-      if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
-      else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCode('O CEP precisa ser preenchido');
+        return false;
+      } else if (value.length < 10) {
+        setErrorCode('O CEP preenchido é inválido');
+        return false;
+      } else {
         setErrorCode(undefined);
         parameterization.person.contact.address.code = value;
+        return true;
       }
     },
     state: (value: string) => {
-      if (value == '0') setErrorState('O Estado precisa ser selecionado');
-      else {
+      if (value == '0') {
+        setErrorState('O Estado precisa ser selecionado');
+        return false;
+      } else {
         setErrorState(undefined);
-        setCities(
-          states[parameterization.person.contact.address.city.state.id - 1].cities,
-        );
+        setCities(states[Number(value) - 1].cities);
+        return true;
       }
     },
     city: (value: string) => {
-      if (value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else {
+      if (value == '0') {
+        setErrorCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
         setErrorCity(undefined);
         parameterization.person.contact.address.city = cities.find(
           (item) => item.id == Number(value),
         ) as City;
+        return true;
       }
     },
     phone: (value: string) => {
-      if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
-      else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorPhone('O telefone precisa ser preenchido');
+        return false;
+      } else if (value.length < 14) {
+        setErrorPhone('O telefone preenchido é inválido');
+        return false;
+      } else {
         setErrorPhone(undefined);
         parameterization.person.contact.phone = value;
+        return true;
       }
     },
     cellphone: (value: string) => {
-      if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
-      else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCellphone('O celular precisa ser preenchido');
+        return false;
+      } else if (value.length < 15) {
+        setErrorCellphone('O celular preenchido é inválido');
+        return false;
+      } else {
         setErrorCellphone(undefined);
         parameterization.person.contact.cellphone = value;
+        return true;
       }
     },
     email: (value: string) => {
-      if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
-      else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorEmail('O e-mail precisa ser preenchido');
+        return false;
+      } else if (!isEmail(value)) {
+        setErrorEmail('O e-mail preenchido é inválido');
+        return false;
+      } else {
         setErrorEmail(undefined);
         parameterization.person.contact.email = value;
+        return true;
       }
     },
   };
 
   const validateFields = async () => {
-    validate.corporateName(corporateName);
-    validate.fantasyName(fantasyName);
-    validate.cnpj(cnpj);
-    validate.street(street);
-    validate.number(number);
-    validate.neighborhood(neighborhood);
-    validate.code(code);
-    validate.state(state);
-    validate.city(city);
-    validate.phone(phone);
-    validate.cellphone(cellphone);
-    validate.email(email);
-
     return (
-      !errorCorporateName &&
-      !errorFantasyName &&
-      !errorCnpj &&
-      !errorStreet &&
-      !errorNumber &&
-      !errorNeighborhood &&
-      !errorCode &&
-      !errorState &&
-      !errorCity &&
-      !errorPhone &&
-      !errorCellphone &&
-      !errorEmail
+      validate.corporateName(corporateName) &&
+      validate.fantasyName(fantasyName) &&
+      validate.cnpj(cnpj) &&
+      validate.street(street) &&
+      validate.number(number) &&
+      validate.neighborhood(neighborhood) &&
+      validate.code(code) &&
+      validate.state(state) &&
+      validate.city(city) &&
+      validate.phone(phone) &&
+      validate.cellphone(cellphone) &&
+      validate.email(email)
     );
-  };
-
-  const clearFields = () => {
-    setParameterization(new ParameterizationModel());
-
-    setCorporateName('');
-    setFantasyName('');
-    setCnpj('');
-
-    setStreet('');
-    setNumber('');
-    setNeighborhood('');
-    setComplement('');
-    setCode('');
-    setState('0');
-    setCity('0');
-    setCities([]);
-    setPhone('');
-    setCellphone('');
-    setEmail('');
   };
 
   const handlePerson = {
@@ -334,6 +344,7 @@ export function Parameterization(): JSX.Element {
     },
     handleComplementChange: (e: ChangeEvent<HTMLInputElement>) => {
       setComplement(e.target.value);
+      parameterization.person.contact.address.complement = e.target.value;
     },
     handleStateChange: (e: ChangeEvent<HTMLInputElement>) => {
       setState(e.target.value);
@@ -370,64 +381,9 @@ export function Parameterization(): JSX.Element {
   const persistData = async () => {
     if (await validateFields()) {
       if (method == 1) {
-        dispatch(
-          actions.parameterizationSaveRequest({
-            address: {
-              street: parameterization.person.contact.address.street,
-              number: parameterization.person.contact.address.number,
-              neighborhood: parameterization.person.contact.address.neighborhood,
-              complement: parameterization.person.contact.address.complement,
-              code: parameterization.person.contact.address.code,
-              city: parameterization.person.contact.address.city.id,
-            },
-            contact: {
-              phone: parameterization.person.contact.phone,
-              cellphone: parameterization.person.contact.cellphone,
-              email: parameterization.person.contact.email,
-            },
-            person: {
-              corporateName: (parameterization.person.enterprise as EnterprisePerson)
-                .corporateName,
-              fantasyName: (parameterization.person.enterprise as EnterprisePerson)
-                .fantasyName,
-              cnpj: (parameterization.person.enterprise as EnterprisePerson).cnpj,
-            },
-            parameterization: {
-              id: parameterization.id,
-              logotype: parameterization.logotype,
-            },
-          }),
-        );
-        if (parameterizationState.success) clearFields();
+        await parameterization.save();
       } else {
-        dispatch(
-          actions.parameterizationUpdateRequest({
-            address: {
-              street: parameterization.person.contact.address.street,
-              number: parameterization.person.contact.address.number,
-              neighborhood: parameterization.person.contact.address.neighborhood,
-              complement: parameterization.person.contact.address.complement,
-              code: parameterization.person.contact.address.code,
-              city: parameterization.person.contact.address.city.id,
-            },
-            contact: {
-              phone: parameterization.person.contact.phone,
-              cellphone: parameterization.person.contact.cellphone,
-              email: parameterization.person.contact.email,
-            },
-            person: {
-              corporateName: (parameterization.person.enterprise as EnterprisePerson)
-                .corporateName,
-              fantasyName: (parameterization.person.enterprise as EnterprisePerson)
-                .fantasyName,
-              cnpj: (parameterization.person.enterprise as EnterprisePerson).cnpj,
-            },
-            parameterization: {
-              id: parameterization.id,
-              logotype: parameterization.logotype,
-            },
-          }),
-        );
+        await parameterization.update();
       }
     }
   };

@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
-import { Employee as EmployeeModel } from '../../models/employee';
+import { Employee as EmployeeModel } from '../../models/Employee';
 import { State } from '../../models/state';
 import { City } from '../../models/city';
 import { IndividualPerson } from '../../models/individual-person';
@@ -168,176 +168,227 @@ export function User(): JSX.Element {
 
   const validate = {
     name: (value: string) => {
-      if (value.length == 0) setErrorName('O nome precisa ser preenchido');
-      else if (value.length < 3) setErrorName('O nome preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorName('O nome precisa ser preenchido');
+        return false;
+      } else if (value.length < 3) {
+        setErrorName('O nome preenchido é inválido');
+        return false;
+      } else {
         setErrorName(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         (employee.person.individual as IndividualPerson).name = value;
+        return true;
       }
     },
     cpf: async (value: string) => {
-      if (value.length == 0) setErrorCpf('O CPF precisa ser preenchido');
-      else if (!validateCpf(value)) setErrorCpf('O CPF preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCpf('O CPF precisa ser preenchido');
+        return false;
+      } else if (!validateCpf(value)) {
+        setErrorCpf('O CPF preenchido é inválido');
+        return false;
+      } else {
         setErrorCpf(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         (employee.person.individual as IndividualPerson).cpf = value;
+        return true;
       }
     },
     birth: (value: string) => {
       const date = new Date(value);
-      if (value.length == 0) setErrorBirthDate('A data precisa ser preenchida');
-      else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18)
+      if (value.length == 0) {
+        setErrorBirthDate('A data precisa ser preenchida');
+        return false;
+      } else if (new Date(Date.now()).getFullYear() - date.getFullYear() < 18) {
         setErrorBirthDate('A data preenchida é inválida');
-      else {
+        return false;
+      } else {
         setErrorBirthDate(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         (employee.person.individual as IndividualPerson).birth = value;
+        return true;
       }
     },
     street: (value: string) => {
-      if (value.length == 0) setErrorStreet('A rua precisa ser preenchida');
-      else {
+      if (value.length == 0) {
+        setErrorStreet('A rua precisa ser preenchida');
+        return false;
+      } else {
         setErrorStreet(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.street = value;
+        return true;
       }
     },
     number: (value: string) => {
-      if (value.length == 0) setErrorNumber('O número precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNumber('O número precisa ser preenchido');
+        return false;
+      } else {
         setErrorNumber(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.number = value;
+        return true;
       }
     },
     neighborhood: (value: string) => {
-      if (value.length == 0) setErrorNeighborhood('O bairro precisa ser preenchido');
-      else {
+      if (value.length == 0) {
+        setErrorNeighborhood('O bairro precisa ser preenchido');
+        return false;
+      } else {
         setErrorNeighborhood(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.neighborhood = value;
+        return true;
       }
     },
     code: (value: string) => {
-      if (value.length == 0) setErrorCode('O CEP precisa ser preenchido');
-      else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
+      if (value.length == 0) {
+        setErrorCode('O CEP precisa ser preenchido');
+        return false;
+      } else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.code = value;
+        return true;
       }
     },
     state: (value: string) => {
-      if (value == '0') setErrorState('O Estado precisa ser selecionado');
-      else {
+      if (value == '0') {
+        setErrorState('O Estado precisa ser selecionado');
+        return false;
+      } else {
         setErrorState(undefined);
         setCities(states[Number(value) - 1].cities);
+        return true;
       }
     },
     city: (value: string) => {
-      if (value == '0') setErrorCity('A cidade precisa ser selecionada');
-      else {
+      if (value == '0') {
+        setErrorCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
         setErrorCity(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.address.city = cities.find(
           (item) => item.id == Number(value),
         ) as City;
+        return true;
       }
     },
     phone: (value: string) => {
-      if (value.length == 0) setErrorPhone('O telefone precisa ser preenchido');
-      else if (value.length < 14) setErrorPhone('O telefone preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorPhone('O telefone precisa ser preenchido');
+        return false;
+      } else if (value.length < 14) {
+        setErrorPhone('O telefone preenchido é inválido');
+        return false;
+      } else {
         setErrorPhone(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.phone = value;
+        return true;
       }
     },
     cellphone: (value: string) => {
-      if (value.length == 0) setErrorCellphone('O celular precisa ser preenchido');
-      else if (value.length < 15) setErrorCellphone('O celular preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorCellphone('O celular precisa ser preenchido');
+        return false;
+      } else if (value.length < 15) {
+        setErrorCellphone('O celular preenchido é inválido');
+        return false;
+      } else {
         setErrorCellphone(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.cellphone = value;
+        return true;
       }
     },
     email: (value: string) => {
-      if (value.length == 0) setErrorEmail('O e-mail precisa ser preenchido');
-      else if (!isEmail(value)) setErrorEmail('O e-mail preenchido é inválido');
-      else {
+      if (value.length == 0) {
+        setErrorEmail('O e-mail precisa ser preenchido');
+        return false;
+      } else if (!isEmail(value)) {
+        setErrorEmail('O e-mail preenchido é inválido');
+        return false;
+      } else {
         setErrorEmail(undefined);
         if (!employee.person.individual)
           employee.person.individual = new IndividualPerson();
         employee.person.contact.email = value;
+        return true;
       }
     },
     login: async (value: string) => {
-      if (value.length == 0) setErrorLogin('O login precisa ser preenchido');
-      else if (await vefifyLogin(value)) setErrorLogin('O login já exite no cadastro');
-      else setErrorLogin(undefined);
+      if (value.length == 0) {
+        setErrorLogin('O login precisa ser preenchido');
+        return false;
+      } else if (await vefifyLogin(value)) {
+        setErrorLogin('O login já exite no cadastro');
+        return false;
+      } else {
+        setErrorLogin(undefined);
+        return true;
+      }
     },
     password: (value: string) => {
-      if (value.length == 0) setErrorPassword('A senha precisa ser preenchida');
-      else if (value.length < 6)
+      if (value.length == 0) {
+        setErrorPassword('A senha precisa ser preenchida');
+        return false;
+      } else if (value.length < 6) {
         setErrorPassword('A senha preenchida tem tamanho inválido');
-      else setErrorPassword(undefined);
+        return false;
+      } else {
+        setErrorPassword(undefined);
+        return true;
+      }
     },
     passwordConfirm: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorPasswordConfirm('A senha de confirmação precisa ser preenchida');
-      else if (value.length < 6)
+        return false;
+      } else if (value.length < 6) {
         setErrorPasswordConfirm('A senha preenchida tem tamanho inválido');
-      else if (value != password) setErrorPasswordConfirm('As senhas não conferem');
-      else setErrorPasswordConfirm(undefined);
+        return false;
+      } else if (value != password) setErrorPasswordConfirm('As senhas não conferem');
+      else {
+        setErrorPasswordConfirm(undefined);
+        return true;
+      }
     },
   };
 
   const validateFields = async () => {
-    validate.name(name);
-    await validate.cpf(cpf);
-    validate.birth(birth);
-    validate.street(street);
-    validate.number(number);
-    validate.neighborhood(neighborhood);
-    validate.code(code);
-    validate.state(state);
-    validate.city(city);
-    validate.phone(phone);
-    validate.cellphone(cellphone);
-    validate.email(email);
-    if (type == 1) {
-      await validate.login(login);
-      validate.password(password);
-      validate.passwordConfirm(passwordConfirm);
-    }
-
     return (
-      !errorName &&
-      !errorCpf &&
-      !errorBirthDate &&
-      !errorStreet &&
-      !errorNumber &&
-      !errorNeighborhood &&
-      !errorCode &&
-      !errorState &&
-      !errorCity &&
-      !errorPhone &&
-      !errorCellphone &&
-      !errorEmail &&
-      (type == 1 ? !errorLogin && !errorPassword && !errorPasswordConfirm : true)
+      validate.name(name) &&
+      (await validate.cpf(cpf)) &&
+      validate.birth(birth) &&
+      validate.street(street) &&
+      validate.number(number) &&
+      validate.neighborhood(neighborhood) &&
+      validate.code(code) &&
+      validate.state(state) &&
+      validate.city(city) &&
+      validate.phone(phone) &&
+      validate.cellphone(cellphone) &&
+      validate.email(email) &&
+      (type == 1
+        ? (await validate.login(login)) &&
+          validate.password(password) &&
+          validate.passwordConfirm(passwordConfirm)
+        : true)
     );
   };
 
@@ -425,39 +476,7 @@ export function User(): JSX.Element {
 
   const persistData = async () => {
     if (await validateFields()) {
-      dispatch(
-        actions.employeeUpdateRequest({
-          address: {
-            street: employee.person.contact.address.street,
-            number: employee.person.contact.address.number,
-            neighborhood: employee.person.contact.address.neighborhood,
-            complement: employee.person.contact.address.complement,
-            code: employee.person.contact.address.code,
-            city: employee.person.contact.address.city.id,
-          },
-          contact: {
-            phone: employee.person.contact.phone,
-            cellphone: employee.person.contact.cellphone,
-            email: employee.person.contact.email,
-          },
-          person: {
-            name: (employee.person.individual as IndividualPerson).name,
-            cpf: (employee.person.individual as IndividualPerson).cpf,
-            birth: (employee.person.individual as IndividualPerson).birth.substring(
-              0,
-              10,
-            ),
-          },
-          employee: {
-            id: employee.id,
-            type: employee.type,
-            login: employee.login,
-            password: employee.password,
-            admission: employee.admission.substring(0, 10),
-            level: employee.level.id,
-          },
-        }),
-      );
+      await employee.update();
     }
   };
 

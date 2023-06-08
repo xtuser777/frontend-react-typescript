@@ -11,16 +11,9 @@ import { formatarData } from '../../utils/format';
 import { FaEdit, FaPowerOff, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { IndividualPerson } from '../../models/individual-person';
-import * as actions from '../../store/modules/employee/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { Employee } from '../../models/employee';
+import { Employee } from '../../models/Employee';
 
 export function Employees(): JSX.Element {
-  const employeeState = useSelector((state: RootState) => state.employee);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<Employee>());
   const [employees, setEmployees] = useState(new Array<Employee>());
 
@@ -199,8 +192,8 @@ export function Employees(): JSX.Element {
     } else {
       const response = confirm('Confirma o excluir deste funcionário?');
       if (response) {
-        dispatch(actions.employeeDeleteRequest({ id }));
-        if (employeeState.success) {
+        const user = employees.find((item) => item.id == id) as Employee;
+        if (await user.delete()) {
           const newData = [...data];
           delete newData[newData.findIndex((item) => item.id == id)];
           setData(newData);
@@ -221,38 +214,8 @@ export function Employees(): JSX.Element {
       const response = confirm('Confirma o desligamento deste funcionário?');
       if (response) {
         const user = employees.find((item) => item.id == id) as Employee;
-        dispatch(
-          actions.employeeUpdateRequest({
-            address: {
-              street: user.person.contact.address.street,
-              number: user.person.contact.address.number,
-              neighborhood: user.person.contact.address.neighborhood,
-              complement: user.person.contact.address.complement,
-              code: user.person.contact.address.code,
-              city: user.person.contact.address.city.id,
-            },
-            contact: {
-              phone: user.person.contact.phone,
-              cellphone: user.person.contact.cellphone,
-              email: user.person.contact.email,
-            },
-            person: {
-              name: (user.person.individual as IndividualPerson).name,
-              cpf: (user.person.individual as IndividualPerson).cpf,
-              birth: (user.person.individual as IndividualPerson).birth.substring(0, 10),
-            },
-            employee: {
-              id: user.id,
-              type: user.type,
-              login: user.login,
-              password: user.password as string,
-              admission: user.admission.substring(0, 10),
-              demission: new Date().toISOString().substring(0, 10),
-              level: user.level.id,
-            },
-          }),
-        );
-        if (employeeState.success) {
+        user.demission = new Date().toISOString().substring(0, 10);
+        if (await user.update()) {
           const newData = [...data];
           newData[newData.findIndex((item) => item.id == id)].demission = new Date()
             .toISOString()
@@ -271,38 +234,8 @@ export function Employees(): JSX.Element {
     const response = confirm('Confirma a Reativação deste funcionário?');
     if (response) {
       const user = employees.find((item) => item.id == id) as Employee;
-      dispatch(
-        actions.employeeUpdateRequest({
-          address: {
-            street: user.person.contact.address.street,
-            number: user.person.contact.address.number,
-            neighborhood: user.person.contact.address.neighborhood,
-            complement: user.person.contact.address.complement,
-            code: user.person.contact.address.code,
-            city: user.person.contact.address.city.id,
-          },
-          contact: {
-            phone: user.person.contact.phone,
-            cellphone: user.person.contact.cellphone,
-            email: user.person.contact.email,
-          },
-          person: {
-            name: (user.person.individual as IndividualPerson).name,
-            cpf: (user.person.individual as IndividualPerson).cpf,
-            birth: (user.person.individual as IndividualPerson).birth.substring(0, 10),
-          },
-          employee: {
-            id: user.id,
-            type: user.type,
-            login: user.login,
-            password: user.password as string,
-            admission: user.admission.substring(0, 10),
-            demission: undefined,
-            level: user.level.id,
-          },
-        }),
-      );
-      if (employeeState.success) {
+      user.demission = undefined;
+      if (await user.update()) {
         const newData = [...data];
         newData[newData.findIndex((item) => item.id == id)].demission = undefined;
         setData(newData);

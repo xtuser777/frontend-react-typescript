@@ -7,21 +7,14 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
-import { Client } from '../../models/client';
+import { Client } from '../../models/Client';
 import { IndividualPerson } from '../../models/individual-person';
 import { EnterprisePerson } from '../../models/enterprise-person';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { formatarData } from '../../utils/format';
-import * as actions from '../../store/modules/client/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 
 export function Clients(): JSX.Element {
-  const clientState = useSelector((state: RootState) => state.client);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<Client>());
   const [clients, setClients] = useState(new Array<Client>());
 
@@ -352,11 +345,11 @@ export function Clients(): JSX.Element {
     setClients(filterData(orderBy));
   };
 
-  const excluir = (id: number): void => {
+  const remove = async (id: number) => {
     const response = confirm('Confirma o exclusão deste cliente?');
     if (response) {
-      dispatch(actions.clientDeleteRequest({ id }));
-      if (clientState.success) {
+      const client = clients.find((item) => item.id == id) as Client;
+      if (await client.delete()) {
         const newData = [...data];
         delete newData[newData.findIndex((item) => item.id == id)];
         setData(newData);
@@ -482,7 +475,7 @@ export function Clients(): JSX.Element {
                     color="red"
                     size={14}
                     title="Excluir"
-                    onClick={() => excluir(item.id)}
+                    onClick={async () => await remove(item.id)}
                   />
                 </td>
               </tr>
