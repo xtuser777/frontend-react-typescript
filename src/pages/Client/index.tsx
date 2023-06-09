@@ -229,6 +229,7 @@ export function Client(): JSX.Element {
         return false;
       } else {
         setErrorName(undefined);
+        if (!client.person.individual) client.person.individual = new IndividualPerson();
         (client.person.individual as IndividualPerson).name = value;
         return true;
       }
@@ -245,6 +246,7 @@ export function Client(): JSX.Element {
         return false;
       } else {
         setErrorCpf(undefined);
+        if (!client.person.individual) client.person.individual = new IndividualPerson();
         (client.person.individual as IndividualPerson).cpf = value;
         return true;
       }
@@ -259,6 +261,7 @@ export function Client(): JSX.Element {
         return false;
       } else {
         setErrorbirth(undefined);
+        if (!client.person.individual) client.person.individual = new IndividualPerson();
         (client.person.individual as IndividualPerson).birth = value;
         return true;
       }
@@ -272,6 +275,7 @@ export function Client(): JSX.Element {
         return false;
       } else {
         setErrorCorporateName(undefined);
+        if (!client.person.enterprise) client.person.enterprise = new EnterprisePerson();
         (client.person.enterprise as EnterprisePerson).corporateName = value;
         return true;
       }
@@ -282,6 +286,7 @@ export function Client(): JSX.Element {
         return false;
       } else {
         setErrorFantasyName(undefined);
+        if (!client.person.enterprise) client.person.enterprise = new EnterprisePerson();
         (client.person.enterprise as EnterprisePerson).fantasyName = value;
         return true;
       }
@@ -295,6 +300,7 @@ export function Client(): JSX.Element {
         return false;
       } else {
         setErrorCnpj(undefined);
+        if (!client.person.enterprise) client.person.enterprise = new EnterprisePerson();
         (client.person.enterprise as EnterprisePerson).cnpj = value;
         return true;
       }
@@ -384,7 +390,7 @@ export function Client(): JSX.Element {
       } else {
         setErrorPhone(undefined);
         client.person.contact.phone = value;
-        return false;
+        return true;
       }
     },
     cellphone: (value: string) => {

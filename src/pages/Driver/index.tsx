@@ -4,7 +4,7 @@ import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
 import { FormIndividualPerson } from '../../components/form-individual-person';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import { Col, Row } from 'reactstrap';
+import { Col, FormGroup, Label, Row } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputText } from '../../components/form-input-text';
@@ -44,6 +44,7 @@ export function Driver(): JSX.Element {
   const [agency, setAgency] = useState('');
   const [errorAgency, setErrorAgency] = useState<string | undefined>(undefined);
   const [account, setAccount] = useState('');
+  const [accountDigit, setAccountDigit] = useState('');
   const [errorAccount, setErrorAccount] = useState<string | undefined>(undefined);
   const [type, setType] = useState('');
   const [errorType, setErrorType] = useState<string | undefined>(undefined);
@@ -468,6 +469,11 @@ export function Driver(): JSX.Element {
     validate.account(e.target.value);
   };
 
+  const handleAccountDigitChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setAccountDigit(e.target.value);
+    driver.bankData.account += e.target.value;
+  };
+
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
     validate.type(e.target.value);
@@ -615,14 +621,23 @@ export function Driver(): JSX.Element {
                 message={errorAgency}
               />
               <FormInputText
-                colSm={4}
+                colSm={3}
                 id="conta"
                 label="Conta"
                 obrigatory
-                mask="0000000000-0"
+                mask="0000000000"
                 value={account}
                 onChange={(e) => handleAccountChange(e)}
                 message={errorAccount}
+              />
+              <FormInputText
+                colSm={1}
+                id="conta-digito"
+                label={<span>&nbsp;</span>}
+                obrigatory={false}
+                mask="0"
+                value={accountDigit}
+                onChange={(e) => handleAccountDigitChange(e)}
               />
               <FormInputSelect
                 colSm={4}

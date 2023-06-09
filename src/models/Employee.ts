@@ -115,9 +115,11 @@ export class Employee {
         login: this.login,
         password: this.password as string,
         admission: this.admission.substring(0, 10),
-        level: this.level.id,
+        level: this.type == 1 ? this.level.id : 3,
       },
     };
+
+    console.log(payload);
 
     try {
       const response: AxiosRequestConfig = await axios.post('/employee', payload);
