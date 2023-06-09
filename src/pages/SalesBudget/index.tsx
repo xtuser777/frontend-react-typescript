@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
@@ -13,8 +13,21 @@ import { MdAlternateEmail } from 'react-icons/md';
 import { FormInputDate } from '../../components/form-input-date';
 import { FormInputNumber } from '../../components/form-input-number';
 import { FormButton } from '../../components/form-button';
+import { SaleBudget } from '../../models/SaleBudget';
+import { Client } from '../../models/Client';
+import { State } from '../../models/state';
+import { City } from '../../models/city';
+import { Employee } from '../../models/Employee';
+import axios from '../../services/axios';
 
 export function SalesBudget(): JSX.Element {
+  const [budget, setBudget] = useState(new SaleBudget());
+
+  const [clients, setClients] = useState(new Array<Client>());
+  const [states, setStates] = useState(new Array<State>());
+  const [cities, setCities] = useState(new Array<City>());
+  const [salesmans, setSalesmans] = useState(new Array<Employee>());
+
   const [client, setClient] = useState('0');
   const [name, setName] = useState('');
   const [type, setType] = useState('1');
@@ -37,6 +50,31 @@ export function SalesBudget(): JSX.Element {
   const method = routeParams.method as string;
   let id = 0;
   if (routeParams.id) id = Number.parseInt(routeParams.id);
+
+  useEffect(() => {
+    const getStates = async () => {
+      const response = await axios.get('/state');
+      setStates(response.data);
+      return response.data;
+    };
+
+    const getSalesmans = async () => {
+      const response = await new Employee().get();
+      setSalesmans(response);
+    };
+
+    const getClients = async () => {
+      const response = await new Client().get();
+      setClients(response);
+    };
+
+    const getData = async (states: State[]) => {
+      const budget = await new SaleBudget().getOne(id);
+      if (budget) {
+        setBudget(budget);
+      }
+    };
+  }, []);
 
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
@@ -95,10 +133,10 @@ export function SalesBudget(): JSX.Element {
   };
 
   const handleButtons = {
-    handleClearClick: (e: MouseEvent) => {
+    handleClearClick: () => {
       alert('Limpar clicado.');
     },
-    handleSaveClick: (e: MouseEvent) => {
+    handleSaveClick: () => {
       alert('Salvar clicado.');
     },
   };

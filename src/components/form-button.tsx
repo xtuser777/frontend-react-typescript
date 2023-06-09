@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react';
+import React from 'react';
 import { Col, FormGroup, Label, Button } from 'reactstrap';
 
 interface IProps {
