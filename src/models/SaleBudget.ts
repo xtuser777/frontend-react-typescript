@@ -79,7 +79,7 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.clientName = v;
   }
 
-  get clientDocuemnt(): string {
+  get clientDocument(): string {
     return this.attributes.clientDocument;
   }
   set clientDocument(v: string) {
@@ -169,7 +169,7 @@ export class SaleBudget implements ISaleBudget {
         date: this.date,
         description: this.description,
         clientName: this.clientName,
-        clientDocument: this.clientDocuemnt,
+        clientDocument: this.clientDocument,
         clientPhone: this.clientPhone,
         clientCellphone: this.clientCellphone,
         clientEmail: this.clientEmail,
@@ -204,7 +204,7 @@ export class SaleBudget implements ISaleBudget {
       budget: {
         description: this.description,
         clientName: this.clientName,
-        clientDocument: this.clientDocuemnt,
+        clientDocument: this.clientDocument,
         clientPhone: this.clientPhone,
         clientCellphone: this.clientCellphone,
         clientEmail: this.clientEmail,

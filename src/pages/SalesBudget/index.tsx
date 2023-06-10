@@ -19,6 +19,11 @@ import { State } from '../../models/state';
 import { City } from '../../models/city';
 import { Employee } from '../../models/Employee';
 import axios from '../../services/axios';
+import { formatarData, formatarPeso, formatarValor } from '../../utils/format';
+import { Representation } from '../../models/Representation';
+import { Product } from '../../models/Product';
+import isEmail from 'validator/lib/isEmail';
+import { toast } from 'react-toastify';
 
 export function SalesBudget(): JSX.Element {
   const [budget, setBudget] = useState(new SaleBudget());
@@ -28,23 +33,42 @@ export function SalesBudget(): JSX.Element {
   const [cities, setCities] = useState(new Array<City>());
   const [salesmans, setSalesmans] = useState(new Array<Employee>());
 
+  const [representations, setRepresentations] = useState(new Array<Representation>());
+  const [products, setProducts] = useState(new Array<Product>());
+  const [productsDb, setProductsDb] = useState(new Array<Product>());
+
   const [client, setClient] = useState('0');
   const [name, setName] = useState('');
+  const [errorName, setErrorName] = useState<string | undefined>(undefined);
   const [type, setType] = useState('1');
+  const [errorType, setErrorType] = useState<string | undefined>(undefined);
   const [cpf, setCpf] = useState('');
+  const [errorCpf, setErrorCpf] = useState<string | undefined>(undefined);
   const [cnpj, setCnpj] = useState('');
+  const [errorCnpj, setErrorCnpj] = useState<string | undefined>(undefined);
   const [phone, setPhone] = useState('');
+  const [errorPhone, setErrorPhone] = useState<string | undefined>(undefined);
   const [cellphone, setCellphone] = useState('');
+  const [errorCellphone, setErrorCellphone] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState('');
+  const [errorEmail, setErrorEmail] = useState<string | undefined>(undefined);
 
   const [description, setDescription] = useState('');
+  const [errorDescription, setErrorDescription] = useState<string | undefined>(undefined);
   const [salesman, setSalesman] = useState('0');
   const [destinyState, setDestinyState] = useState('0');
+  const [errorDestinyState, setErrorDestinyState] = useState<string | undefined>(
+    undefined,
+  );
   const [destinyCity, setDestinyCity] = useState('0');
+  const [errorDestinyCity, setErrorDestinyCity] = useState<string | undefined>(undefined);
 
   const [weight, setWeight] = useState('');
+  const [errorWeight, setErrorWeight] = useState<string | undefined>(undefined);
   const [price, setPrice] = useState('');
+  const [errorPrice, setErrorPrice] = useState<string | undefined>(undefined);
   const [dueDate, setDueDate] = useState(new Date().toISOString().substring(0, 10));
+  const [errorDueDate, setErrorDueDate] = useState<string | undefined>(undefined);
 
   const routeParams = useParams();
   const method = routeParams.method as string;
@@ -68,52 +92,364 @@ export function SalesBudget(): JSX.Element {
       setClients(response);
     };
 
+    const getRepresentations = async () => {
+      const response = await new Representation().get();
+      setRepresentations(response);
+    };
+
+    const getProducts = async () => {
+      const response = await new Product().get();
+      setProducts(response);
+      setProductsDb(response);
+    };
+
     const getData = async (states: State[]) => {
       const budget = await new SaleBudget().getOne(id);
       if (budget) {
         setBudget(budget);
+
+        if (budget.client) {
+          setClient(budget.client.id.toString());
+          //fillClient(budget.client);
+        }
+
+        setName(budget.clientName);
+        setType(budget.clientDocument.length == 14 ? '1' : '2');
+        if (budget.clientDocument.length == 14) setCpf(budget.clientDocument);
+        else setCnpj(budget.clientDocument);
+        setPhone(budget.clientPhone);
+        setCellphone(budget.clientCellphone);
+        setEmail(budget.clientEmail);
+
+        setDescription(budget.description);
+        setSalesman(budget.salesman ? budget.salesman.id.toString() : '0');
+        setDestinyState(budget.destiny.state.id.toString());
+        setCities(states[budget.destiny.state.id - 1].cities);
+        setDestinyCity(budget.destiny.id.toString());
+
+        setWeight(formatarPeso(budget.weight));
+        setPrice(formatarValor(budget.value));
+        setDueDate(formatarData(budget.validate));
       }
     };
   }, []);
 
+  const fillClient = (client: Client) => {
+    /** a fazer */
+  };
+
+  const validateCpf = (cpf: string) => {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf === '') {
+      return false;
+    }
+    // Elimina CPFs invalidos conhecidos
+    if (
+      cpf.length !== 11 ||
+      cpf === '00000000000' ||
+      cpf === '11111111111' ||
+      cpf === '22222222222' ||
+      cpf === '33333333333' ||
+      cpf === '44444444444' ||
+      cpf === '55555555555' ||
+      cpf === '66666666666' ||
+      cpf === '77777777777' ||
+      cpf === '88888888888' ||
+      cpf === '99999999999'
+    ) {
+      return false;
+    }
+    // Valida 1o digito
+    let add = 0;
+    for (let i = 0; i < 9; i++) {
+      add += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) {
+      rev = 0;
+    }
+    if (rev !== parseInt(cpf.charAt(9))) {
+      return false;
+    }
+    // Valida 2o digito
+    add = 0;
+    for (let i = 0; i < 10; i++) {
+      add += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) {
+      rev = 0;
+    }
+
+    return rev === parseInt(cpf.charAt(10));
+  };
+
+  const validateCnpj = (cnpj: string) => {
+    cnpj = cnpj.replace(/[^\d]+/g, '');
+
+    if (cnpj === '') return false;
+
+    if (cnpj.length !== 14) return false;
+
+    // Elimina CNPJs invalidos conhecidos
+    if (
+      cnpj === '00000000000000' ||
+      cnpj === '11111111111111' ||
+      cnpj === '22222222222222' ||
+      cnpj === '33333333333333' ||
+      cnpj === '44444444444444' ||
+      cnpj === '55555555555555' ||
+      cnpj === '66666666666666' ||
+      cnpj === '77777777777777' ||
+      cnpj === '88888888888888' ||
+      cnpj === '99999999999999'
+    )
+      return false;
+
+    // Valida DVs
+    let tamanho = cnpj.length - 2;
+    let numeros = cnpj.substring(0, tamanho);
+    const digitos = cnpj.substring(tamanho);
+    let soma = 0;
+    let pos = tamanho - 7;
+    for (let i = tamanho; i >= 1; i--) {
+      soma += Number.parseInt(numeros.charAt(tamanho - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+    let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+    if (resultado.toString().charAt(0) !== digitos.charAt(0)) return false;
+
+    tamanho = tamanho + 1;
+    numeros = cnpj.substring(0, tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+    for (let i = tamanho; i >= 1; i--) {
+      soma += Number.parseInt(numeros.charAt(tamanho - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+    resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+    if (resultado.toString().charAt(0) !== digitos.charAt(1)) return false;
+
+    return true;
+  };
+
+  const validate = {
+    name: (value: string) => {
+      if (value.length == 0) {
+        setErrorName('O nome precisa ser preenchido');
+        return false;
+      } else if (value.length < 3) {
+        setErrorName('O nome preenchido é inválido');
+        return false;
+      } else {
+        setErrorName(undefined);
+        budget.clientName = value;
+        return true;
+      }
+    },
+    type: (value: string) => {
+      if (value == '0') {
+        setErrorType('O tipo do cliente precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorType(undefined);
+        return true;
+      }
+    },
+    cpf: (value: string) => {
+      if (value.length == 0) {
+        setErrorCpf('O CPF precisa ser preenchido');
+        return false;
+      } else if (!validateCpf(value)) {
+        setErrorCpf('O CPF preenchido é inválido');
+        return false;
+      } else {
+        setErrorCpf(undefined);
+        budget.clientDocument = value;
+        return true;
+      }
+    },
+    cnpj: (value: string) => {
+      if (value.length == 0) {
+        setErrorCnpj('O CNPJ precisa ser preenchido.');
+        return false;
+      } else if (!validateCnpj(value)) {
+        setErrorCnpj('O CNPJ preenchido é inválido.');
+        return false;
+      } else {
+        setErrorCnpj(undefined);
+        budget.clientDocument = value;
+        return true;
+      }
+    },
+    phone: (value: string) => {
+      if (value.length == 0) {
+        setErrorPhone('O telefone precisa ser preenchido');
+        return false;
+      } else if (value.length < 14) {
+        setErrorPhone('O telefone preenchido é inválido');
+        return false;
+      } else {
+        setErrorPhone(undefined);
+        budget.clientPhone = value;
+        return true;
+      }
+    },
+    cellphone: (value: string) => {
+      if (value.length == 0) {
+        setErrorCellphone('O celular precisa ser preenchido');
+        return false;
+      } else if (value.length < 15) {
+        setErrorCellphone('O celular preenchido é inválido');
+        return false;
+      } else {
+        setErrorCellphone(undefined);
+        budget.clientCellphone = value;
+        return true;
+      }
+    },
+    email: (value: string) => {
+      if (value.length == 0) {
+        setErrorEmail('O e-mail precisa ser preenchido');
+        return false;
+      } else if (!isEmail(value)) {
+        setErrorEmail('O e-mail preenchido é inválido');
+        return false;
+      } else {
+        setErrorEmail(undefined);
+        budget.clientEmail = value;
+        return true;
+      }
+    },
+    description: (value: string) => {
+      if (value.length == 0)
+        setErrorDescription('A descrição do orçamento precisa ser preenchida.');
+      else if (value.length < 2)
+        setErrorDescription('A descrição preenchida tem tamanho inválido.');
+      else {
+        setErrorDescription(undefined);
+        budget.description = value;
+      }
+    },
+    destinyState: (value: string) => {
+      if (value == '0') {
+        setErrorDestinyState('O Estado precisa ser selecionado');
+        return false;
+      } else {
+        setErrorDestinyState(undefined);
+        setCities(states[Number(value) - 1].cities);
+        return true;
+      }
+    },
+    destinyCity: (value: string) => {
+      if (value == '0') {
+        setErrorDestinyCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
+        setErrorDestinyCity(undefined);
+        budget.destiny = cities.find((item) => item.id == Number(value)) as City;
+        return true;
+      }
+    },
+    weight: (value: string) => {
+      if (value.length == 0) setErrorWeight('O peso do produto precisa ser preenchido.');
+      else if (Number(value) <= 0)
+        setErrorWeight('O peso do produto informado é inválido.');
+      else {
+        setErrorWeight(undefined);
+        budget.weight = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+      }
+    },
+    price: (value: string) => {
+      if (value.length == 0) setErrorPrice('O preço do produto precisa ser preenchido.');
+      else if (Number(value) <= 0)
+        setErrorPrice('O preço do produto informado é inválido.');
+      else {
+        setErrorPrice(undefined);
+        budget.value = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+      }
+    },
+    dueDate: (value: string) => {
+      const val = new Date(value);
+      const now = new Date(Date.now());
+      if (value.length == 0) {
+        setErrorDueDate('A data de validade precisa ser preenchida');
+        return false;
+      } else if (
+        now.getFullYear() == val.getFullYear() &&
+        now.getMonth() == val.getMonth() &&
+        now.getDate() > val.getDate()
+      ) {
+        setErrorDueDate('A data de validade preenchida é inválida');
+        return false;
+      } else {
+        setErrorDueDate(undefined);
+        budget.validate = value;
+        return true;
+      }
+    },
+    items: () => {
+      if (budget.items.length == 0) {
+        toast.info('Não há itens adicionados ao orçamento.');
+        return false;
+      } else return true;
+    },
+  };
+
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
+    budget.client = clients.find((item) => item.id == Number(e.target.value));
+    fillClient(budget.client as Client);
   };
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
+    validate.name(e.target.value);
   };
   const handleTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setType(e.target.value);
+    validate.type(e.target.value);
   };
   const handleCpfChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCpf(e.target.value);
+    validate.cpf(e.target.value);
   };
   const handleCnpjChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCnpj(e.target.value);
+    validate.cnpj(e.target.value);
   };
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPhone(e.target.value);
+    validate.phone(e.target.value);
   };
   const handleCellphoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCellphone(e.target.value);
+    validate.cellphone(e.target.value);
   };
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
+    validate.email(e.target.value);
   };
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
 
   const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value);
+    validate.description(e.target.value);
   };
   const handleSalesmanChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSalesman(e.target.value);
   };
   const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyState(e.target.value);
+    validate.destinyState(e.target.value);
   };
   const handleDestinyCityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyCity(e.target.value);
+    validate.destinyCity(e.target.value);
   };
 
   const handleClearItemsClick = () => {
@@ -124,12 +460,15 @@ export function SalesBudget(): JSX.Element {
 
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setWeight(e.target.value);
+    validate.weight(e.target.value);
   };
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value);
+    validate.price(e.target.value);
   };
   const handleDueDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDueDate(e.target.value);
+    validate.dueDate(e.target.value);
   };
 
   const handleButtons = {
