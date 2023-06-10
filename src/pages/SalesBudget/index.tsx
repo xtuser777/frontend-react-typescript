@@ -24,6 +24,10 @@ import { Representation } from '../../models/Representation';
 import { Product } from '../../models/Product';
 import isEmail from 'validator/lib/isEmail';
 import { toast } from 'react-toastify';
+import { IndividualPerson } from '../../models/individual-person';
+import { EnterprisePerson } from '../../models/enterprise-person';
+import { SaleBudgetItem } from '../../models/SaleBudgetItem';
+import { FaTrash } from 'react-icons/fa';
 
 export function SalesBudget(): JSX.Element {
   const [budget, setBudget] = useState(new SaleBudget());
@@ -135,7 +139,18 @@ export function SalesBudget(): JSX.Element {
   }, []);
 
   const fillClient = (client: Client) => {
-    /** a fazer */
+    if (client.person.type == 1) {
+      setName((client.person.individual as IndividualPerson).name);
+      setType('1');
+      setCpf((client.person.individual as IndividualPerson).cpf);
+    } else {
+      setName((client.person.enterprise as EnterprisePerson).fantasyName);
+      setType('2');
+      setCnpj((client.person.enterprise as EnterprisePerson).cnpj);
+    }
+    setPhone(client.person.contact.phone);
+    setCellphone(client.person.contact.cellphone);
+    setEmail(client.person.contact.email);
   };
 
   const validateCpf = (cpf: string) => {
@@ -352,25 +367,33 @@ export function SalesBudget(): JSX.Element {
       }
     },
     weight: (value: string) => {
-      if (value.length == 0) setErrorWeight('O peso do produto precisa ser preenchido.');
-      else if (Number(value) <= 0)
-        setErrorWeight('O peso do produto informado é inválido.');
-      else {
+      if (value.length == 0) {
+        setErrorWeight('O peso do frete precisa ser preenchido.');
+        return false;
+      } else if (Number(value) <= 0) {
+        setErrorWeight('O peso do frete informado é inválido.');
+        return false;
+      } else {
         setErrorWeight(undefined);
         budget.weight = Number.parseFloat(
           value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
         );
+        return true;
       }
     },
     price: (value: string) => {
-      if (value.length == 0) setErrorPrice('O preço do produto precisa ser preenchido.');
-      else if (Number(value) <= 0)
+      if (value.length == 0) {
+        setErrorPrice('O preço do produto precisa ser preenchido.');
+        return false;
+      } else if (Number(value) <= 0) {
         setErrorPrice('O preço do produto informado é inválido.');
-      else {
+        return false;
+      } else {
         setErrorPrice(undefined);
         budget.value = Number.parseFloat(
           value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
         );
+        return true;
       }
     },
     dueDate: (value: string) => {
@@ -397,6 +420,58 @@ export function SalesBudget(): JSX.Element {
         toast.info('Não há itens adicionados ao orçamento.');
         return false;
       } else return true;
+    },
+    itemRepresentation: (value: string) => {
+      if (value == '0') {
+        setErrorItemRepresentation('A representação do item precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorItemRepresentation(undefined);
+        return true;
+      }
+    },
+    item: (value: string) => {
+      if (value == '0') {
+        setErrorItem('O item precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorItem(undefined);
+        return true;
+      }
+    },
+    itemPrice: (value: string) => {
+      if (value.length == 0) {
+        setErrorItemPrice('O preço do item precisa ser preenchido.');
+        return false;
+      } else if (Number(value) <= 0) {
+        setErrorItemPrice('O preço do item informado é inválido.');
+        return false;
+      } else {
+        setErrorItemPrice(undefined);
+        return true;
+      }
+    },
+    itemQuantity: (value: string) => {
+      const val = Number(value);
+      if (val <= 0) {
+        setErrorItemQuantity('A quantidade do item precisa ser preenchida.');
+        return false;
+      } else {
+        setErrorItemQuantity(undefined);
+        return true;
+      }
+    },
+    totalItemPrice: (value: string) => {
+      if (value.length == 0) {
+        setErrorTotalItemPrice('O preço total do item precisa ser preenchido.');
+        return false;
+      } else if (Number(value) <= 0) {
+        setErrorTotalItemPrice('O preço total do item informado é inválido.');
+        return false;
+      } else {
+        setErrorTotalItemPrice(undefined);
+        return true;
+      }
     },
   };
 
@@ -481,23 +556,37 @@ export function SalesBudget(): JSX.Element {
   };
 
   // Items
+  const [items, setItems] = useState(new Array<SaleBudgetItem>());
   const [itemRepresentation, setItemRepresentation] = useState('0');
+  const [errorItemRepresentation, setErrorItemRepresentation] = useState<
+    string | undefined
+  >(undefined);
   const [itemRepresentationFilter, setItemRerpesentationFilter] = useState('');
   const [item, setItem] = useState('0');
+  const [errorItem, setErrorItem] = useState<string | undefined>(undefined);
   const [itemFilter, setItemFilter] = useState('');
 
   const [itemPrice, setItemPrice] = useState('');
+  const [errorItemPrice, setErrorItemPrice] = useState<string | undefined>(undefined);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const [errorItemQuantity, setErrorItemQuantity] = useState<string | undefined>(
+    undefined,
+  );
   const [totalItemPrice, setTotalItemPrice] = useState('');
+  const [errorTotalItemPrice, setErrorTotalItemPrice] = useState<string | undefined>(
+    undefined,
+  );
 
   const handleItemRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemRepresentation(e.target.value);
+    validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemRerpesentationFilter(e.target.value);
   };
   const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(e.target.value);
+    validate.item(e.target.value);
   };
   const handleItemFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemFilter(e.target.value);
@@ -505,19 +594,59 @@ export function SalesBudget(): JSX.Element {
 
   const handleItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemPrice(e.target.value);
+    validate.itemPrice(e.target.value);
   };
   const handleItemQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemQuantity(Number.parseInt(e.target.value));
+    validate.itemQuantity(e.target.value);
   };
   const handleTotalItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTotalItemPrice(e.target.value);
+    validate.totalItemPrice(e.target.value);
+  };
+
+  const clearItemFields = () => {
+    setItemRerpesentationFilter('');
+    setItemRepresentation('0');
+    setItemFilter('');
+    setItem('0');
+    setItemPrice('');
+    setItemQuantity(1);
+    setTotalItemPrice('');
+    setItems([]);
+  };
+
+  const validateItemFields = () => {
+    return (
+      validate.itemRepresentation(itemRepresentation) &&
+      validate.item(item) &&
+      validate.itemPrice(itemPrice) &&
+      validate.itemQuantity(itemQuantity.toString()) &&
+      validate.totalItemPrice(totalItemPrice)
+    );
   };
 
   const handleClearItemClick = () => {
-    alert('Limpar item!');
+    clearItemFields();
   };
   const handleAddItemClick = () => {
-    alert('Adicionar item!');
+    if (validateItemFields()) {
+      const newItems = [...items];
+      const product = products.find((item) => item.id == Number(item)) as Product;
+      newItems.push(
+        new SaleBudgetItem({
+          id: 0,
+          budget: budget,
+          product: product,
+          quantity: itemQuantity,
+          weight: product.weight * itemQuantity,
+          price: Number.parseFloat(
+            totalItemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+          ),
+        }),
+      );
+      setItems(newItems);
+    }
   };
 
   return (
@@ -538,6 +667,13 @@ export function SalesBudget(): JSX.Element {
             onChange={handleClientChange}
           >
             <option value="0">SELECIONAR</option>
+            {clients.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.person.type == 1
+                  ? (item.person.individual as IndividualPerson).name
+                  : (item.person.enterprise as EnterprisePerson).fantasyName}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputText
             colSm={4}
@@ -640,6 +776,11 @@ export function SalesBudget(): JSX.Element {
             onChange={handleSalesmanChange}
           >
             <option value="0">SELECIONAR</option>
+            {salesmans.map((item) => (
+              <option key={item.id} value={item.id}>
+                {(item.person.individual as IndividualPerson).name}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputSelect
             colSm={3}
@@ -650,6 +791,11 @@ export function SalesBudget(): JSX.Element {
             onChange={handleDestinyStateChange}
           >
             <option value="0">SELECIONAR</option>
+            {states.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputSelect
             colSm={4}
@@ -661,6 +807,11 @@ export function SalesBudget(): JSX.Element {
             disable={destinyState == '0' ? true : false}
           >
             <option value="0">SELECIONAR</option>
+            {cities.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
           </FormInputSelect>
         </Row>
       </FieldsetCard>
@@ -678,7 +829,38 @@ export function SalesBudget(): JSX.Element {
               </tr>
             </thead>
 
-            <tbody id="tbodyItens"></tbody>
+            <tbody id="tbodyItens">
+              {items.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.product.description}</td>
+                  <td>{item.product.representation.person.enterprise?.fantasyName}</td>
+                  <td>
+                    {formatarValor(
+                      item.product.representation.person.contact.address.city.state.id ==
+                        Number(destinyState)
+                        ? item.product.price
+                        : item.product.priceOut,
+                    )}
+                  </td>
+                  <td>{item.quantity}</td>
+                  <td>{formatarValor(item.price)}</td>
+                  <td>
+                    <FaTrash
+                      role="button"
+                      color="red"
+                      size={14}
+                      title="Excluir"
+                      onClick={() => {
+                        const newItems = [...items];
+                        delete newItems[newItems.findIndex((i) => i.id == item.id)];
+                        newItems.length--;
+                        setItems(newItems);
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </Table>
         </div>
         <Row>

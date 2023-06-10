@@ -60,4 +60,11 @@ export class SaleBudgetItem {
   set weight(v: number) {
     this.attributes.weight = v;
   }
+
+  get price(): number {
+    return this.attributes.price;
+  }
+  set price(v: number) {
+    this.attributes.price = v;
+  }
 }
