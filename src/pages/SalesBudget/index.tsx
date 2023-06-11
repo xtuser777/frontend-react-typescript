@@ -28,6 +28,7 @@ import { IndividualPerson } from '../../models/individual-person';
 import { EnterprisePerson } from '../../models/enterprise-person';
 import { SaleBudgetItem } from '../../models/SaleBudgetItem';
 import { FaTrash } from 'react-icons/fa';
+import history from '../../services/history';
 
 export function SalesBudget(): JSX.Element {
   const [budget, setBudget] = useState(new SaleBudget());
@@ -38,6 +39,7 @@ export function SalesBudget(): JSX.Element {
   const [salesmans, setSalesmans] = useState(new Array<Employee>());
 
   const [representations, setRepresentations] = useState(new Array<Representation>());
+  const [representationsDb, setRepresentationsDb] = useState(new Array<Representation>());
   const [products, setProducts] = useState(new Array<Product>());
   const [productsDb, setProductsDb] = useState(new Array<Product>());
 
@@ -88,7 +90,8 @@ export function SalesBudget(): JSX.Element {
 
     const getSalesmans = async () => {
       const response = await new Employee().get();
-      setSalesmans(response);
+      const salesman = response.filter((item) => item.type == 2);
+      setSalesmans(salesman);
     };
 
     const getClients = async () => {
@@ -98,11 +101,22 @@ export function SalesBudget(): JSX.Element {
 
     const getRepresentations = async () => {
       const response = await new Representation().get();
+      if (response.length == 0) {
+        toast.info('Não há representações cadastradas.');
+        history.push('/representacoes');
+        window.location.reload();
+      }
+      setRepresentationsDb(response);
       setRepresentations(response);
     };
 
     const getProducts = async () => {
       const response = await new Product().get();
+      if (response.length == 0) {
+        toast.info('Não há produtos cadastrados.');
+        history.push('/produtos');
+        window.location.reload();
+      }
       setProducts(response);
       setProductsDb(response);
     };
@@ -114,7 +128,6 @@ export function SalesBudget(): JSX.Element {
 
         if (budget.client) {
           setClient(budget.client.id.toString());
-          //fillClient(budget.client);
         }
 
         setName(budget.clientName);
@@ -134,6 +147,8 @@ export function SalesBudget(): JSX.Element {
         setWeight(formatarPeso(budget.weight));
         setPrice(formatarValor(budget.value));
         setDueDate(formatarData(budget.validate));
+
+        setItems(budget.items);
       }
     };
   }, []);
@@ -337,13 +352,16 @@ export function SalesBudget(): JSX.Element {
       }
     },
     description: (value: string) => {
-      if (value.length == 0)
+      if (value.length == 0) {
         setErrorDescription('A descrição do orçamento precisa ser preenchida.');
-      else if (value.length < 2)
+        return false;
+      } else if (value.length < 2) {
         setErrorDescription('A descrição preenchida tem tamanho inválido.');
-      else {
+        return false;
+      } else {
         setErrorDescription(undefined);
         budget.description = value;
+        return true;
       }
     },
     destinyState: (value: string) => {
@@ -416,10 +434,13 @@ export function SalesBudget(): JSX.Element {
       }
     },
     items: () => {
-      if (budget.items.length == 0) {
+      if (items.length == 0) {
         toast.info('Não há itens adicionados ao orçamento.');
         return false;
-      } else return true;
+      } else {
+        budget.items = items;
+        return true;
+      }
     },
     itemRepresentation: (value: string) => {
       if (value == '0') {
@@ -427,6 +448,13 @@ export function SalesBudget(): JSX.Element {
         return false;
       } else {
         setErrorItemRepresentation(undefined);
+        setItemFilter('');
+        setItem('0');
+        let newProducts = [...productsDb];
+        newProducts = newProducts.filter(
+          (item) => item.representation.id == Number(value),
+        );
+        setProducts(newProducts);
         return true;
       }
     },
@@ -436,6 +464,24 @@ export function SalesBudget(): JSX.Element {
         return false;
       } else {
         setErrorItem(undefined);
+        const product = products.find((item) => item.id == Number(value)) as Product;
+        setPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price
+              : product.priceOut,
+          ),
+        );
+        setItemQuantity(1);
+        setTotalItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price * itemQuantity
+              : product.priceOut * itemQuantity,
+          ),
+        );
         return true;
       }
     },
@@ -458,6 +504,15 @@ export function SalesBudget(): JSX.Element {
         return false;
       } else {
         setErrorItemQuantity(undefined);
+        const product = products.find((item) => item.id == Number(value)) as Product;
+        setTotalItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price * itemQuantity
+              : product.priceOut * itemQuantity,
+          ),
+        );
         return true;
       }
     },
@@ -477,8 +532,19 @@ export function SalesBudget(): JSX.Element {
 
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
-    budget.client = clients.find((item) => item.id == Number(e.target.value));
-    fillClient(budget.client as Client);
+    if (e.target.value != '0') {
+      budget.client = clients.find((item) => item.id == Number(e.target.value));
+      fillClient(budget.client as Client);
+    } else {
+      budget.client = undefined;
+      setName('');
+      setType('1');
+      setCpf('');
+      setCnpj('');
+      setPhone('');
+      setCellphone('');
+      setEmail('');
+    }
   };
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -517,6 +583,8 @@ export function SalesBudget(): JSX.Element {
   };
   const handleSalesmanChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSalesman(e.target.value);
+    if (e.target.value != '0')
+      budget.salesman = salesmans.find((item) => item.id == Number(e.target.value));
   };
   const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyState(e.target.value);
@@ -528,7 +596,7 @@ export function SalesBudget(): JSX.Element {
   };
 
   const handleClearItemsClick = () => {
-    alert('Limpar itens!');
+    setItems([]);
   };
 
   const [addItems, setAddItems] = useState(false);
@@ -546,12 +614,54 @@ export function SalesBudget(): JSX.Element {
     validate.dueDate(e.target.value);
   };
 
+  const validateFields = () => {
+    return (
+      validate.name(name) &&
+      validate.type(type) &&
+      (type == '1' ? validate.cpf(cpf) : validate.cnpj(cnpj)) &&
+      validate.phone(phone) &&
+      validate.cellphone(cellphone) &&
+      validate.email(email) &&
+      validate.description(description) &&
+      validate.destinyState(destinyState) &&
+      validate.destinyCity(destinyCity) &&
+      validate.items() &&
+      validate.weight(weight) &&
+      validate.price(price) &&
+      validate.dueDate(dueDate)
+    );
+  };
+
+  const clearFields = () => {
+    setClient('0');
+    setName('');
+    setType('1');
+    setCpf('');
+    setCnpj('');
+    setPhone('');
+    setCellphone('');
+    setEmail('');
+    setSalesman('0');
+    setDescription('');
+    setDestinyState('0');
+    setDestinyCity('0');
+    setItems([]);
+    clearItemFields();
+    setWeight('');
+    setPrice('');
+    setDueDate('');
+  };
+
   const handleButtons = {
     handleClearClick: () => {
-      alert('Limpar clicado.');
+      clearFields();
     },
-    handleSaveClick: () => {
-      alert('Salvar clicado.');
+    handleSaveClick: async () => {
+      if (validateFields()) {
+        if (method == 'novo') {
+          if (await budget.save()) clearFields();
+        } else await budget.update();
+      }
     },
   };
 
@@ -561,7 +671,7 @@ export function SalesBudget(): JSX.Element {
   const [errorItemRepresentation, setErrorItemRepresentation] = useState<
     string | undefined
   >(undefined);
-  const [itemRepresentationFilter, setItemRerpesentationFilter] = useState('');
+  const [itemRepresentationFilter, setItemRepresentationFilter] = useState('');
   const [item, setItem] = useState('0');
   const [errorItem, setErrorItem] = useState<string | undefined>(undefined);
   const [itemFilter, setItemFilter] = useState('');
@@ -582,7 +692,17 @@ export function SalesBudget(): JSX.Element {
     validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemRerpesentationFilter(e.target.value);
+    setItemRepresentationFilter(e.target.value);
+    if (e.target.value.trim().length > 0) {
+      clearItemFields();
+      let newRepresentations = [...representationsDb];
+      newRepresentations = newRepresentations.filter(
+        (item) =>
+          item.person.enterprise?.fantasyName.includes(e.target.value) ||
+          item.unity.includes(e.target.value),
+      );
+      setRepresentations(newRepresentations);
+    }
   };
   const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(e.target.value);
@@ -590,6 +710,19 @@ export function SalesBudget(): JSX.Element {
   };
   const handleItemFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemFilter(e.target.value);
+    if (e.target.value.trim().length > 0) {
+      setItem('0');
+      setItemPrice('');
+      setItemQuantity(1);
+      setTotalItemPrice('');
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) =>
+          item.representation.id == Number(itemRepresentation) &&
+          item.description.includes(e.target.value),
+      );
+      setProducts(newProducts);
+    }
   };
 
   const handleItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -606,7 +739,7 @@ export function SalesBudget(): JSX.Element {
   };
 
   const clearItemFields = () => {
-    setItemRerpesentationFilter('');
+    setItemRepresentationFilter('');
     setItemRepresentation('0');
     setItemFilter('');
     setItem('0');
@@ -683,6 +816,7 @@ export function SalesBudget(): JSX.Element {
             value={name}
             onChange={handleNameChange}
             readonly={client != '0' ? true : false}
+            message={errorName}
           />
           <FormInputSelect
             colSm={2}
@@ -692,6 +826,7 @@ export function SalesBudget(): JSX.Element {
             value={type}
             onChange={handleTypeChange}
             readonly={client != '0' ? true : false}
+            message={errorType}
           >
             <option value="1">CPF</option>
             <option value="2">CNPJ</option>
@@ -706,6 +841,7 @@ export function SalesBudget(): JSX.Element {
               value={cpf}
               onChange={handleCpfChange}
               readonly={client != '0' ? true : false}
+              message={errorCpf}
             />
           ) : (
             <FormInputText
@@ -717,6 +853,7 @@ export function SalesBudget(): JSX.Element {
               value={cnpj}
               onChange={handleCnpjChange}
               readonly={client != '0' ? true : false}
+              message={errorCnpj}
             />
           )}
         </Row>
@@ -731,6 +868,7 @@ export function SalesBudget(): JSX.Element {
             value={phone}
             onChange={(e) => handlePhoneChange(e)}
             readonly={client != '0' ? true : false}
+            message={errorPhone}
           />
           <FormInputGroupText
             colSm={3}
@@ -742,6 +880,7 @@ export function SalesBudget(): JSX.Element {
             value={cellphone}
             onChange={(e) => handleCellphoneChange(e)}
             readonly={client != '0' ? true : false}
+            message={errorCellphone}
           />
           <FormInputGroupEmail
             colSm={6}
@@ -752,6 +891,7 @@ export function SalesBudget(): JSX.Element {
             value={email}
             onChange={(e) => handleEmailChange(e)}
             readonly={client != '0' ? true : false}
+            message={errorEmail}
           />
         </Row>
       </FieldsetCard>
@@ -764,6 +904,7 @@ export function SalesBudget(): JSX.Element {
             obrigatory
             value={description}
             onChange={(e) => handleDescriptionChange(e)}
+            message={errorDescription}
           />
         </Row>
         <Row>
@@ -789,6 +930,7 @@ export function SalesBudget(): JSX.Element {
             obrigatory
             value={destinyState}
             onChange={handleDestinyStateChange}
+            message={errorDestinyState}
           >
             <option value="0">SELECIONAR</option>
             {states.map((item) => (
@@ -805,6 +947,7 @@ export function SalesBudget(): JSX.Element {
             value={destinyCity}
             onChange={handleDestinyCityChange}
             disable={destinyState == '0' ? true : false}
+            message={errorDestinyCity}
           >
             <option value="0">SELECIONAR</option>
             {cities.map((item) => (
@@ -912,7 +1055,14 @@ export function SalesBudget(): JSX.Element {
                   style={{ width: '100%' }}
                   value={itemRepresentation}
                   onChange={handleItemRepresentationChange}
-                ></Input>
+                  message={errorItemRepresentation}
+                >
+                  {representations.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.person.enterprise?.fantasyName + ' (' + item.unity + ')'}
+                    </option>
+                  ))}
+                </Input>
               </FormGroup>
             </Col>
             <Col sm="6">
@@ -935,7 +1085,14 @@ export function SalesBudget(): JSX.Element {
                   style={{ width: '100%' }}
                   value={item}
                   onChange={handleItemChange}
-                ></Input>
+                  message={errorItem}
+                >
+                  {products.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.description}
+                    </option>
+                  ))}
+                </Input>
               </FormGroup>
             </Col>
           </Row>
@@ -952,6 +1109,7 @@ export function SalesBudget(): JSX.Element {
               value={itemPrice}
               onChange={handleItemPriceChange}
               readonly
+              message={errorItemPrice}
             />
             <FormInputNumber
               colSm={2}
@@ -960,6 +1118,7 @@ export function SalesBudget(): JSX.Element {
               obrigatory
               value={itemQuantity}
               onChange={handleItemQuantityChange}
+              message={errorItemQuantity}
             />
             <FormInputGroupText
               colSm={3}
@@ -973,6 +1132,7 @@ export function SalesBudget(): JSX.Element {
               value={totalItemPrice}
               onChange={handleTotalItemPriceChange}
               readonly
+              message={errorTotalItemPrice}
             />
             <FormButton
               colSm={2}
@@ -1007,6 +1167,7 @@ export function SalesBudget(): JSX.Element {
             value={weight}
             onChange={(e) => handleWeightChange(e)}
             readonly
+            message={errorWeight}
           />
           <FormInputGroupText
             colSm={4}
@@ -1020,6 +1181,7 @@ export function SalesBudget(): JSX.Element {
             value={price}
             onChange={(e) => handlePriceChange(e)}
             readonly
+            message={errorPrice}
           />
           <FormInputDate
             colSm={4}
@@ -1028,6 +1190,7 @@ export function SalesBudget(): JSX.Element {
             obrigatory
             value={dueDate}
             onChange={handleDueDateChange}
+            message={errorDueDate}
           />
         </Row>
       </FieldsetCard>

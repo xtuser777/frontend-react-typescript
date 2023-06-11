@@ -166,7 +166,7 @@ export class SaleBudget implements ISaleBudget {
   async save() {
     const payload = {
       budget: {
-        date: this.date,
+        date: new Date().toISOString().substring(0, 10),
         description: this.description,
         clientName: this.clientName,
         clientDocument: this.clientDocument,
