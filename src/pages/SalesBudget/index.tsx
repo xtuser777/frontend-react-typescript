@@ -151,6 +151,17 @@ export function SalesBudget(): JSX.Element {
         setItems(budget.items);
       }
     };
+
+    const load = async () => {
+      await getClients();
+      await getSalesmans();
+      await getRepresentations();
+      await getProducts();
+      if (method == 'editar') await getData(await getStates());
+      else await getStates();
+    };
+
+    load();
   }, []);
 
   const fillClient = (client: Client) => {
