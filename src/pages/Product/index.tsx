@@ -8,9 +8,9 @@ import { FormInputText } from '../../components/form-input-text';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { Product as ProductModel } from '../../models/Product';
-import { Representation } from '../../models/Representation';
+import { IRepresentation, Representation } from '../../models/Representation';
 import { formatarPeso, formatarValor } from '../../utils/format';
-import { TruckType } from '../../models/TruckType';
+import { ITruckType, TruckType } from '../../models/TruckType';
 import { FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import history from '../../services/history';
@@ -20,8 +20,8 @@ export function Product(): JSX.Element {
 
   const [representations, setRepresentations] = useState(new Array<Representation>());
 
-  const [types, setTypes] = useState(new Array<TruckType>());
-  const [typesLinked, setTypesLinked] = useState(new Array<TruckType>());
+  const [types, setTypes] = useState(new Array<ITruckType>());
+  const [typesLinked, setTypesLinked] = useState(new Array<ITruckType>());
   const [errorTypesLinked, setErrorTypesLinked] = useState<string | undefined>(undefined);
 
   const [description, setDescription] = useState('');
@@ -102,10 +102,8 @@ export function Product(): JSX.Element {
         setErrorRepresentation('A representação do produto precisa ser preenchida.');
       else {
         setErrorRepresentation(undefined);
-        product.representation = representations.find(
-          (item) => item.id == Number(value),
-        ) as Representation;
-        console.log(product.representation);
+        product.representation = representations.find((item) => item.id == Number(value))
+          ?.toAttributes as IRepresentation;
       }
     },
     measure: (value: string) => {
@@ -138,7 +136,6 @@ export function Product(): JSX.Element {
         product.price = Number.parseFloat(
           value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
         );
-        console.log(value, product.price);
       }
     },
     priceOut: (value: string) => {
@@ -209,7 +206,9 @@ export function Product(): JSX.Element {
         exists = typesLinked.find((item) => item.id == Number(type));
       if (!exists) {
         const newTypes = [...typesLinked];
-        newTypes.push(types.find((item) => item.id == Number(type)) as TruckType);
+        newTypes.push(
+          (types.find((item) => item.id == Number(type)) as TruckType).toAttributes,
+        );
         setTypesLinked(newTypes);
       }
     }

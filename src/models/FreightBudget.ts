@@ -1,50 +1,51 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
-import { IClient } from './Client';
-import { Employee, IEmployee } from './Employee';
-import { ISaleItem } from './SaleItem';
 import { City, ICity } from './City';
+import { Client, IClient } from './Client';
+import { Employee, IEmployee } from './Employee';
+import { IFreightItem } from './FreightItem';
+import { IRepresentation, Representation } from './Representation';
+import { ISaleBudget } from './SaleBudget';
+import { ITruckType, TruckType } from './TruckType';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
-export interface ISaleBudget {
+export interface IFreightBudget {
   id: number;
   description: string;
   date: string;
-  clientName: string;
-  clientDocument: string;
-  clientPhone: string;
-  clientCellphone: string;
-  clientEmail: string;
+  distance: number;
   weight: number;
   value: number;
+  shipping: string;
   validate: string;
-  salesman?: IEmployee;
-  client?: IClient;
+  saleBudget?: ISaleBudget;
+  representation: IRepresentation;
+  client: IClient;
+  truckType: ITruckType;
   destiny: ICity;
   author: IEmployee;
-  items: ISaleItem[];
+  items: IFreightItem[];
 }
 
-export class SaleBudget implements ISaleBudget {
-  private attributes: ISaleBudget;
+export class FreightBudget implements IFreightBudget {
+  private attributes: IFreightBudget;
 
-  constructor(attributes?: ISaleBudget) {
+  constructor(attributes?: IFreightBudget) {
     this.attributes = attributes
       ? attributes
       : {
           id: 0,
           description: '',
           date: '',
-          clientName: '',
-          clientDocument: '',
-          clientPhone: '',
-          clientCellphone: '',
-          clientEmail: '',
+          distance: 0,
           weight: 0.0,
           value: 0.0,
+          shipping: '',
           validate: '',
-          salesman: undefined,
-          client: undefined,
+          saleBudget: undefined,
+          representation: new Representation(),
+          client: new Client(),
+          truckType: new TruckType(),
           destiny: new City(),
           author: new Employee(),
           items: [],
@@ -58,13 +59,6 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.id = v;
   }
 
-  get description(): string {
-    return this.attributes.description;
-  }
-  set description(v: string) {
-    this.attributes.description = v;
-  }
-
   get date(): string {
     return this.attributes.date;
   }
@@ -72,39 +66,18 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.date = v;
   }
 
-  get clientName(): string {
-    return this.attributes.clientName;
+  get description(): string {
+    return this.attributes.description;
   }
-  set clientName(v: string) {
-    this.attributes.clientName = v;
-  }
-
-  get clientDocument(): string {
-    return this.attributes.clientDocument;
-  }
-  set clientDocument(v: string) {
-    this.attributes.clientDocument = v;
+  set description(v: string) {
+    this.attributes.description = v;
   }
 
-  get clientPhone(): string {
-    return this.attributes.clientPhone;
+  get distence(): number {
+    return this.attributes.distance;
   }
-  set clientPhone(v: string) {
-    this.attributes.clientPhone = v;
-  }
-
-  get clientCellphone(): string {
-    return this.attributes.clientCellphone;
-  }
-  set clientCellphone(v: string) {
-    this.attributes.clientCellphone = v;
-  }
-
-  get clientEmail(): string {
-    return this.attributes.clientEmail;
-  }
-  set clientEmail(v: string) {
-    this.attributes.clientEmail = v;
+  set distance(v: number) {
+    this.attributes.distance = v;
   }
 
   get weight(): number {
@@ -121,6 +94,13 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.value = v;
   }
 
+  get shipping(): string {
+    return this.attributes.shipping;
+  }
+  set shipping(v: string) {
+    this.attributes.shipping = v;
+  }
+
   get validate(): string {
     return this.attributes.validate;
   }
@@ -128,18 +108,32 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.validate = v;
   }
 
-  get salesman(): IEmployee | undefined {
-    return this.attributes.salesman;
+  get saleBudget(): ISaleBudget | undefined {
+    return this.attributes.saleBudget;
   }
-  set salesman(v: IEmployee | undefined) {
-    this.attributes.salesman = v;
+  set saleBudget(v: ISaleBudget | undefined) {
+    this.attributes.saleBudget = v;
   }
 
-  get client(): IClient | undefined {
+  get representation(): IRepresentation {
+    return this.attributes.representation;
+  }
+  set representation(v: IRepresentation) {
+    this.attributes.representation = v;
+  }
+
+  get client(): IClient {
     return this.attributes.client;
   }
-  set client(v: IClient | undefined) {
+  set client(v: IClient) {
     this.attributes.client = v;
+  }
+
+  get truckType(): ITruckType {
+    return this.attributes.truckType;
+  }
+  set truckType(v: ITruckType) {
+    this.attributes.truckType = v;
   }
 
   get destiny(): ICity {
@@ -156,42 +150,41 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.author = v;
   }
 
-  get items(): ISaleItem[] {
+  get items(): IFreightItem[] {
     return this.attributes.items;
   }
-  set items(v: ISaleItem[]) {
+  set items(v: IFreightItem[]) {
     this.attributes.items = v;
   }
 
-  get toAttributes(): ISaleBudget {
-    const attributes: ISaleBudget = { ...this.attributes };
+  get toAttributes(): IFreightBudget {
+    const attributes: IFreightBudget = { ...this.attributes };
     return attributes;
   }
 
-  save = async () => {
+  async save() {
     const payload = {
       budget: {
         date: new Date().toISOString().substring(0, 10),
         description: this.description,
-        clientName: this.clientName,
-        clientDocument: this.clientDocument,
-        clientPhone: this.clientPhone,
-        clientCellphone: this.clientCellphone,
-        clientEmail: this.clientEmail,
+        distance: this.distance,
         weight: this.weight,
         value: this.value,
+        shipping: this.shipping,
         validate: this.validate,
-        salesman: this.salesman,
+        saleBudget: this.saleBudget,
+        representation: this.representation,
         client: this.client,
+        truckType: this.truckType,
         destiny: this.destiny.id,
         items: this.items,
       },
     };
 
     try {
-      const response: AxiosRequestConfig = await axios.post('/sale-budget', payload);
+      const response: AxiosRequestConfig = await axios.post('/freight-budget', payload);
       if (response.data.length == 0) {
-        toast.success('Orçamento de venda aberto com sucesso.');
+        toast.success('Orçamento de frete aberto com sucesso.');
         return true;
       } else {
         toast.error('Erro: ' + response.data);
@@ -201,34 +194,33 @@ export class SaleBudget implements ISaleBudget {
       if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
       return false;
     }
-  };
+  }
 
   async update() {
     const payload = {
       budget: {
         description: this.description,
-        clientName: this.clientName,
-        clientDocument: this.clientDocument,
-        clientPhone: this.clientPhone,
-        clientCellphone: this.clientCellphone,
-        clientEmail: this.clientEmail,
+        distance: this.distance,
         weight: this.weight,
         value: this.value,
+        shipping: this.shipping,
         validate: this.validate,
-        salesman: this.salesman,
+        saleBudget: this.saleBudget,
+        representation: this.representation,
         client: this.client,
-        destiny: this.destiny,
+        truckType: this.truckType,
+        destiny: this.destiny.id,
         items: this.items,
       },
     };
 
     try {
       const response: AxiosRequestConfig = await axios.put(
-        '/sale-budget/' + this.id,
+        '/freight-budget/' + this.id,
         payload,
       );
       if (response.data.length == 0) {
-        toast.success('Orçamento de venda alterado com sucesso.');
+        toast.success('Orçamento de frete alterado com sucesso.');
         return true;
       } else {
         toast.error('Erro: ' + response.data);
@@ -242,9 +234,11 @@ export class SaleBudget implements ISaleBudget {
 
   async delete() {
     try {
-      const response: AxiosRequestConfig = await axios.delete('/sale-budget/' + this.id);
+      const response: AxiosRequestConfig = await axios.delete(
+        '/freight-budget/' + this.id,
+      );
       if (response.data.length == 0) {
-        toast.success('Orçamento de venda excluído com sucesso.');
+        toast.success('Orçamento de frete removido com sucesso.');
         return true;
       } else {
         toast.error('Erro: ' + response.data);
@@ -259,25 +253,25 @@ export class SaleBudget implements ISaleBudget {
   async getOne(id: number) {
     if (id <= 0) return undefined;
     try {
-      const response = await axios.get('/sale-budget/' + id);
-      const budget = response.data ? new SaleBudget(response.data) : undefined;
+      const response = await axios.get('/freight-budget/' + id);
+      const budget = response.data ? new FreightBudget(response.data) : undefined;
 
       return budget;
-    } catch (err) {
-      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
       return undefined;
     }
   }
 
   async get() {
     try {
-      const response = await axios.get('/sale-budget');
-      const budgets: SaleBudget[] = [];
-      for (const data of response.data) budgets.push(new SaleBudget(data));
+      const response = await axios.get('freight-budget');
+      const budgets: IFreightBudget[] = [];
+      for (const data of response.data) budgets.push(new FreightBudget(data));
 
       return budgets;
-    } catch (err) {
-      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
       return [];
     }
   }

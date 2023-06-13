@@ -257,7 +257,7 @@ export function SalesBudgets(): JSX.Element {
                     size={14}
                     title="Editar"
                     onClick={() => {
-                      history.push(`/representacao/editar/${item.id}`);
+                      history.push(`/orcamento/venda/editar/${item.id}`);
                       window.location.reload();
                     }}
                   />

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Row, Table } from 'reactstrap';
@@ -7,11 +7,25 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
+import { FreightBudget, IFreightBudget } from '../../models/FreightBudget';
 
 export function FreightBudgets(): JSX.Element {
+  const [data, setData] = useState(new Array<IFreightBudget>());
+  const [budgets, setBudgets] = useState(new Array<IFreightBudget>());
+
   const [filter, setfilter] = useState('');
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [orderBy, setOrderBy] = useState('1');
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await new FreightBudget().get();
+      setData(data);
+      setBudgets(data);
+    };
+
+    getData();
+  }, []);
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setfilter(e.target.value);

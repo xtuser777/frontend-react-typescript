@@ -1,28 +1,24 @@
-import { IProduct, Product } from './Product';
-import { ISaleBudget, SaleBudget } from './SaleBudget';
+import { Product } from '../models/Product';
+import { IProduct } from './Product';
 
-export interface ISaleBudgetItem {
+export interface IFreightItem {
   id: number;
-  budget: ISaleBudget;
   product: IProduct;
   quantity: number;
   weight: number;
-  price: number;
 }
 
-export class SaleBudgetItem {
-  private attributes: ISaleBudgetItem;
+export class FreightItem implements IFreightItem {
+  private attributes: IFreightItem;
 
-  constructor(attributes?: ISaleBudgetItem) {
+  constructor(attributes?: IFreightItem) {
     this.attributes = attributes
       ? attributes
       : {
           id: 0,
-          budget: new SaleBudget(),
           product: new Product(),
           quantity: 0,
           weight: 0.0,
-          price: 0.0,
         };
   }
 
@@ -31,13 +27,6 @@ export class SaleBudgetItem {
   }
   set id(v: number) {
     this.attributes.id = v;
-  }
-
-  get budget(): ISaleBudget {
-    return this.attributes.budget;
-  }
-  set budget(v: ISaleBudget) {
-    this.attributes.budget = v;
   }
 
   get product(): IProduct {
@@ -59,17 +48,5 @@ export class SaleBudgetItem {
   }
   set weight(v: number) {
     this.attributes.weight = v;
-  }
-
-  get price(): number {
-    return this.attributes.price;
-  }
-  set price(v: number) {
-    this.attributes.price = v;
-  }
-
-  get toAttributes(): ISaleBudgetItem {
-    const attributes: ISaleBudgetItem = { ...this.attributes };
-    return attributes;
   }
 }

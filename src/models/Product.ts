@@ -106,6 +106,7 @@ export class Product implements IProduct {
         types: this.types,
       },
     };
+
     try {
       const response: AxiosRequestConfig = await axios.post('/product', payload);
       if (response.data.length == 0) {

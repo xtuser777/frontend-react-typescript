@@ -19,14 +19,19 @@ import { IState, State } from '../../models/State';
 import { City, ICity } from '../../models/City';
 import { Employee } from '../../models/Employee';
 import axios from '../../services/axios';
-import { formatarData, formatarPeso, formatarValor } from '../../utils/format';
+import {
+  formatarData,
+  formatarDataIso,
+  formatarPeso,
+  formatarValor,
+} from '../../utils/format';
 import { Representation } from '../../models/Representation';
 import { IProduct, Product } from '../../models/Product';
 import isEmail from 'validator/lib/isEmail';
 import { toast } from 'react-toastify';
 import { IndividualPerson } from '../../models/IndividualPerson';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
-import { ISaleBudgetItem, SaleBudgetItem } from '../../models/SaleBudgetItem';
+import { ISaleItem, SaleItem } from '../../models/SaleItem';
 import { FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { AxiosRequestConfig, isAxiosError } from 'axios';
@@ -100,7 +105,7 @@ export function SalesBudget(): JSX.Element {
       setClients(response);
     };
 
-    const getRepresentations = async () => {
+    const getRepresentations = async (products: Product[]) => {
       const response = await new Representation().get();
       if (response.length == 0) {
         toast.info('Não há representações cadastradas.');
@@ -109,6 +114,20 @@ export function SalesBudget(): JSX.Element {
       }
       setRepresentationsDb(response);
       setRepresentations(response);
+      let newProducts = [...products];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == response[0].id,
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItemPrice(formatarValor(product.price));
+        setItemQuantity(1);
+        setTotalItemPrice(formatarValor(product.price * itemQuantity));
+      }
     };
 
     const getProducts = async () => {
@@ -118,8 +137,8 @@ export function SalesBudget(): JSX.Element {
         history.push('/produtos');
         window.location.reload();
       }
-      //setProducts(response);
       setProductsDb(response);
+      return response;
     };
 
     const getData = async (states: State[]) => {
@@ -147,7 +166,7 @@ export function SalesBudget(): JSX.Element {
 
         setWeight(formatarPeso(budget.weight));
         setPrice(formatarValor(budget.value));
-        setDueDate(formatarData(budget.validate));
+        setDueDate(formatarDataIso(budget.validate));
 
         setItems(budget.items);
       }
@@ -156,8 +175,7 @@ export function SalesBudget(): JSX.Element {
     const load = async () => {
       await getClients();
       await getSalesmans();
-      await getRepresentations();
-      await getProducts();
+      await getRepresentations(await getProducts());
       if (method == 'editar') await getData(await getStates());
       else await getStates();
     };
@@ -660,6 +678,8 @@ export function SalesBudget(): JSX.Element {
 
   const handleClearItemsClick = () => {
     setItems([]);
+    setWeight('');
+    setPrice('');
   };
 
   const [addItems, setAddItems] = useState(false);
@@ -718,39 +738,7 @@ export function SalesBudget(): JSX.Element {
   const persistData = async () => {
     if (validateFields()) {
       if (method == 'novo') {
-        console.log('novo!', budget);
-        const payload = {
-          budget: {
-            date: new Date().toISOString().substring(0, 10),
-            description: budget.description,
-            clientName: budget.clientName,
-            clientDocument: budget.clientDocument,
-            clientPhone: budget.clientPhone,
-            clientCellphone: budget.clientCellphone,
-            clientEmail: budget.clientEmail,
-            weight: budget.weight,
-            value: budget.value,
-            validate: budget.validate,
-            salesman: budget.salesman,
-            client: budget.client,
-            destiny: budget.destiny.id,
-            items: budget.items,
-          },
-        };
-
-        console.log(payload);
-
-        try {
-          const response: AxiosRequestConfig = await axios.post('/sale-budget', payload);
-          if (response.data.length == 0) {
-            toast.success('Orçamento de venda aberto com sucesso.');
-            clearFields();
-          } else {
-            toast.error('Erro: ' + response.data);
-          }
-        } catch (e) {
-          if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
-        }
+        if (await budget.save()) clearFields();
       } else await budget.update();
     }
   };
@@ -767,7 +755,7 @@ export function SalesBudget(): JSX.Element {
   };
 
   // Items
-  const [items, setItems] = useState(new Array<ISaleBudgetItem>());
+  const [items, setItems] = useState(new Array<ISaleItem>());
   const [itemRepresentation, setItemRepresentation] = useState('0');
   const [errorItemRepresentation, setErrorItemRepresentation] = useState<
     string | undefined
@@ -930,7 +918,6 @@ export function SalesBudget(): JSX.Element {
         ?.toAttributes as IProduct;
       newItems.push({
         id: 0,
-        budget: budget.toAttributes,
         product: product,
         quantity: itemQuantity,
         weight: product.weight * itemQuantity,
@@ -1178,6 +1165,13 @@ export function SalesBudget(): JSX.Element {
                         delete newItems[newItems.findIndex((i) => i.id == item.id)];
                         newItems.length--;
                         setItems(newItems);
+                        let totalWeight = 0.0;
+                        newItems.forEach((item) => (totalWeight += item.weight));
+                        setWeight(formatarValor(totalWeight));
+
+                        let totalPrice = 0.0;
+                        newItems.forEach((item) => (totalPrice += item.price));
+                        setPrice(formatarValor(totalPrice));
                       }}
                     />
                   </td>
