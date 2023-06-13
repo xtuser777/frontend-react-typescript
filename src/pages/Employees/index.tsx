@@ -10,7 +10,7 @@ import { FormButtonLink } from '../../components/form-button-link';
 import { formatarData } from '../../utils/format';
 import { FaEdit, FaPowerOff, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
-import { IndividualPerson } from '../../models/individual-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
 import { Employee } from '../../models/Employee';
 
 export function Employees(): JSX.Element {

@@ -12,8 +12,8 @@ import { RootState } from '../../store';
 import { Truck as TruckModel } from '../../models/Truck';
 import { TruckType } from '../../models/TruckType';
 import { Proprietary } from '../../models/Proprietary';
-import { IndividualPerson } from '../../models/individual-person';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function Truck(): JSX.Element {
   const truckState = useSelector((state: RootState) => state.truck);

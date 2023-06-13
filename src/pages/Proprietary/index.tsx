@@ -13,12 +13,12 @@ import isEmail from 'validator/lib/isEmail';
 import * as actions from '../../store/modules/proprietary/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
 import { Proprietary as ProprietaryModel } from '../../models/Proprietary';
 import axios from '../../services/axios';
-import { IndividualPerson } from '../../models/individual-person';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 import { Driver } from '../../models/Driver';
 
 export function Proprietary(): JSX.Element {

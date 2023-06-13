@@ -11,7 +11,7 @@ import history from '../../services/history';
 import { formatarData } from '../../utils/format';
 import { Driver } from '../../models/Driver';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { IndividualPerson } from '../../models/individual-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function Drivers(): JSX.Element {
   const [data, setData] = useState(new Array<Driver>());

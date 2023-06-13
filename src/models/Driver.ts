@@ -1,16 +1,16 @@
 import { toast } from 'react-toastify';
 import axios from '../services/axios';
-import { BankData } from './bank-data';
+import { BankData, IBankData } from './BankData';
 import { AxiosRequestConfig, isAxiosError } from 'axios';
-import { Person } from './person';
-import { IndividualPerson } from './individual-person';
+import { IPerson, Person } from './Person';
+import { IndividualPerson } from './IndividualPerson';
 
-interface IDriver {
+export interface IDriver {
   id: number;
   register: string;
   cnh: string;
-  person: Person;
-  bankData: BankData;
+  person: IPerson;
+  bankData: IBankData;
 }
 
 export class Driver {
@@ -49,18 +49,23 @@ export class Driver {
     this.attributes.cnh = v;
   }
 
-  get person(): Person {
+  get person(): IPerson {
     return this.attributes.person;
   }
-  set person(v: Person) {
+  set person(v: IPerson) {
     this.attributes.person = v;
   }
 
-  get bankData(): BankData {
+  get bankData(): IBankData {
     return this.attributes.bankData;
   }
-  set bankData(v: BankData) {
+  set bankData(v: IBankData) {
     this.attributes.bankData = v;
+  }
+
+  get toAttributes(): IDriver {
+    const attributes: IDriver = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {

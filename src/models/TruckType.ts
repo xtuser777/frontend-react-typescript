@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import axios from '../services/axios';
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 
-interface ITruckType {
+export interface ITruckType {
   id: number;
   description: string;
   axes: number;
@@ -43,6 +43,11 @@ export class TruckType implements ITruckType {
   }
   set capacity(v: number) {
     this.attributes.capacity = v;
+  }
+
+  get toAttributes(): ITruckType {
+    const attributes: ITruckType = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {

@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import axios from '../services/axios';
 import { Employee } from './Employee';
-import { Level } from './level';
+import { Level } from './Level';
 import { isAxiosError } from 'axios';
 
 export class User {

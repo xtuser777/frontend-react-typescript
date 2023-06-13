@@ -12,9 +12,9 @@ import { RootState } from '../../store';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
 import { Employee as EmployeeModel } from '../../models/Employee';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
-import { IndividualPerson } from '../../models/individual-person';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
+import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function User(): JSX.Element {
   const authState = useSelector((state: RootState) => state.auth);

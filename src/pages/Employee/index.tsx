@@ -10,12 +10,12 @@ import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputDate } from '../../components/form-input-date';
 import { Employee as EmployeeModel } from '../../models/Employee';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
 import axios from '../../services/axios';
-import { IndividualPerson } from '../../models/individual-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
 import { formatarDataIso } from '../../utils/format';
-import { Level } from '../../models/level';
+import { Level } from '../../models/Level';
 import isEmail from 'validator/lib/isEmail';
 
 export function Employee(): JSX.Element {

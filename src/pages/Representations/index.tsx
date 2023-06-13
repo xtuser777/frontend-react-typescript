@@ -14,7 +14,7 @@ import { formatarData } from '../../utils/format';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { MdAdd } from 'react-icons/md';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function Representations(): JSX.Element {
   const representationState = useSelector((state: RootState) => state.representation);

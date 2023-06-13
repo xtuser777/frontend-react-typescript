@@ -1,75 +1,97 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
-import { Representation } from './Representation';
-import { TruckType } from './TruckType';
+import { IRepresentation, Representation } from './Representation';
+import { ITruckType } from './TruckType';
 import { toast } from 'react-toastify';
 
-export class Product {
-  constructor(
-    private _id: number = 0,
-    private _description: string = '',
-    private _measure: string = '',
-    private _weight: number = 0.0,
-    private _price: number = 0.0,
-    private _priceOut: number = 0.0,
-    private _representation: Representation = new Representation(),
-    private _types: TruckType[] = [],
-  ) {}
+export interface IProduct {
+  id: number;
+  description: string;
+  measure: string;
+  weight: number;
+  price: number;
+  priceOut: number;
+  representation: IRepresentation;
+  types: ITruckType[];
+}
+
+export class Product implements IProduct {
+  private attributes: IProduct;
+
+  constructor(attributes?: IProduct) {
+    this.attributes = attributes
+      ? attributes
+      : {
+          id: 0,
+          description: '',
+          measure: '',
+          weight: 0.0,
+          price: 0.0,
+          priceOut: 0.0,
+          representation: new Representation(),
+          types: new Array<ITruckType>(),
+        };
+  }
 
   get id(): number {
-    return this._id;
+    return this.attributes.id;
   }
   set id(v: number) {
-    this._id = v;
+    this.attributes.id = v;
   }
 
   get description(): string {
-    return this._description;
+    return this.attributes.description;
   }
   set description(v: string) {
-    this._description = v;
+    this.attributes.description = v;
   }
 
   get measure(): string {
-    return this._measure;
+    return this.attributes.measure;
   }
   set measure(v: string) {
-    this._measure = v;
+    this.attributes.measure = v;
   }
 
   get weight(): number {
-    return this._weight;
+    return this.attributes.weight;
   }
   set weight(v: number) {
-    this._weight = v;
+    this.attributes.weight = v;
   }
 
   get price(): number {
-    return this._price;
+    return this.attributes.price;
   }
   set price(v: number) {
-    this._price = v;
+    this.attributes.price = v;
   }
 
   get priceOut(): number {
-    return this._priceOut;
+    return this.attributes.priceOut;
   }
   set priceOut(v: number) {
-    this._priceOut = v;
+    this.attributes.priceOut = v;
   }
 
-  get representation(): Representation {
-    return this._representation;
+  get representation(): IRepresentation {
+    return this.attributes.representation;
   }
-  set representation(v: Representation) {
-    this._representation = v;
+  set representation(v: IRepresentation) {
+    this.attributes.representation = v;
   }
 
-  get types(): TruckType[] {
-    return this._types;
+  get types(): ITruckType[] {
+    return this.attributes.types;
   }
-  set types(v: TruckType[]) {
-    this._types = v;
+  set types(v: ITruckType[]) {
+    this.attributes.types = v;
+  }
+
+  get toAttributes(): IProduct {
+    const attributes: IProduct = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {
@@ -150,19 +172,7 @@ export class Product {
     if (id <= 0) return undefined;
     try {
       const response = await axios.get('/product/' + id);
-      let data;
-      if (response.data) data = response.data;
-      else return undefined;
-      const product = new Product(
-        data.id,
-        data.description,
-        data.measure,
-        data.weight,
-        data.price,
-        data.priceOut,
-        data.representation,
-        data.types,
-      );
+      const product = response.data ? new Product(response.data) : undefined;
 
       return product;
     } catch (err) {
@@ -175,19 +185,7 @@ export class Product {
     try {
       const response = await axios.get('/product');
       const products: Product[] = [];
-      for (const data of response.data)
-        products.push(
-          new Product(
-            data.id,
-            data.description,
-            data.measure,
-            data.weight,
-            data.price,
-            data.priceOut,
-            data.representation,
-            data.types,
-          ),
-        );
+      for (const data of response.data) products.push(new Product(data));
 
       return products;
     } catch (err) {

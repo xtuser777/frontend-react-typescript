@@ -1,43 +1,61 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
-import { Person } from './person';
+import { IPerson, Person } from './Person';
 import { toast } from 'react-toastify';
-import { EnterprisePerson } from './enterprise-person';
+import { IEnterprisePerson } from './EnterprisePerson';
+
+export interface IRepresentation {
+  id: number;
+  register: string;
+  unity: string;
+  person: IPerson;
+}
 
 export class Representation {
-  constructor(
-    private _id: number = 0,
-    private _register: string = '',
-    private _unity: string = '',
-    private _person: Person = new Person(),
-  ) {}
+  private attributes: IRepresentation;
+
+  constructor(attributes?: IRepresentation) {
+    this.attributes = attributes
+      ? attributes
+      : {
+          id: 0,
+          register: '',
+          unity: '',
+          person: new Person(),
+        };
+  }
 
   get id(): number {
-    return this._id;
+    return this.attributes.id;
   }
   set id(v: number) {
-    this._id = v;
+    this.attributes.id = v;
   }
 
   get register(): string {
-    return this._register;
+    return this.attributes.register;
   }
   set register(v: string) {
-    this._register = v;
+    this.attributes.register = v;
   }
 
   get unity(): string {
-    return this._unity;
+    return this.attributes.unity;
   }
   set unity(v: string) {
-    this._unity = v;
+    this.attributes.unity = v;
   }
 
-  get person(): Person {
-    return this._person;
+  get person(): IPerson {
+    return this.attributes.person;
   }
-  set person(v: Person) {
-    this._person = v;
+  set person(v: IPerson) {
+    this.attributes.person = v;
+  }
+
+  get toAttributes(): IRepresentation {
+    const attributes: IRepresentation = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {
@@ -56,9 +74,9 @@ export class Representation {
         email: this.person.contact.email,
       },
       person: {
-        corporateName: (this.person.enterprise as EnterprisePerson).corporateName,
-        fantasyName: (this.person.enterprise as EnterprisePerson).fantasyName,
-        cnpj: (this.person.enterprise as EnterprisePerson).cnpj,
+        corporateName: (this.person.enterprise as IEnterprisePerson).corporateName,
+        fantasyName: (this.person.enterprise as IEnterprisePerson).fantasyName,
+        cnpj: (this.person.enterprise as IEnterprisePerson).cnpj,
         type: 2,
       },
       representation: {
@@ -98,9 +116,9 @@ export class Representation {
         email: this.person.contact.email,
       },
       person: {
-        corporateName: (this.person.enterprise as EnterprisePerson).corporateName,
-        fantasyName: (this.person.enterprise as EnterprisePerson).fantasyName,
-        cnpj: (this.person.enterprise as EnterprisePerson).cnpj,
+        corporateName: (this.person.enterprise as IEnterprisePerson).corporateName,
+        fantasyName: (this.person.enterprise as IEnterprisePerson).fantasyName,
+        cnpj: (this.person.enterprise as IEnterprisePerson).cnpj,
         type: 2,
       },
       representation: {
@@ -146,15 +164,9 @@ export class Representation {
   async getOne(id: number) {
     try {
       const response = await axios.get(`/representation/${id}`);
-      let data;
-      if (response.data) data = response.data;
-      else return undefined;
-      const representation: Representation = new Representation(
-        data.id,
-        data.register,
-        data.unity,
-        data.person,
-      );
+      const representation = response.data
+        ? new Representation(response.data)
+        : undefined;
 
       return representation;
     } catch (err) {
@@ -167,8 +179,7 @@ export class Representation {
     try {
       const response = await axios.get(`/representation`);
       const reps: Representation[] = [];
-      for (const data of response.data)
-        reps.push(new Representation(data.id, data.register, data.unity, data.person));
+      for (const data of response.data) reps.push(new Representation(data));
 
       return reps;
     } catch (err) {

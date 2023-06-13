@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import { Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
+import { Badge, Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputSelect } from '../../components/form-input-select';
@@ -15,27 +15,28 @@ import { FormInputNumber } from '../../components/form-input-number';
 import { FormButton } from '../../components/form-button';
 import { SaleBudget } from '../../models/SaleBudget';
 import { Client } from '../../models/Client';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { Employee } from '../../models/Employee';
 import axios from '../../services/axios';
 import { formatarData, formatarPeso, formatarValor } from '../../utils/format';
 import { Representation } from '../../models/Representation';
-import { Product } from '../../models/Product';
+import { IProduct, Product } from '../../models/Product';
 import isEmail from 'validator/lib/isEmail';
 import { toast } from 'react-toastify';
-import { IndividualPerson } from '../../models/individual-person';
-import { EnterprisePerson } from '../../models/enterprise-person';
-import { SaleBudgetItem } from '../../models/SaleBudgetItem';
+import { IndividualPerson } from '../../models/IndividualPerson';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
+import { ISaleBudgetItem, SaleBudgetItem } from '../../models/SaleBudgetItem';
 import { FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 
 export function SalesBudget(): JSX.Element {
   const [budget, setBudget] = useState(new SaleBudget());
 
   const [clients, setClients] = useState(new Array<Client>());
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
   const [salesmans, setSalesmans] = useState(new Array<Employee>());
 
   const [representations, setRepresentations] = useState(new Array<Representation>());
@@ -117,7 +118,7 @@ export function SalesBudget(): JSX.Element {
         history.push('/produtos');
         window.location.reload();
       }
-      setProducts(response);
+      //setProducts(response);
       setProductsDb(response);
     };
 
@@ -391,7 +392,8 @@ export function SalesBudget(): JSX.Element {
         return false;
       } else {
         setErrorDestinyCity(undefined);
-        budget.destiny = cities.find((item) => item.id == Number(value)) as City;
+        const city = cities.find((item) => item.id == Number(value)) as ICity;
+        budget.destiny = city;
         return true;
       }
     },
@@ -399,7 +401,11 @@ export function SalesBudget(): JSX.Element {
       if (value.length == 0) {
         setErrorWeight('O peso do frete precisa ser preenchido.');
         return false;
-      } else if (Number(value) <= 0) {
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
         setErrorWeight('O peso do frete informado é inválido.');
         return false;
       } else {
@@ -414,7 +420,11 @@ export function SalesBudget(): JSX.Element {
       if (value.length == 0) {
         setErrorPrice('O preço do produto precisa ser preenchido.');
         return false;
-      } else if (Number(value) <= 0) {
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
         setErrorPrice('O preço do produto informado é inválido.');
         return false;
       } else {
@@ -460,47 +470,85 @@ export function SalesBudget(): JSX.Element {
       } else {
         setErrorItemRepresentation(undefined);
         setItemFilter('');
-        setItem('0');
-        let newProducts = [...productsDb];
-        newProducts = newProducts.filter(
-          (item) => item.representation.id == Number(value),
-        );
-        setProducts(newProducts);
+        if (representations.length > 0) {
+          let newProducts = [...productsDb];
+          const representation = representations.find(
+            (i) => i.id == Number(value),
+          ) as Representation;
+          newProducts = newProducts.filter(
+            (item) => item.representation.id == representation.id,
+          );
+          setProducts(newProducts);
+          if (newProducts.length > 0) {
+            setItem(newProducts[0].id.toString());
+            const product = newProducts.find(
+              (item) => item.id == newProducts[0].id,
+            ) as Product;
+            setItemPrice(
+              formatarValor(
+                product.representation.person.contact.address.city.state.id ==
+                  Number(destinyState)
+                  ? product.price
+                  : product.priceOut,
+              ),
+            );
+            setItemQuantity(1);
+            setTotalItemPrice(
+              formatarValor(
+                product.representation.person.contact.address.city.state.id ==
+                  Number(destinyState)
+                  ? product.price * itemQuantity
+                  : product.priceOut * itemQuantity,
+              ),
+            );
+          }
+        }
         return true;
       }
     },
     item: (value: string) => {
-      if (value == '0') {
+      if (value == '0' || products.length == 0) {
         setErrorItem('O item precisa ser selecionado.');
         return false;
       } else {
-        setErrorItem(undefined);
         const product = products.find((item) => item.id == Number(value)) as Product;
-        setPrice(
-          formatarValor(
-            product.representation.person.contact.address.city.state.id ==
-              Number(destinyState)
-              ? product.price
-              : product.priceOut,
-          ),
-        );
-        setItemQuantity(1);
-        setTotalItemPrice(
-          formatarValor(
-            product.representation.person.contact.address.city.state.id ==
-              Number(destinyState)
-              ? product.price * itemQuantity
-              : product.priceOut * itemQuantity,
-          ),
-        );
-        return true;
+        const itemProduct = items.find((i) => i.product.id == product.id);
+        if (itemProduct) {
+          setErrorItem('Este item já foi adicionado.');
+          return false;
+        } else {
+          setErrorItem(undefined);
+
+          setItemPrice(
+            formatarValor(
+              product.representation.person.contact.address.city.state.id ==
+                Number(destinyState)
+                ? product.price
+                : product.priceOut,
+            ),
+          );
+          setItemQuantity(1);
+          setTotalItemPrice(
+            formatarValor(
+              product.representation.person.contact.address.city.state.id ==
+                Number(destinyState)
+                ? product.price * itemQuantity
+                : product.priceOut * itemQuantity,
+            ),
+          );
+          return true;
+        }
       }
     },
     itemPrice: (value: string) => {
       if (value.length == 0) {
         setErrorItemPrice('O preço do item precisa ser preenchido.');
         return false;
-      } else if (Number(value) <= 0) {
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
         setErrorItemPrice('O preço do item informado é inválido.');
         return false;
       } else {
@@ -515,15 +563,11 @@ export function SalesBudget(): JSX.Element {
         return false;
       } else {
         setErrorItemQuantity(undefined);
-        const product = products.find((item) => item.id == Number(value)) as Product;
-        setTotalItemPrice(
-          formatarValor(
-            product.representation.person.contact.address.city.state.id ==
-              Number(destinyState)
-              ? product.price * itemQuantity
-              : product.priceOut * itemQuantity,
-          ),
+        //const product = products.find((i) => i.id == Number(item)) as Product;
+        const price = Number.parseFloat(
+          itemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
         );
+        setTotalItemPrice(formatarValor(price * val));
         return true;
       }
     },
@@ -531,7 +575,11 @@ export function SalesBudget(): JSX.Element {
       if (value.length == 0) {
         setErrorTotalItemPrice('O preço total do item precisa ser preenchido.');
         return false;
-      } else if (Number(value) <= 0) {
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
         setErrorTotalItemPrice('O preço total do item informado é inválido.');
         return false;
       } else {
@@ -544,7 +592,9 @@ export function SalesBudget(): JSX.Element {
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
     if (e.target.value != '0') {
-      budget.client = clients.find((item) => item.id == Number(e.target.value));
+      budget.client = clients.find(
+        (item) => item.id == Number(e.target.value),
+      )?.toAttributes;
       fillClient(budget.client as Client);
     } else {
       budget.client = undefined;
@@ -595,7 +645,9 @@ export function SalesBudget(): JSX.Element {
   const handleSalesmanChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSalesman(e.target.value);
     if (e.target.value != '0')
-      budget.salesman = salesmans.find((item) => item.id == Number(e.target.value));
+      budget.salesman = salesmans.find(
+        (item) => item.id == Number(e.target.value),
+      )?.toAttributes;
   };
   const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyState(e.target.value);
@@ -663,21 +715,59 @@ export function SalesBudget(): JSX.Element {
     setDueDate('');
   };
 
+  const persistData = async () => {
+    if (validateFields()) {
+      if (method == 'novo') {
+        console.log('novo!', budget);
+        const payload = {
+          budget: {
+            date: new Date().toISOString().substring(0, 10),
+            description: budget.description,
+            clientName: budget.clientName,
+            clientDocument: budget.clientDocument,
+            clientPhone: budget.clientPhone,
+            clientCellphone: budget.clientCellphone,
+            clientEmail: budget.clientEmail,
+            weight: budget.weight,
+            value: budget.value,
+            validate: budget.validate,
+            salesman: budget.salesman,
+            client: budget.client,
+            destiny: budget.destiny.id,
+            items: budget.items,
+          },
+        };
+
+        console.log(payload);
+
+        try {
+          const response: AxiosRequestConfig = await axios.post('/sale-budget', payload);
+          if (response.data.length == 0) {
+            toast.success('Orçamento de venda aberto com sucesso.');
+            clearFields();
+          } else {
+            toast.error('Erro: ' + response.data);
+          }
+        } catch (e) {
+          if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+        }
+      } else await budget.update();
+    }
+  };
+
   const handleButtons = {
     handleClearClick: () => {
       clearFields();
     },
     handleSaveClick: async () => {
-      if (validateFields()) {
-        if (method == 'novo') {
-          if (await budget.save()) clearFields();
-        } else await budget.update();
-      }
+      console.log('salvar!');
+
+      await persistData();
     },
   };
 
   // Items
-  const [items, setItems] = useState(new Array<SaleBudgetItem>());
+  const [items, setItems] = useState(new Array<ISaleBudgetItem>());
   const [itemRepresentation, setItemRepresentation] = useState('0');
   const [errorItemRepresentation, setErrorItemRepresentation] = useState<
     string | undefined
@@ -703,16 +793,53 @@ export function SalesBudget(): JSX.Element {
     validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemRepresentationFilter(e.target.value);
+    let newRepresentations: Representation[] = [];
     if (e.target.value.trim().length > 0) {
       clearItemFields();
-      let newRepresentations = [...representationsDb];
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
       newRepresentations = newRepresentations.filter(
         (item) =>
           item.person.enterprise?.fantasyName.includes(e.target.value) ||
           item.unity.includes(e.target.value),
       );
-      setRepresentations(newRepresentations);
+    } else {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+    }
+    setRepresentations(newRepresentations);
+    if (newRepresentations.length > 0) {
+      setItemFilter('');
+      setItemRepresentation(newRepresentations[0].id.toString());
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == newRepresentations[0].id,
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price
+              : product.priceOut,
+          ),
+        );
+        setItemQuantity(1);
+        setTotalItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price * itemQuantity
+              : product.priceOut * itemQuantity,
+          ),
+        );
+      }
     }
   };
   const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -722,7 +849,6 @@ export function SalesBudget(): JSX.Element {
   const handleItemFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemFilter(e.target.value);
     if (e.target.value.trim().length > 0) {
-      setItem('0');
       setItemPrice('');
       setItemQuantity(1);
       setTotalItemPrice('');
@@ -733,6 +859,29 @@ export function SalesBudget(): JSX.Element {
           item.description.includes(e.target.value),
       );
       setProducts(newProducts);
+      if (newProducts.length > 0) {
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItem(product.id.toString());
+        setItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price
+              : product.priceOut,
+          ),
+        );
+        setItemQuantity(1);
+        setTotalItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price * itemQuantity
+              : product.priceOut * itemQuantity,
+          ),
+        );
+      }
     }
   };
 
@@ -751,13 +900,14 @@ export function SalesBudget(): JSX.Element {
 
   const clearItemFields = () => {
     setItemRepresentationFilter('');
-    setItemRepresentation('0');
+    const newRepresentations = [...representationsDb];
+    setRepresentations(newRepresentations);
     setItemFilter('');
-    setItem('0');
+    setProducts([]);
     setItemPrice('');
     setItemQuantity(1);
     setTotalItemPrice('');
-    setItems([]);
+    //setItems([]);
   };
 
   const validateItemFields = () => {
@@ -776,21 +926,35 @@ export function SalesBudget(): JSX.Element {
   const handleAddItemClick = () => {
     if (validateItemFields()) {
       const newItems = [...items];
-      const product = products.find((item) => item.id == Number(item)) as Product;
-      newItems.push(
-        new SaleBudgetItem({
-          id: 0,
-          budget: budget,
-          product: product,
-          quantity: itemQuantity,
-          weight: product.weight * itemQuantity,
-          price: Number.parseFloat(
-            totalItemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
-          ),
-        }),
-      );
+      const product = products.find((i) => i.id == Number(item))
+        ?.toAttributes as IProduct;
+      newItems.push({
+        id: 0,
+        budget: budget.toAttributes,
+        product: product,
+        quantity: itemQuantity,
+        weight: product.weight * itemQuantity,
+        price: Number.parseFloat(
+          totalItemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ),
+      });
       setItems(newItems);
-    }
+      let totalWeight = 0.0;
+      newItems.forEach((item) => (totalWeight += item.weight));
+      setWeight(formatarValor(totalWeight));
+
+      let totalPrice = 0.0;
+      newItems.forEach((item) => (totalPrice += item.price));
+      setPrice(formatarValor(totalPrice));
+    } else
+      console.log(
+        'validação retournou false',
+        itemRepresentation,
+        item,
+        itemPrice,
+        itemQuantity,
+        totalItemPrice,
+      );
   };
 
   return (
@@ -987,7 +1151,12 @@ export function SalesBudget(): JSX.Element {
               {items.map((item) => (
                 <tr key={item.id}>
                   <td>{item.product.description}</td>
-                  <td>{item.product.representation.person.enterprise?.fantasyName}</td>
+                  <td>
+                    {item.product.representation.person.enterprise?.fantasyName +
+                      ' (' +
+                      item.product.representation.unity +
+                      ')'}
+                  </td>
                   <td>
                     {formatarValor(
                       item.product.representation.person.contact.address.city.state.id ==
@@ -1066,7 +1235,6 @@ export function SalesBudget(): JSX.Element {
                   style={{ width: '100%' }}
                   value={itemRepresentation}
                   onChange={handleItemRepresentationChange}
-                  message={errorItemRepresentation}
                 >
                   {representations.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -1074,6 +1242,13 @@ export function SalesBudget(): JSX.Element {
                     </option>
                   ))}
                 </Input>
+                <Badge
+                  id={`ms-representacao-item`}
+                  color="danger"
+                  className={errorItemRepresentation ? 'hidden' : ''}
+                >
+                  {errorItemRepresentation ? errorItemRepresentation : ''}
+                </Badge>
               </FormGroup>
             </Col>
             <Col sm="6">
@@ -1104,6 +1279,13 @@ export function SalesBudget(): JSX.Element {
                     </option>
                   ))}
                 </Input>
+                <Badge
+                  id={`ms-item`}
+                  color="danger"
+                  className={errorItem ? 'hidden' : ''}
+                >
+                  {errorItem ? errorItem : ''}
+                </Badge>
               </FormGroup>
             </Col>
           </Row>

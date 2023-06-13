@@ -10,7 +10,7 @@ import { Product } from '../../models/Product';
 import { Representation } from '../../models/Representation';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 import { formatarValor } from '../../utils/format';
 
 export function Products(): JSX.Element {

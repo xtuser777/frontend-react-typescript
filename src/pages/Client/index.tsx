@@ -10,12 +10,12 @@ import { FormInputSelect } from '../../components/form-input-select';
 import { FormEnterprisePerson } from '../../components/form-enterprise-person';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
 import { Client as ClientModel } from '../../models/Client';
 import axios from '../../services/axios';
-import { IndividualPerson } from '../../models/individual-person';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function Client(): JSX.Element {
   const [client, setClient] = useState(new ClientModel());

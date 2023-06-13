@@ -13,11 +13,11 @@ import isEmail from 'validator/lib/isEmail';
 import * as actions from '../../store/modules/driver/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
 import { Driver as DriverModel } from '../../models/Driver';
 import axios from '../../services/axios';
-import { IndividualPerson } from '../../models/individual-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function Driver(): JSX.Element {
   const driverState = useSelector((state: RootState) => state.driver);

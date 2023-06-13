@@ -9,6 +9,7 @@ interface IBillPayCategory {
 
 export class BillPayCategory implements IBillPayCategory {
   private attributes: IBillPayCategory;
+
   constructor(attributes?: IBillPayCategory) {
     this.attributes = attributes ? attributes : { id: 0, description: '' };
   }
@@ -25,6 +26,11 @@ export class BillPayCategory implements IBillPayCategory {
   }
   set description(v: string) {
     this.attributes.description = v;
+  }
+
+  get toAttributes(): IBillPayCategory {
+    const attributes: IBillPayCategory = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {

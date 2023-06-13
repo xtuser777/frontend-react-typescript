@@ -46,6 +46,11 @@ export class PaymentForm implements IPaymentForm {
     this.attributes.deadline = v;
   }
 
+  get toAttributes(): IPaymentForm {
+    const attributes: IPaymentForm = { ...this.attributes };
+    return attributes;
+  }
+
   save = async () => {
     const payload = {
       form: {

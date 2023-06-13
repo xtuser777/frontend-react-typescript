@@ -1,7 +1,7 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
-import { Proprietary } from './Proprietary';
-import { TruckType } from './TruckType';
+import { IProprietary, Proprietary } from './Proprietary';
+import { ITruckType, TruckType } from './TruckType';
 import { toast } from 'react-toastify';
 
 interface ITruck {
@@ -12,8 +12,8 @@ interface ITruck {
   color: string;
   manufactureYear: number;
   modelYear: number;
-  type: TruckType;
-  proprietary: Proprietary;
+  type: ITruckType;
+  proprietary: IProprietary;
 }
 
 export class Truck implements ITruck {
@@ -84,18 +84,23 @@ export class Truck implements ITruck {
     this.attributes.modelYear = v;
   }
 
-  get type(): TruckType {
+  get type(): ITruckType {
     return this.attributes.type;
   }
-  set type(v: TruckType) {
+  set type(v: ITruckType) {
     this.attributes.type = v;
   }
 
-  get proprietary(): Proprietary {
+  get proprietary(): IProprietary {
     return this.attributes.proprietary;
   }
-  set proprietary(v: Proprietary) {
+  set proprietary(v: IProprietary) {
     this.attributes.proprietary = v;
+  }
+
+  get toAttributes(): ITruck {
+    const attributes: ITruck = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {

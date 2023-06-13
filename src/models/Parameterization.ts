@@ -1,13 +1,13 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
-import { Person } from './person';
+import { IPerson, Person } from './Person';
 import { toast } from 'react-toastify';
-import { EnterprisePerson } from './enterprise-person';
+import { EnterprisePerson } from './EnterprisePerson';
 
 interface IParameterization {
   id: number;
   logotype: string;
-  person: Person;
+  person: IPerson;
 }
 
 export class Parameterization {
@@ -37,11 +37,16 @@ export class Parameterization {
     this.attributes.logotype = v;
   }
 
-  get person(): Person {
+  get person(): IPerson {
     return this.attributes.person;
   }
-  set person(v: Person) {
+  set person(v: IPerson) {
     this.attributes.person = v;
+  }
+
+  get toAttributes(): IParameterization {
+    const attributes: IParameterization = { ...this.attributes };
+    return attributes;
   }
 
   async save() {

@@ -8,10 +8,10 @@ import { FormEnterprisePerson } from '../../components/form-enterprise-person';
 import { FormInputFile } from '../../components/form-input-file';
 import axios from '../../services/axios';
 import isEmail from 'validator/lib/isEmail';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
 import { Parameterization as ParameterizationModel } from '../../models/Parameterization';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function Parameterization(): JSX.Element {
   const [parameterization, setParameterization] = useState(new ParameterizationModel());

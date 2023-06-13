@@ -4,7 +4,7 @@ import { Row } from 'reactstrap';
 import { FormInputSelect } from './form-input-select';
 import { FormInputGroupText } from './form-input-group-text';
 import { FormInputGroupPassword } from './form-input-group-password';
-import { Level } from '../models/level';
+import { Level } from '../models/Level';
 
 interface IFields {
   levels?: Level[];

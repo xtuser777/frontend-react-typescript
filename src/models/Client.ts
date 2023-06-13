@@ -1,14 +1,14 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
-import { Person } from './person';
+import { IPerson, Person } from './Person';
 import { toast } from 'react-toastify';
-import { IndividualPerson } from './individual-person';
-import { EnterprisePerson } from './enterprise-person';
+import { IndividualPerson } from './IndividualPerson';
+import { EnterprisePerson } from './EnterprisePerson';
 
-interface IClient {
+export interface IClient {
   id: number;
   register: string;
-  person: Person;
+  person: IPerson;
 }
 
 export class Client {
@@ -38,11 +38,16 @@ export class Client {
     this.attributes.register = v;
   }
 
-  get person(): Person {
+  get person(): IPerson {
     return this.attributes.person;
   }
-  set person(v: Person) {
+  set person(v: IPerson) {
     this.attributes.person = v;
+  }
+
+  get toAttributes(): IClient {
+    const attributes: IClient = { ...this.attributes };
+    return attributes;
   }
 
   async save() {

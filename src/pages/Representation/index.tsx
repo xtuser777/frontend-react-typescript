@@ -9,9 +9,9 @@ import * as actions from '../../store/modules/representation/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { Representation as RepresentationModel } from '../../models/Representation';
-import { State } from '../../models/state';
-import { City } from '../../models/city';
-import { EnterprisePerson } from '../../models/enterprise-person';
+import { State } from '../../models/State';
+import { City } from '../../models/City';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 import isEmail from 'validator/lib/isEmail';
 import axios from '../../services/axios';
 

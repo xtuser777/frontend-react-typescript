@@ -1,16 +1,16 @@
 import { toast } from 'react-toastify';
 import axios from '../services/axios';
-import { Driver } from './Driver';
-import { Person } from './person';
+import { IDriver } from './Driver';
+import { IPerson, Person } from './Person';
 import { AxiosRequestConfig, isAxiosError } from 'axios';
-import { IndividualPerson } from './individual-person';
-import { EnterprisePerson } from './enterprise-person';
+import { IndividualPerson } from './IndividualPerson';
+import { EnterprisePerson } from './EnterprisePerson';
 
-interface IProprietary {
+export interface IProprietary {
   id: number;
   register: string;
-  driver: Driver | undefined;
-  person: Person;
+  driver: IDriver | undefined;
+  person: IPerson;
 }
 
 export class Proprietary {
@@ -41,18 +41,23 @@ export class Proprietary {
     this.attributes.register = v;
   }
 
-  get driver(): Driver | undefined {
+  get driver(): IDriver | undefined {
     return this.attributes.driver;
   }
-  set driver(v: Driver | undefined) {
+  set driver(v: IDriver | undefined) {
     this.attributes.driver = v;
   }
 
-  get person(): Person {
+  get person(): IPerson {
     return this.attributes.person;
   }
-  set person(v: Person) {
+  set person(v: IPerson) {
     this.attributes.person = v;
+  }
+
+  get toAttributes(): IProprietary {
+    const attributes: IProprietary = { ...this.attributes };
+    return attributes;
   }
 
   save = async () => {

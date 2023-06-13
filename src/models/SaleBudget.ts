@@ -1,12 +1,12 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
-import { Client } from './Client';
-import { Employee } from './Employee';
-import { SaleBudgetItem } from './SaleBudgetItem';
-import { City } from './city';
+import { Client, IClient } from './Client';
+import { Employee, IEmployee } from './Employee';
+import { ISaleBudgetItem, SaleBudgetItem } from './SaleBudgetItem';
+import { City, ICity } from './City';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
-interface ISaleBudget {
+export interface ISaleBudget {
   id: number;
   description: string;
   date: string;
@@ -18,11 +18,11 @@ interface ISaleBudget {
   weight: number;
   value: number;
   validate: string;
-  salesman?: Employee;
-  client?: Client;
-  destiny: City;
-  author: Employee;
-  items: SaleBudgetItem[];
+  salesman?: IEmployee;
+  client?: IClient;
+  destiny: ICity;
+  author: IEmployee;
+  items: ISaleBudgetItem[];
 }
 
 export class SaleBudget implements ISaleBudget {
@@ -128,42 +128,49 @@ export class SaleBudget implements ISaleBudget {
     this.attributes.validate = v;
   }
 
-  get salesman(): Employee | undefined {
+  get salesman(): IEmployee | undefined {
     return this.attributes.salesman;
   }
-  set salesman(v: Employee | undefined) {
+  set salesman(v: IEmployee | undefined) {
     this.attributes.salesman = v;
   }
 
-  get client(): Client | undefined {
+  get client(): IClient | undefined {
     return this.attributes.client;
   }
-  set client(v: Client | undefined) {
+  set client(v: IClient | undefined) {
     this.attributes.client = v;
   }
 
-  get destiny(): City {
+  get destiny(): ICity {
     return this.attributes.destiny;
   }
-  set destiny(v: City) {
-    this.attributes.destiny;
+  set destiny(v: ICity) {
+    this.attributes.destiny = v;
   }
 
-  get author(): Employee {
+  get author(): IEmployee {
     return this.attributes.author;
   }
-  set author(v: Employee) {
+  set author(v: IEmployee) {
     this.attributes.author = v;
   }
 
-  get items(): SaleBudgetItem[] {
+  get items(): ISaleBudgetItem[] {
     return this.attributes.items;
   }
-  set items(v: SaleBudgetItem[]) {
+  set items(v: ISaleBudgetItem[]) {
     this.attributes.items = v;
   }
 
-  async save() {
+  get toAttributes(): ISaleBudget {
+    const attributes: ISaleBudget = { ...this.attributes };
+    return attributes;
+  }
+
+  save = async () => {
+    console.log('teste');
+
     const payload = {
       budget: {
         date: new Date().toISOString().substring(0, 10),
@@ -178,11 +185,12 @@ export class SaleBudget implements ISaleBudget {
         validate: this.validate,
         salesman: this.salesman,
         client: this.client,
-        destiny: this.destiny,
-        author: this.author,
+        destiny: this.destiny.id,
         items: this.items,
       },
     };
+
+    console.log(payload);
 
     try {
       const response: AxiosRequestConfig = await axios.post('/sale-budget', payload);
@@ -197,7 +205,7 @@ export class SaleBudget implements ISaleBudget {
       if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
       return false;
     }
-  }
+  };
 
   async update() {
     const payload = {

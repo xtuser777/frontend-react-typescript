@@ -11,7 +11,7 @@ import { SaleBudget } from '../../models/SaleBudget';
 import { formatarData } from '../../utils/format';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
-import { IndividualPerson } from '../../models/individual-person';
+import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function SalesBudgets(): JSX.Element {
   const [data, setData] = useState(new Array<SaleBudget>());

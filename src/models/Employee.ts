@@ -1,19 +1,19 @@
 import { AxiosRequestConfig, isAxiosError } from 'axios';
-import { Level } from './level';
-import { Person } from './person';
+import { ILevel, Level } from './Level';
+import { IPerson, Person } from './Person';
 import { toast } from 'react-toastify';
 import axios from '../services/axios';
-import { IndividualPerson } from './individual-person';
+import { IndividualPerson } from './IndividualPerson';
 
-interface IEmployee {
+export interface IEmployee {
   id: number;
   type: number;
   login: string;
   password: string | undefined;
   admission: string;
   demission: string | undefined;
-  person: Person;
-  level: Level;
+  person: IPerson;
+  level: ILevel;
 }
 
 export class Employee {
@@ -76,18 +76,23 @@ export class Employee {
     this.attributes.demission = v;
   }
 
-  get person(): Person {
+  get person(): IPerson {
     return this.attributes.person;
   }
-  set person(v: Person) {
+  set person(v: IPerson) {
     this.attributes.person = v;
   }
 
-  get level(): Level {
+  get level(): ILevel {
     return this.attributes.level;
   }
-  set level(v: Level) {
+  set level(v: ILevel) {
     this.attributes.level = v;
+  }
+
+  get toAttributes(): IEmployee {
+    const attributes: IEmployee = { ...this.attributes };
+    return attributes;
   }
 
   async save() {
