@@ -24,6 +24,7 @@ import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format
 import { IFreightItem } from '../../models/FreightItem';
 import { ITruckType, TruckType } from '../../models/TruckType';
 import { FaTrash } from 'react-icons/fa';
+import { calculateMinimumFloor } from '../../utils/calc';
 
 export function FreightBudget(): JSX.Element {
   const [budget, setBudget] = useState(new FreightBudgetModel());
@@ -77,28 +78,23 @@ export function FreightBudget(): JSX.Element {
     const getStates = async () => {
       const response = await axios.get('/state');
       setStates(response.data);
-      console.log('states:', response.data);
-
       return response.data;
     };
 
     const getSales = async () => {
       const data = await new SaleBudget().get();
       setSales(data);
-      console.log('sales:', data);
     };
 
     const getClients = async () => {
       const response = await new Client().get();
       setClients(response);
-      console.log('clients:', response);
     };
 
     const getTypes = async () => {
       const data = await new TruckType().get();
       setTypesDb(data);
-      setTypes(data);
-      console.log('types:', data);
+      //setTypes(data);
     };
 
     const getRepresentations = async (products: IProduct[]) => {
@@ -110,8 +106,8 @@ export function FreightBudget(): JSX.Element {
       }
       setRepresentationsDb(response);
       setRepresentations(response);
-      console.log('representations:', response);
 
+      setItemRepresentation(response[0].id.toString());
       let newProducts = [...products];
       newProducts = newProducts.filter(
         (item) => item.representation.id == response[0].id,
@@ -136,8 +132,6 @@ export function FreightBudget(): JSX.Element {
         window.location.reload();
       }
       setProductsDb(response);
-      console.log('products:', response);
-
       return response;
     };
 
@@ -230,7 +224,12 @@ export function FreightBudget(): JSX.Element {
         return false;
       } else {
         setErrorType(undefined);
-        budget.truckType = types.find((item) => item.id == Number(value)) as ITruckType;
+        const t = types.find((item) => item.id == Number(value)) as ITruckType;
+        if (budget.weight > t.capacity) {
+          setErrorType('O tipo de caminhão não suporta a carga.');
+          return false;
+        }
+        budget.truckType = t;
         return true;
       }
     },
@@ -242,9 +241,18 @@ export function FreightBudget(): JSX.Element {
       } else if (v <= 0) {
         setErrorDistance('A distância preenchida é inválida.');
         return false;
+      } else if (truckType == '0') {
+        setErrorDistance('o Tipo de caminhão precisa ser selecionado primeiro.');
+        return false;
       } else {
         setErrorDistance(undefined);
+
+        const t = types.find((x) => x.id == Number(truckType)) as ITruckType;
+        const piso = t.axes > 3 ? calculateMinimumFloor(Number(value), t.axes) : 1.0;
+        setPrice(formatarValor(piso));
+
         budget.distance = v;
+        budget.value = piso;
         return true;
       }
     },
@@ -373,6 +381,20 @@ export function FreightBudget(): JSX.Element {
           setErrorItem('Este item já foi adicionado.');
           return false;
         } else {
+          let typesCommon = 0;
+          product.types.forEach((x) => {
+            types.forEach((y) => {
+              if (x.id == y.id) typesCommon++;
+            });
+          });
+
+          if (items.length > 0 && typesCommon == 0) {
+            setErrorType(
+              'Este produto não pode ser carregado junto os outros já adicionados.',
+            );
+            return false;
+          }
+
           setErrorItem(undefined);
 
           setItemWeight(formatarPeso(product.weight));
@@ -459,6 +481,7 @@ export function FreightBudget(): JSX.Element {
     setItems(newItems);
     setTypes(newTypes);
     setWeight(formatarValor(totalWeight));
+    budget.weight = totalWeight;
   };
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
@@ -478,11 +501,37 @@ export function FreightBudget(): JSX.Element {
       setDueDate(new Date().toISOString().substring(0, 10));
       setItems([]);
       setWeight('');
-      setTypes([...typesDb]);
+      setTypes([]);
     }
   };
   const handleRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRepresentation(e.target.value);
+    if (e.target.value != '0') {
+      setItemRepresentation(e.target.value);
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == Number(e.target.value),
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as IProduct;
+        setItemWeight(formatarPeso(product.weight));
+        setItemQuantity(1);
+        setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+      }
+      setItems([]);
+      setWeight('');
+      setPrice('');
+      setSalesBudget('0');
+      setClient('0');
+      setDestinyState('0');
+      setDestinyCity('0');
+      setDueDate(new Date().toISOString().substring(0, 10));
+      setTypes([]);
+    }
   };
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
@@ -493,7 +542,7 @@ export function FreightBudget(): JSX.Element {
     setItems([]);
     setWeight('');
     setPrice('');
-    setTypes([...typesDb]);
+    setTypes([]);
   };
 
   const [addItems, setAddItems] = useState(false);
@@ -547,7 +596,7 @@ export function FreightBudget(): JSX.Element {
   const [errorItemRepresentation, setErrorItemRepresentation] = useState<
     string | undefined
   >(undefined);
-  const [itemRepresentationFilter, setItemRerpesentationFilter] = useState('');
+  const [itemRepresentationFilter, setItemRepresentationFilter] = useState('');
   const [item, setItem] = useState('0');
   const [errorItem, setErrorItem] = useState<string | undefined>(undefined);
   const [itemFilter, setItemFilter] = useState('');
@@ -565,32 +614,145 @@ export function FreightBudget(): JSX.Element {
 
   const handleItemRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemRepresentation(e.target.value);
+    validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemRerpesentationFilter(e.target.value);
+    let newRepresentations: IRepresentation[] = [];
+    if (e.target.value.trim().length > 0) {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+      newRepresentations = newRepresentations.filter(
+        (item) =>
+          item.person.enterprise?.fantasyName.includes(e.target.value) ||
+          item.unity.includes(e.target.value),
+      );
+    } else {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+    }
+    setRepresentations(newRepresentations);
+    if (newRepresentations.length > 0) {
+      setItemFilter('');
+      setItemRepresentation(newRepresentations[0].id.toString());
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == newRepresentations[0].id,
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItemWeight(formatarValor(product.weight));
+        setItemQuantity(1);
+        setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+      }
+    }
   };
   const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(e.target.value);
+    validate.item(e.target.value);
   };
   const handleItemFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemFilter(e.target.value);
+    if (e.target.value.trim().length > 0) {
+      setItemWeight('');
+      setItemQuantity(1);
+      setTotalItemWeight('');
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) =>
+          item.representation.id == Number(itemRepresentation) &&
+          item.description.includes(e.target.value),
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItem(product.id.toString());
+        setItemWeight(formatarValor(product.weight));
+        setItemQuantity(1);
+        setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+      }
+    }
   };
 
   const handleItemWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemWeight(e.target.value);
+    validate.itemWeight(e.target.value);
   };
   const handleItemQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemQuantity(Number.parseInt(e.target.value));
+    validate.itemQuantity(e.target.value);
   };
   const handleTotalItemWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTotalItemWeight(e.target.value);
+    validate.totalItemWeight(e.target.value);
+  };
+
+  const clearItemFields = () => {
+    setItemRepresentationFilter('');
+    const newRepresentations = [...representationsDb];
+    setRepresentations(newRepresentations);
+    setItemFilter('');
+    setProducts([]);
+    setItemWeight('');
+    setItemQuantity(1);
+    setTotalItemWeight('');
+    //setItems([]);
+  };
+
+  const validateItemFields = () => {
+    return (
+      validate.itemRepresentation(itemRepresentation) &&
+      validate.item(item) &&
+      validate.itemWeight(itemWeight) &&
+      validate.itemQuantity(itemQuantity.toString()) &&
+      validate.totalItemWeight(totalItemWeight)
+    );
   };
 
   const handleClearItemClick = () => {
-    alert('Limpar item!');
+    clearItemFields();
   };
   const handleAddItemClick = () => {
-    alert('Adicionar item!');
+    if (validateItemFields()) {
+      const newItems = [...items];
+      const product = (products.find((i) => i.id == Number(item)) as Product)
+        .toAttributes;
+      newItems.push({
+        id: 0,
+        product: product,
+        quantity: itemQuantity,
+        weight: product.weight * itemQuantity,
+      });
+      setItems(newItems);
+      let totalWeight = 0.0;
+      newItems.forEach((item) => (totalWeight += item.weight));
+      const newTypes = [...types];
+      for (const t of product.types) {
+        const exists = newTypes.find((i) => i.id == t.id);
+        if (!exists) newTypes.push(t);
+      }
+      setWeight(formatarValor(totalWeight));
+      budget.weight = totalWeight;
+      setTypes(newTypes);
+    }
+  };
+
+  const filterItems = () => {
+    if (truckType != '0') {
+      const tmp = [...items];
+      return tmp.filter(
+        (i) => i.product.types.find((t) => t.id == Number(truckType)) != undefined,
+      );
+    }
+
+    return items;
   };
 
   return (
@@ -678,8 +840,8 @@ export function FreightBudget(): JSX.Element {
             </thead>
 
             <tbody id="tbodyItens">
-              {items.map((item) => (
-                <tr key={item.id}>
+              {filterItems().map((item) => (
+                <tr key={item.product.id}>
                   <td>{item.product.description}</td>
                   <td>
                     {item.product.representation.person.enterprise?.fantasyName +
@@ -698,16 +860,23 @@ export function FreightBudget(): JSX.Element {
                       title="Excluir"
                       onClick={() => {
                         const newItems = [...items];
-                        delete newItems[newItems.findIndex((i) => i.id == item.id)];
+                        delete newItems[
+                          newItems.findIndex((i) => i.product.id == item.product.id)
+                        ];
                         newItems.length--;
                         setItems(newItems);
                         let totalWeight = 0.0;
                         newItems.forEach((item) => (totalWeight += item.weight));
                         setWeight(formatarValor(totalWeight));
-
-                        // let totalPrice = 0.0;
-                        // newItems.forEach((item) => (totalPrice += item.price));
-                        // setPrice(formatarValor(totalPrice));
+                        budget.weight = totalWeight;
+                        const newTypes: ITruckType[] = [];
+                        newItems.forEach((i) => {
+                          for (const t of i.product.types) {
+                            const exists = newTypes.find((it) => it.id == t.id);
+                            if (!exists) newTypes.push(t);
+                          }
+                        });
+                        setTypes(newTypes);
                       }}
                     />
                   </td>
@@ -767,6 +936,7 @@ export function FreightBudget(): JSX.Element {
                   style={{ width: '100%' }}
                   value={itemRepresentation}
                   onChange={handleItemRepresentationChange}
+                  disabled={representation == '0' ? false : true}
                 >
                   {representations.map((item) => (
                     <option key={item.id} value={item.id}>
