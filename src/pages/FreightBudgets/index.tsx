@@ -8,6 +8,10 @@ import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
 import { FreightBudget, IFreightBudget } from '../../models/FreightBudget';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import history from '../../services/history';
+import { IndividualPerson } from '../../models/IndividualPerson';
+import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function FreightBudgets(): JSX.Element {
   const [data, setData] = useState(new Array<IFreightBudget>());
@@ -27,6 +31,160 @@ export function FreightBudgets(): JSX.Element {
     getData();
   }, []);
 
+  const filterData = (orderBy: string) => {
+    let filteredData: IFreightBudget[] = [...data];
+    if (date.length == 10) {
+      filteredData = filteredData.filter((item) => item.date.substring(0, 10) == date);
+    }
+
+    if (filter.length > 0) {
+      filteredData = filteredData.filter(
+        (item) =>
+          (item.client.person.type == 1
+            ? item.client.person.individual?.name.includes(filter)
+            : item.client.person.enterprise?.fantasyName.includes(filter)) ||
+          item.description.includes(filter),
+      );
+    }
+
+    switch (orderBy) {
+      case '1':
+        filteredData = filteredData.sort((x, y) => x.id - y.id);
+        break;
+      case '2':
+        filteredData = filteredData.sort((x, y) => y.id - x.id);
+        break;
+      case '3':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.description.toUpperCase() > y.description.toUpperCase()) return 1;
+          if (x.description.toUpperCase() < y.description.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '4':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.description.toUpperCase() > x.description.toUpperCase()) return 1;
+          if (y.description.toUpperCase() < x.description.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '5':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (x.client.person.type == 1
+              ? (x.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  x.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase()) >
+            (y.client.person.type == 1
+              ? (y.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  y.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase())
+          )
+            return 1;
+          if (
+            (x.client.person.type == 1
+              ? (x.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  x.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase()) <
+            (y.client.person.type == 1
+              ? (y.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  y.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase())
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '6':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (y.client.person.type == 1
+              ? (y.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  y.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase()) >
+            (x.client.person.type == 1
+              ? (x.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  x.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase())
+          )
+            return 1;
+          if (
+            (y.client.person.type == 1
+              ? (y.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  y.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase()) <
+            (x.client.person.type == 1
+              ? (x.client.person.individual as IndividualPerson).name.toUpperCase()
+              : (
+                  x.client.person.enterprise as EnterprisePerson
+                ).fantasyName.toUpperCase())
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '7':
+        filteredData = filteredData.sort((x, y) => {
+          if (x.date.toUpperCase() > y.date.toUpperCase()) return 1;
+          if (x.date.toUpperCase() < y.date.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '8':
+        filteredData = filteredData.sort((x, y) => {
+          if (y.date.toUpperCase() > x.date.toUpperCase()) return 1;
+          if (y.date.toUpperCase() < x.date.toUpperCase()) return -1;
+          return 0;
+        });
+        break;
+      case '9':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (x.author.person.individual as IndividualPerson).name.toUpperCase() >
+            (y.author.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.author.person.individual as IndividualPerson).name.toUpperCase() <
+            (x.author.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '10':
+        filteredData = filteredData.sort((x, y) => {
+          if (
+            (y.author.person.individual as IndividualPerson).name.toUpperCase() >
+            (x.author.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return 1;
+          if (
+            (y.author.person.individual as IndividualPerson).name.toUpperCase() <
+            (x.author.person.individual as IndividualPerson).name.toUpperCase()
+          )
+            return -1;
+          return 0;
+        });
+        break;
+      case '11':
+        filteredData = filteredData.sort((x, y) => x.value - y.value);
+        break;
+      case '12':
+        filteredData = filteredData.sort((x, y) => y.value - x.value);
+        break;
+    }
+
+    return filteredData;
+  };
+
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setfilter(e.target.value);
   };
@@ -41,6 +199,21 @@ export function FreightBudgets(): JSX.Element {
 
   const handleFilterClick = () => {
     alert(`${filter}, ${date}, ${orderBy}`);
+  };
+
+  const remove = async (id: number) => {
+    const response = confirm('Confirma a exclusão deste orçamento?');
+    if (response) {
+      const budget = budgets.find((item) => item.id == id) as FreightBudget;
+      if (await budget.delete()) {
+        const newData = [...data];
+        delete newData[newData.findIndex((item) => item.id == id)];
+        setData(newData);
+        const newBudgets = [...budgets];
+        delete newBudgets[newBudgets.findIndex((item) => item.id == id)];
+        setBudgets(newBudgets);
+      }
+    }
   };
 
   return (
@@ -119,7 +292,43 @@ export function FreightBudgets(): JSX.Element {
             </tr>
           </thead>
 
-          <tbody id="tbodyBudgets"></tbody>
+          <tbody id="tbodyBudgets">
+            {budgets.map((item) => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.description}</td>
+                <td>
+                  {item.client.person.type == 1
+                    ? item.client.person.individual?.name
+                    : item.client.person.enterprise?.fantasyName}
+                </td>
+                <td>{item.date}</td>
+                <td>{item.author.person.individual?.name}</td>
+                <td>{item.value}</td>
+                <td>
+                  <FaEdit
+                    role="button"
+                    color="blue"
+                    size={14}
+                    title="Editar"
+                    onClick={() => {
+                      history.push(`/orcamento/frete/editar/${item.id}`);
+                      window.location.reload();
+                    }}
+                  />
+                </td>
+                <td>
+                  <FaTrash
+                    role="button"
+                    color="red"
+                    size={14}
+                    title="Excluir"
+                    onClick={async () => await remove(item.id)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </Table>
       </FieldsetCard>
     </>

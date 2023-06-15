@@ -16,25 +16,19 @@ import { FormButton } from '../../components/form-button';
 import { SaleBudget } from '../../models/SaleBudget';
 import { Client } from '../../models/Client';
 import { IState, State } from '../../models/State';
-import { City, ICity } from '../../models/City';
+import { ICity } from '../../models/City';
 import { Employee } from '../../models/Employee';
 import axios from '../../services/axios';
-import {
-  formatarData,
-  formatarDataIso,
-  formatarPeso,
-  formatarValor,
-} from '../../utils/format';
+import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format';
 import { Representation } from '../../models/Representation';
 import { IProduct, Product } from '../../models/Product';
 import isEmail from 'validator/lib/isEmail';
 import { toast } from 'react-toastify';
 import { IndividualPerson } from '../../models/IndividualPerson';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
-import { ISaleItem, SaleItem } from '../../models/SaleItem';
+import { ISaleItem } from '../../models/SaleItem';
 import { FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
-import { AxiosRequestConfig, isAxiosError } from 'axios';
 
 export function SalesBudget(): JSX.Element {
   const [budget, setBudget] = useState(new SaleBudget());

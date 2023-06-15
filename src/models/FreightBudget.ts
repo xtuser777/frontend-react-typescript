@@ -19,7 +19,7 @@ export interface IFreightBudget {
   shipping: string;
   validate: string;
   saleBudget?: ISaleBudget;
-  representation: IRepresentation;
+  representation?: IRepresentation;
   client: IClient;
   truckType: ITruckType;
   destiny: ICity;
@@ -43,7 +43,7 @@ export class FreightBudget implements IFreightBudget {
           shipping: '',
           validate: '',
           saleBudget: undefined,
-          representation: new Representation(),
+          representation: undefined,
           client: new Client(),
           truckType: new TruckType(),
           destiny: new City(),
@@ -73,7 +73,7 @@ export class FreightBudget implements IFreightBudget {
     this.attributes.description = v;
   }
 
-  get distence(): number {
+  get distance(): number {
     return this.attributes.distance;
   }
   set distance(v: number) {
@@ -115,10 +115,10 @@ export class FreightBudget implements IFreightBudget {
     this.attributes.saleBudget = v;
   }
 
-  get representation(): IRepresentation {
+  get representation(): IRepresentation | undefined {
     return this.attributes.representation;
   }
-  set representation(v: IRepresentation) {
+  set representation(v: IRepresentation | undefined) {
     this.attributes.representation = v;
   }
 
