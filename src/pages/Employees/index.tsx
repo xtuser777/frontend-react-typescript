@@ -190,7 +190,7 @@ export function Employees(): JSX.Element {
     if (isLastAdmin(nivel_atual) === true) {
       alert('Não é possível excluir o último administrador.');
     } else {
-      const response = confirm('Confirma o excluir deste funcionário?');
+      const response = confirm('Confirma a exclusão deste funcionário?');
       if (response) {
         const user = employees.find((item) => item.id == id) as Employee;
         if (await user.delete()) {

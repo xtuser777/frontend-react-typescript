@@ -1,9 +1,8 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, Row, Table } from 'reactstrap';
 import { FormInputText } from '../../components/form-input-text';
-import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputDate } from '../../components/form-input-date';
 import { redirect, useParams } from 'react-router-dom';
 import { FormInputGroupText } from '../../components/form-input-group-text';
@@ -73,7 +72,7 @@ export function FreightOrderAuthorize(): JSX.Element {
     alert('Autorizando...');
   };
 
-  const handleBackClick = (e: MouseEvent) => {
+  const handleBackClick = () => {
     redirect('/pedidos/frete/autorizar');
   };
 

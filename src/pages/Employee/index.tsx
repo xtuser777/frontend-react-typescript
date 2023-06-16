@@ -10,8 +10,8 @@ import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputDate } from '../../components/form-input-date';
 import { Employee as EmployeeModel } from '../../models/Employee';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/IndividualPerson';
 import { formatarDataIso } from '../../utils/format';
@@ -21,8 +21,8 @@ import isEmail from 'validator/lib/isEmail';
 export function Employee(): JSX.Element {
   const [employee, setEmployee] = useState(new EmployeeModel());
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);

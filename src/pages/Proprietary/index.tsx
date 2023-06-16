@@ -10,11 +10,8 @@ import { FormInputSelect } from '../../components/form-input-select';
 import { FormEnterprisePerson } from '../../components/form-enterprise-person';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
-import * as actions from '../../store/modules/proprietary/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { Proprietary as ProprietaryModel } from '../../models/Proprietary';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/IndividualPerson';
@@ -22,15 +19,11 @@ import { EnterprisePerson } from '../../models/EnterprisePerson';
 import { Driver } from '../../models/Driver';
 
 export function Proprietary(): JSX.Element {
-  const proprietaryState = useSelector((state: RootState) => state.proprietary);
-
-  const dispatch = useDispatch();
-
   const [proprietary, setProprietary] = useState(new ProprietaryModel());
 
   const [drivers, setDrivers] = useState(new Array<Driver>());
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [driver, setDriver] = useState('0');
   const [type, setType] = useState('1');

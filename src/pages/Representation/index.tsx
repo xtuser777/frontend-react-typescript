@@ -5,25 +5,18 @@ import { FormContact } from '../../components/form-contact';
 import { FormButtonsSave } from '../../components/form-buttons-save';
 import { useParams } from 'react-router-dom';
 import { FormEnterprisePerson } from '../../components/form-enterprise-person';
-import * as actions from '../../store/modules/representation/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { Representation as RepresentationModel } from '../../models/Representation';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
 import isEmail from 'validator/lib/isEmail';
 import axios from '../../services/axios';
 
 export const Representation = (): JSX.Element => {
-  const representationState = useSelector((state: RootState) => state.representation);
-
-  const dispatch = useDispatch();
-
   const [representation, setRepresentation] = useState(new RepresentationModel());
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [corporateName, setCorporateName] = useState('');
   const [errorCorporateName, setErrorCorporateName] = useState<string | undefined>(

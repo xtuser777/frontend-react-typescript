@@ -10,8 +10,8 @@ import { FormInputSelect } from '../../components/form-input-select';
 import { FormEnterprisePerson } from '../../components/form-enterprise-person';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { Client as ClientModel } from '../../models/Client';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/IndividualPerson';
@@ -20,8 +20,8 @@ import { EnterprisePerson } from '../../models/EnterprisePerson';
 export function Client(): JSX.Element {
   const [client, setClient] = useState(new ClientModel());
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);

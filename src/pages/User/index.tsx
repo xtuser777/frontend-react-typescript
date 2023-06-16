@@ -5,26 +5,23 @@ import { FormContact } from '../../components/form-contact';
 import { FormIndividualPerson } from '../../components/form-individual-person';
 import { FormAuthenticationData } from '../../components/form-authentication-data';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import * as actions from '../../store/modules/employee/actions';
 import axios from '../../services/axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
 import { Employee as EmployeeModel } from '../../models/Employee';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function User(): JSX.Element {
   const authState = useSelector((state: RootState) => state.auth);
 
-  const dispatch = useDispatch();
-
   const [employee, setEmployee] = useState(new EmployeeModel());
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);

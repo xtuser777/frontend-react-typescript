@@ -4,30 +4,23 @@ import { FieldsetCard } from '../../components/fieldset-card';
 import { FormContact } from '../../components/form-contact';
 import { FormIndividualPerson } from '../../components/form-individual-person';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import { Col, FormGroup, Label, Row } from 'reactstrap';
+import { Col, Row } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputText } from '../../components/form-input-text';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
-import * as actions from '../../store/modules/driver/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { Driver as DriverModel } from '../../models/Driver';
 import axios from '../../services/axios';
 import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function Driver(): JSX.Element {
-  const driverState = useSelector((state: RootState) => state.driver);
-
-  const dispatch = useDispatch();
-
   const [driver, setDriver] = useState(new DriverModel());
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [name, setName] = useState('');
   const [errorName, setErrorName] = useState<string | undefined>(undefined);

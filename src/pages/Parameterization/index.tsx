@@ -8,8 +8,8 @@ import { FormEnterprisePerson } from '../../components/form-enterprise-person';
 import { FormInputFile } from '../../components/form-input-file';
 import axios from '../../services/axios';
 import isEmail from 'validator/lib/isEmail';
-import { State } from '../../models/State';
-import { City } from '../../models/City';
+import { IState, State } from '../../models/State';
+import { City, ICity } from '../../models/City';
 import { Parameterization as ParameterizationModel } from '../../models/Parameterization';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
 
@@ -18,8 +18,8 @@ export function Parameterization(): JSX.Element {
 
   const [method, setMethod] = useState(1);
 
-  const [states, setStates] = useState(new Array<State>());
-  const [cities, setCities] = useState(new Array<City>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
 
   const [corporateName, setCorporateName] = useState('');
   const [errorCorporateName, setErrorCorporateName] = useState<string | undefined>(

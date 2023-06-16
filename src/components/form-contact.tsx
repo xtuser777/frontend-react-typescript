@@ -6,8 +6,8 @@ import { FormInputText } from './form-input-text';
 import { FormInputGroupText } from './form-input-group-text';
 import { FormInputGroupEmail } from './form-input-group-email';
 import { FormInputSelect } from './form-input-select';
-import { State } from '../models/State';
-import { City } from '../models/City';
+import { IState } from '../models/State';
+import { ICity } from '../models/City';
 
 interface IFields {
   street: string;
@@ -20,10 +20,10 @@ interface IFields {
   code: string;
   errorCode?: string;
   state: string;
-  states: State[];
+  states: IState[];
   errorState?: string;
   city: string;
-  cities: City[];
+  cities: ICity[];
   errorCity?: string;
   phone: string;
   errorPhone?: string;

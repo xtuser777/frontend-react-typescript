@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
@@ -66,10 +66,10 @@ export function SalesOrder(): JSX.Element {
   };
 
   const handleButtons = {
-    handleClearClick: (e: MouseEvent) => {
+    handleClearClick: () => {
       alert('Limpar clicado.');
     },
-    handleSaveClick: (e: MouseEvent) => {
+    handleSaveClick: () => {
       alert('Salvar clicado.');
     },
   };
