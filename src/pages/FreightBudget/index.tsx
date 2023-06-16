@@ -69,6 +69,8 @@ export function FreightBudget(): JSX.Element {
   const [dueDate, setDueDate] = useState(new Date().toISOString().substring(0, 10));
   const [errorDueDate, setErrorDueDate] = useState<string | undefined>(undefined);
 
+  const [minimumFloor, setMinimumFloor] = useState(0);
+
   const routeParams = useParams();
   const method = routeParams.method as string;
   let id = 0;
@@ -158,6 +160,14 @@ export function FreightBudget(): JSX.Element {
         setDueDate(formatarDataIso(budget.validate));
 
         setItems(budget.items);
+        const newTypes: ITruckType[] = [];
+        for (const item of budget.items) {
+          for (const t of item.product.types) {
+            const exists = newTypes.find((i) => i.id == t.id);
+            if (!exists) newTypes.push(t);
+          }
+        }
+        setTypes(newTypes);
       }
     };
 
@@ -238,8 +248,6 @@ export function FreightBudget(): JSX.Element {
     },
     distance: (value: string) => {
       const v = Number(value);
-      console.log(v);
-
       if (Number.isNaN(v)) {
         setErrorDistance('A distância do frete precisa ser preenchida.');
         return false;
@@ -255,9 +263,10 @@ export function FreightBudget(): JSX.Element {
         const t = types.find((x) => x.id == Number(truckType)) as ITruckType;
         const piso = t.axes > 3 ? calculateMinimumFloor(Number(value), t.axes) : 1.0;
         setPrice(formatarValor(piso));
+        setMinimumFloor(piso);
 
         budget.distance = v;
-        budget.value = piso;
+        if (budget.value < piso) budget.value = piso;
         return true;
       }
     },
@@ -287,9 +296,9 @@ export function FreightBudget(): JSX.Element {
       } else if (
         Number.parseFloat(
           value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
-        ) <= 0
+        ) < minimumFloor
       ) {
-        setErrorPrice('O preço do frete informado é inválido.');
+        setErrorPrice('O preço do frete informado é inválido ou abaixo do piso.');
         return false;
       } else {
         setErrorPrice(undefined);
@@ -319,7 +328,7 @@ export function FreightBudget(): JSX.Element {
       }
     },
     dueDate: (value: string) => {
-      const val = new Date(value);
+      const val = new Date(value + 'T12:00:00');
       const now = new Date(Date.now());
       if (value.length == 0) {
         setErrorDueDate('A data de validade precisa ser preenchida');

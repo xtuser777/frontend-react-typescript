@@ -12,6 +12,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { IndividualPerson } from '../../models/IndividualPerson';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
+import { formatarValor } from '../../utils/format';
 
 export function FreightBudgets(): JSX.Element {
   const [data, setData] = useState(new Array<IFreightBudget>());
@@ -24,8 +25,6 @@ export function FreightBudgets(): JSX.Element {
   useEffect(() => {
     const getData = async () => {
       const data = await new FreightBudget().get();
-      console.log(data);
-
       setData(data);
       setBudgets(data);
     };
@@ -306,7 +305,7 @@ export function FreightBudgets(): JSX.Element {
                 </td>
                 <td>{item.date}</td>
                 <td>{item.author.person.individual?.name}</td>
-                <td>{item.value}</td>
+                <td>{formatarValor(item.value)}</td>
                 <td>
                   <FaEdit
                     role="button"

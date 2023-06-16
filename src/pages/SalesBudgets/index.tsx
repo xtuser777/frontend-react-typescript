@@ -8,7 +8,7 @@ import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
 import { SaleBudget } from '../../models/SaleBudget';
-import { formatarData } from '../../utils/format';
+import { formatarData, formatarValor } from '../../utils/format';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { IndividualPerson } from '../../models/IndividualPerson';
@@ -249,7 +249,7 @@ export function SalesBudgets(): JSX.Element {
                 <td>{item.clientName}</td>
                 <td>{formatarData(item.date)}</td>
                 <td>{item.author.person.individual?.name}</td>
-                <td>{item.value}</td>
+                <td>{formatarValor(item.value)}</td>
                 <td>
                   <FaEdit
                     role="button"

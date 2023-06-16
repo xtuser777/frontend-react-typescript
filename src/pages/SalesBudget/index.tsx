@@ -448,7 +448,7 @@ export function SalesBudget(): JSX.Element {
       }
     },
     dueDate: (value: string) => {
-      const val = new Date(value);
+      const val = new Date(value + 'T12:00:00');
       const now = new Date(Date.now());
       if (value.length == 0) {
         setErrorDueDate('A data de validade precisa ser preenchida');
@@ -604,9 +604,9 @@ export function SalesBudget(): JSX.Element {
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
     if (e.target.value != '0') {
-      budget.client = clients.find(
+      (budget.client = clients.find(
         (item) => item.id == Number(e.target.value),
-      )?.toAttributes;
+      ) as Client).toAttributes;
       fillClient(budget.client as Client);
     } else {
       budget.client = undefined;
