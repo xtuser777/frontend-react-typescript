@@ -193,7 +193,9 @@ export function FreightBudget(): JSX.Element {
         return false;
       } else {
         setErrorClient(undefined);
-        budget.client = clients.find((item) => item.id == Number(value)) as IClient;
+        budget.client = (
+          clients.find((item) => item.id == Number(value)) as Client
+        ).toAttributes;
         return true;
       }
     },
@@ -229,12 +231,15 @@ export function FreightBudget(): JSX.Element {
           setErrorType('O tipo de caminhão não suporta a carga.');
           return false;
         }
+
         budget.truckType = t;
         return true;
       }
     },
     distance: (value: string) => {
       const v = Number(value);
+      console.log(v);
+
       if (Number.isNaN(v)) {
         setErrorDistance('A distância do frete precisa ser preenchida.');
         return false;
@@ -309,7 +314,7 @@ export function FreightBudget(): JSX.Element {
         return false;
       } else {
         setErrorDueDate(undefined);
-        budget.validate = value;
+        budget.shipping = value;
         return true;
       }
     },
@@ -337,7 +342,7 @@ export function FreightBudget(): JSX.Element {
         toast.info('Não há itens adicionados ao orçamento.');
         return false;
       } else {
-        budget.items = items;
+        budget.items = filterItems();
         return true;
       }
     },
@@ -454,8 +459,9 @@ export function FreightBudget(): JSX.Element {
   };
 
   const fillFieldsSale = async (saleId: number) => {
-    const sale = (await new SaleBudget().getOne(saleId)) as ISaleBudget;
+    const sale = (await new SaleBudget().getOne(saleId)) as SaleBudget;
     setRepresentation('0');
+    budget.representation = undefined;
     setClient(sale.client ? sale.client.id.toString() : '0');
     setDestinyState(sale.destiny.state.id.toString());
     setCities(states[sale.destiny.state.id - 1].cities);
@@ -482,6 +488,7 @@ export function FreightBudget(): JSX.Element {
     setTypes(newTypes);
     setWeight(formatarValor(totalWeight));
     budget.weight = totalWeight;
+    budget.saleBudget = sale.toAttributes;
   };
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
@@ -502,6 +509,7 @@ export function FreightBudget(): JSX.Element {
       setItems([]);
       setWeight('');
       setTypes([]);
+      budget.saleBudget = undefined;
     }
   };
   const handleRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -522,6 +530,10 @@ export function FreightBudget(): JSX.Element {
         setItemQuantity(1);
         setTotalItemWeight(formatarValor(product.weight * itemQuantity));
       }
+      const r = representations.find(
+        (x) => x.id == Number(e.target.value),
+      ) as Representation;
+      budget.representation = r.toAttributes;
       setItems([]);
       setWeight('');
       setPrice('');
@@ -531,7 +543,8 @@ export function FreightBudget(): JSX.Element {
       setDestinyCity('0');
       setDueDate(new Date().toISOString().substring(0, 10));
       setTypes([]);
-    }
+      budget.saleBudget = undefined;
+    } else budget.representation = undefined;
   };
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
@@ -581,12 +594,53 @@ export function FreightBudget(): JSX.Element {
     validate.dueDate(e.target.value);
   };
 
+  const validateFields = () => {
+    return (
+      validate.description(description) &&
+      validate.client(client) &&
+      validate.destinyState(destinyState) &&
+      validate.destinyCity(destinyCity) &&
+      validate.type(truckType) &&
+      validate.distance(distance.toString()) &&
+      validate.items() &&
+      validate.weight(weight) &&
+      validate.price(price) &&
+      validate.shipping(shipping) &&
+      validate.dueDate(dueDate)
+    );
+  };
+
+  const clearFields = () => {
+    setDescription('');
+    setSalesBudget('0');
+    setRepresentation('0');
+    setClient('0');
+    setDestinyState('0');
+    setDestinyCity('0');
+    setTruckType('0');
+    setDistance(1);
+    setItems([]);
+    clearItemFields();
+    setWeight('');
+    setPrice('');
+    setShipping('');
+    setDueDate('');
+  };
+
+  const persistData = async () => {
+    if (validateFields()) {
+      if (method == 'novo') {
+        if (await budget.save()) clearFields();
+      } else await budget.update();
+    }
+  };
+
   const handleButtons = {
     handleClearClick: () => {
-      alert('Limpar clicado.');
+      clearFields();
     },
-    handleSaveClick: () => {
-      alert('Salvar clicado.');
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 
@@ -771,6 +825,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={description}
             onChange={(e) => handleDescriptionChange(e)}
+            message={errorDescription}
           />
         </Row>
         <Row>
@@ -813,6 +868,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={client}
             onChange={handleClientChange}
+            message={errorClient}
           >
             <option value="0">SELECIONAR</option>
             {clients.map((item) => (
@@ -1056,6 +1112,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={destinyState}
             onChange={handleDestinyStateChange}
+            message={errorDestinyState}
           >
             <option value="0">SELECIONAR</option>
             {states.map((item) => (
@@ -1072,6 +1129,7 @@ export function FreightBudget(): JSX.Element {
             value={destinyCity}
             onChange={handleDestinyCityChange}
             disable={destinyState == '0' ? true : false}
+            message={errorDestinyCity}
           >
             <option value="0">SELECIONAR</option>
             {cities.map((item) => (
@@ -1087,6 +1145,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={truckType}
             onChange={handleTruckTypeChange}
+            message={errorType}
           >
             <option value="0">SELECIONAR</option>
             {types.map((item) => (
@@ -1102,6 +1161,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={distance}
             onChange={handleDistanceChange}
+            message={errorDistance}
           />
         </Row>
       </FieldsetCard>
@@ -1119,6 +1179,7 @@ export function FreightBudget(): JSX.Element {
             value={weight}
             onChange={(e) => handleWeightChange(e)}
             readonly
+            message={errorWeight}
           />
           <FormInputGroupText
             colSm={3}
@@ -1131,6 +1192,7 @@ export function FreightBudget(): JSX.Element {
             maskPlaceholder="0,00"
             value={price}
             onChange={(e) => handlePriceChange(e)}
+            message={errorPrice}
           />
           <FormInputDate
             colSm={3}
@@ -1139,6 +1201,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={shipping}
             onChange={handleShippingChange}
+            message={errorShipping}
           />
           <FormInputDate
             colSm={3}
@@ -1147,6 +1210,7 @@ export function FreightBudget(): JSX.Element {
             obrigatory
             value={dueDate}
             onChange={handleDueDateChange}
+            message={errorDueDate}
           />
         </Row>
       </FieldsetCard>

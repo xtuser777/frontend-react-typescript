@@ -24,6 +24,8 @@ export function FreightBudgets(): JSX.Element {
   useEffect(() => {
     const getData = async () => {
       const data = await new FreightBudget().get();
+      console.log(data);
+
       setData(data);
       setBudgets(data);
     };
