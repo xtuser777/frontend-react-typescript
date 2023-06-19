@@ -313,7 +313,7 @@ function App() {
                 }
               />
               <Route
-                path="/pedido/venda/"
+                path="/pedido/venda/:method/:id?"
                 element={
                   <Protected>
                     <SalesOrder />

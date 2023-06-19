@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
@@ -9,20 +9,151 @@ import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputNumber } from '../../components/form-input-number';
 import { FormButton } from '../../components/form-button';
 import { FormInputGroupNumber } from '../../components/form-input-group-number';
+import { SaleOrder as SaleOrderModel } from '../../models/SaleOrder';
+import { ICity } from '../../models/City';
+import { Client, IClient } from '../../models/Client';
+import { Employee, IEmployee } from '../../models/Employee';
+import { IProduct, Product } from '../../models/Product';
+import { IRepresentation, Representation } from '../../models/Representation';
+import { IState } from '../../models/State';
+import { ISaleBudget } from '../../models/SaleBudget';
+import axios from '../../services/axios';
+import { toast } from 'react-toastify';
+import history from '../../services/history';
+import { formatarPeso, formatarValor } from '../../utils/format';
+import { useParams } from 'react-router-dom';
+import { ISaleItem } from '../../models/SaleItem';
 
 export function SalesOrder(): JSX.Element {
+  const [order, setOrder] = useState(new SaleOrderModel());
+
+  const [budgets, setBudgets] = useState(new Array<ISaleBudget>());
+  const [clients, setClients] = useState(new Array<IClient>());
+  const [states, setStates] = useState(new Array<IState>());
+  const [cities, setCities] = useState(new Array<ICity>());
+  const [salesmans, setSalesmans] = useState(new Array<IEmployee>());
+
+  const [representations, setRepresentations] = useState(new Array<IRepresentation>());
+  const [representationsDb, setRepresentationsDb] = useState(
+    new Array<IRepresentation>(),
+  );
+  const [products, setProducts] = useState(new Array<IProduct>());
+  const [productsDb, setProductsDb] = useState(new Array<IProduct>());
+
   const [budget, setBudget] = useState('0');
   const [description, setDescription] = useState('');
+  const [errorDescription, setErrorDescription] = useState<string | undefined>(undefined);
   const [client, setClient] = useState('0');
+  const [errorClient, setErrorClient] = useState<string | undefined>(undefined);
   const [destinyState, setDestinyState] = useState('0');
+  const [errorDestinyState, setErrorDestinyState] = useState<string | undefined>(
+    undefined,
+  );
   const [destinyCity, setDestinyCity] = useState('0');
+  const [errorDestinyCity, setErrorDestinyCity] = useState<string | undefined>(undefined);
 
   const [salesman, setSalesman] = useState('0');
   const [comission, setComission] = useState(0);
 
   const [weight, setWeight] = useState('');
+  const [errorWeight, setErrorWeight] = useState<string | undefined>(undefined);
   const [price, setPrice] = useState('');
+  const [errorPrice, setErrorPrice] = useState<string | undefined>(undefined);
   const [form, setForm] = useState('0');
+  const [errorForm, setErrorForm] = useState<string | undefined>(undefined);
+
+  const routeParams = useParams();
+  const method = routeParams.method as string;
+  let id = 0;
+  if (routeParams.id) id = Number.parseInt(routeParams.id);
+
+  useEffect(() => {
+    const getStates = async () => {
+      const response = await axios.get('/state');
+      setStates(response.data);
+      return response.data;
+    };
+
+    const getSalesmans = async () => {
+      const response = await new Employee().get();
+      const salesman = response.filter((item) => item.type == 2);
+      setSalesmans(salesman);
+    };
+
+    const getClients = async () => {
+      const response = await new Client().get();
+      setClients(response);
+    };
+
+    const getRepresentations = async (products: Product[]) => {
+      const response = await new Representation().get();
+      if (response.length == 0) {
+        toast.info('Não há representações cadastradas.');
+        history.push('/representacoes');
+        window.location.reload();
+      }
+      setRepresentationsDb(response);
+      setRepresentations(response);
+
+      setItemRepresentation(response[0].id.toString());
+      let newProducts = [...products];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == response[0].id,
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItemPrice(formatarValor(product.price));
+        setItemQuantity(1);
+        setTotalItemPrice(formatarValor(product.price * itemQuantity));
+      }
+    };
+
+    const getProducts = async () => {
+      const response = await new Product().get();
+      if (response.length == 0) {
+        toast.info('Não há produtos cadastrados.');
+        history.push('/produtos');
+        window.location.reload();
+      }
+      setProductsDb(response);
+      return response;
+    };
+
+    const getData = async (states: IState[]) => {
+      const order = await new SaleOrderModel().getOne(id);
+      if (order) {
+        setOrder(order);
+
+        setBudget(order.budget ? order.budget.id.toString() : '0');
+        setDescription(order.description);
+        setClient(order.client.id.toString());
+        setDestinyState(order.destiny.state.id.toString());
+        setCities(states[order.destiny.state.id - 1].cities);
+        setDestinyCity(order.destiny.id.toString());
+        setSalesman(order.salesman ? order.salesman.id.toString() : '0');
+
+        setWeight(formatarPeso(order.weight));
+        setPrice(formatarValor(order.value));
+        setForm(order.paymentForm.id.toString());
+
+        setItems(order.items);
+      }
+    };
+
+    const load = async () => {
+      await getClients();
+      await getSalesmans();
+      await getRepresentations(await getProducts());
+      if (method == 'editar') await getData(await getStates());
+      else await getStates();
+    };
+
+    load();
+  }, []);
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
 
@@ -75,6 +206,7 @@ export function SalesOrder(): JSX.Element {
   };
 
   // Items
+  const [items, setItems] = useState(new Array<ISaleItem>());
   const [itemRepresentation, setItemRepresentation] = useState('0');
   const [itemRepresentationFilter, setItemRerpesentationFilter] = useState('');
   const [item, setItem] = useState('0');

@@ -312,7 +312,7 @@ export function SalesOrders(): JSX.Element {
             color="success"
             id="novo"
             text="NOVO"
-            to="/pedido/venda/"
+            to="/pedido/venda/abrir"
           />
         </Row>
       </FieldsetCard>
