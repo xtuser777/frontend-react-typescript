@@ -2,7 +2,7 @@ import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
-interface IPaymentForm {
+export interface IPaymentForm {
   id: number;
   description: string;
   link: number;

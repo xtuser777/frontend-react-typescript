@@ -108,6 +108,8 @@ export function SalesBudget(): JSX.Element {
       }
       setRepresentationsDb(response);
       setRepresentations(response);
+
+      setItemRepresentation(response[0].id.toString());
       let newProducts = [...products];
       newProducts = newProducts.filter(
         (item) => item.representation.id == response[0].id,
@@ -604,9 +606,9 @@ export function SalesBudget(): JSX.Element {
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
     if (e.target.value != '0') {
-      (budget.client = clients.find(
-        (item) => item.id == Number(e.target.value),
-      ) as Client).toAttributes;
+      budget.client = (
+        clients.find((item) => item.id == Number(e.target.value)) as Client
+      ).toAttributes;
       fillClient(budget.client as Client);
     } else {
       budget.client = undefined;
@@ -885,10 +887,18 @@ export function SalesBudget(): JSX.Element {
     const newRepresentations = [...representationsDb];
     setRepresentations(newRepresentations);
     setItemFilter('');
-    setProducts([]);
-    setItemPrice('');
-    setItemQuantity(1);
-    setTotalItemPrice('');
+    let newProducts = [...products];
+    newProducts = newProducts.filter(
+      (item) => item.representation.id == newRepresentations[0].id,
+    );
+    setProducts(newProducts);
+    if (newProducts.length > 0) {
+      setItem(newProducts[0].id.toString());
+      const product = newProducts.find((item) => item.id == newProducts[0].id) as Product;
+      setItemPrice(formatarValor(product.price));
+      setItemQuantity(1);
+      setTotalItemPrice(formatarValor(product.price * itemQuantity));
+    }
     //setItems([]);
   };
 
@@ -1130,7 +1140,7 @@ export function SalesBudget(): JSX.Element {
 
             <tbody id="tbodyItens">
               {items.map((item) => (
-                <tr key={item.id}>
+                <tr key={item.product.id}>
                   <td>{item.product.description}</td>
                   <td>
                     {item.product.representation.person.enterprise?.fantasyName +
@@ -1156,7 +1166,9 @@ export function SalesBudget(): JSX.Element {
                       title="Excluir"
                       onClick={() => {
                         const newItems = [...items];
-                        delete newItems[newItems.findIndex((i) => i.id == item.id)];
+                        delete newItems[
+                          newItems.findIndex((i) => i.id == item.product.id)
+                        ];
                         newItems.length--;
                         setItems(newItems);
                         let totalWeight = 0.0;

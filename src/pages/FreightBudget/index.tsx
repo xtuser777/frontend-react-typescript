@@ -762,10 +762,20 @@ export function FreightBudget(): JSX.Element {
     const newRepresentations = [...representationsDb];
     setRepresentations(newRepresentations);
     setItemFilter('');
-    setProducts([]);
-    setItemWeight('');
-    setItemQuantity(1);
-    setTotalItemWeight('');
+    let newProducts = [...products];
+    newProducts = newProducts.filter(
+      (item) => item.representation.id == newRepresentations[0].id,
+    );
+    setProducts(newProducts);
+    if (newProducts.length > 0) {
+      setItem(newProducts[0].id.toString());
+      const product = newProducts.find(
+        (item) => item.id == newProducts[0].id,
+      ) as IProduct;
+      setItemWeight(formatarPeso(product.weight));
+      setItemQuantity(1);
+      setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+    }
     //setItems([]);
   };
 
