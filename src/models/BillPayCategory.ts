@@ -2,7 +2,7 @@ import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
-interface IBillPayCategory {
+export interface IBillPayCategory {
   id: number;
   description: string;
 }

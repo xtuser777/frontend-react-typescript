@@ -4,7 +4,7 @@ import { IProprietary, Proprietary } from './Proprietary';
 import { ITruckType, TruckType } from './TruckType';
 import { toast } from 'react-toastify';
 
-interface ITruck {
+export interface ITruck {
   id: number;
   plate: string;
   brand: string;

@@ -6,22 +6,12 @@ import { FormInputText } from '../../components/form-input-text';
 import { FormInputDate } from '../../components/form-input-date';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButton } from '../../components/form-button';
-import axios from '../../services/axios';
 import { formatarData } from '../../utils/format';
-
-interface IData {
-  id: number;
-  date: string;
-  time: string;
-  description: string;
-  freightOrder: { id: number; description: string } | undefined;
-  salesOrder: { id: number; description: string } | undefined;
-  author: { id: number; employee: { id: number; person: { id: number; name: string } } };
-}
+import { Event, IEvent } from '../../models/Event';
 
 export function Home(): JSX.Element {
-  const [data, setData] = useState(new Array<IData>());
-  const [events, setEvents] = useState(new Array<IData>());
+  const [data, setData] = useState(new Array<IEvent>());
+  const [events, setEvents] = useState(new Array<IEvent>());
 
   const [filter, setFilter] = useState('');
   const [date, setDate] = useState('');
@@ -29,23 +19,23 @@ export function Home(): JSX.Element {
 
   useEffect(() => {
     const getData = async () => {
-      const receivedData = await axios.get('/event');
-      setData(receivedData.data);
-      setEvents(receivedData.data);
+      const receivedData = await new Event().get();
+      setData(receivedData);
+      setEvents(receivedData);
     };
 
     getData();
   }, []);
 
-  const filterData = (): IData[] => {
-    let filteredData: IData[] = data;
+  const filterData = (): IEvent[] => {
+    let filteredData: IEvent[] = [...data];
     if (date.length == 10) {
       filteredData = filteredData.filter((item) => item.date.substring(0, 10) == date);
     }
 
     if (orderType != '0') {
       filteredData = filteredData.filter((item) => {
-        if (orderType == '1') return item.salesOrder;
+        if (orderType == '1') return item.saleOrder;
         if (orderType == '2') return item.freightOrder;
       });
     }
@@ -134,19 +124,19 @@ export function Home(): JSX.Element {
           </thead>
 
           <tbody id="tbodyEventos">
-            {events.map((item: IData) => (
+            {events.map((item: IEvent) => (
               <tr key={item.id}>
                 <td>{item.description}</td>
                 <td>{formatarData(item.date)}</td>
                 <td>{item.time}</td>
                 <td>
-                  {item.salesOrder
-                    ? item.salesOrder.description
+                  {item.saleOrder
+                    ? item.saleOrder.description
                     : item.freightOrder
                     ? item.freightOrder.description
                     : ''}
                 </td>
-                <td>{item.author.employee.person.name}</td>
+                <td>{item.author.person.individual?.name}</td>
               </tr>
             ))}
           </tbody>
