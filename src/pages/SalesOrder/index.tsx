@@ -23,9 +23,26 @@ import history from '../../services/history';
 import { formatarPeso, formatarValor } from '../../utils/format';
 import { useParams } from 'react-router-dom';
 import { ISaleItem } from '../../models/SaleItem';
+import { ReceiveBill } from '../../models/ReceiveBill';
+import { EnterprisePerson, IEnterprisePerson } from '../../models/EnterprisePerson';
+import { BillPay } from '../../models/BillPay';
+import { IPaymentForm, PaymentForm } from '../../models/PaymentForm';
+import { FaTrash } from 'react-icons/fa';
+import { IndividualPerson } from '../../models/IndividualPerson';
+
+export interface Comission {
+  representacao: {
+    id: number;
+    nomeFantasia: string;
+  };
+  valor: number;
+  porcentagem: number;
+}
 
 export function SalesOrder(): JSX.Element {
   const [order, setOrder] = useState(new SaleOrderModel());
+
+  const [comissions, setComissions] = useState(new Array<Comission>());
 
   const [budgets, setBudgets] = useState(new Array<ISaleBudget>());
   const [clients, setClients] = useState(new Array<IClient>());
@@ -39,6 +56,8 @@ export function SalesOrder(): JSX.Element {
   );
   const [products, setProducts] = useState(new Array<IProduct>());
   const [productsDb, setProductsDb] = useState(new Array<IProduct>());
+
+  const [paymentForms, setPaymentForms] = useState(new Array<IPaymentForm>());
 
   const [budget, setBudget] = useState('0');
   const [description, setDescription] = useState('');
@@ -123,6 +142,31 @@ export function SalesOrder(): JSX.Element {
       return response;
     };
 
+    const getComissions = async () => {
+      const response = (await new ReceiveBill().get()).filter(
+        (item) => item.saleOrder?.id == id,
+      );
+      const comissions: Comission[] = [];
+      for (const bill of response)
+        comissions.push({
+          representacao: {
+            id: bill.representation?.id as number,
+            nomeFantasia: (
+              (bill.representation as IRepresentation).person
+                .enterprise as IEnterprisePerson
+            ).fantasyName,
+          },
+          porcentagem: 0,
+          valor: bill.amount,
+        });
+      setComissions(comissions);
+    };
+
+    const getPaymentForms = async () => {
+      const response = (await new PaymentForm().get()).filter((item) => item.link == 2);
+      setPaymentForms(response);
+    };
+
     const getData = async (states: IState[]) => {
       const order = await new SaleOrderModel().getOne(id);
       if (order) {
@@ -135,6 +179,12 @@ export function SalesOrder(): JSX.Element {
         setCities(states[order.destiny.state.id - 1].cities);
         setDestinyCity(order.destiny.id.toString());
         setSalesman(order.salesman ? order.salesman.id.toString() : '0');
+        const comission = (await new BillPay().get()).find(
+          (item) => item.saleOrder?.id == id,
+        ) as BillPay;
+        setComission((comission.amount * 100) / order.value);
+
+        await getComissions();
 
         setWeight(formatarPeso(order.weight));
         setPrice(formatarValor(order.value));
@@ -148,12 +198,245 @@ export function SalesOrder(): JSX.Element {
       await getClients();
       await getSalesmans();
       await getRepresentations(await getProducts());
+      await getPaymentForms();
       if (method == 'editar') await getData(await getStates());
       else await getStates();
     };
 
     load();
   }, []);
+
+  const validate = {
+    description: (value: string) => {
+      if (value.length == 0) {
+        setErrorDescription('A descrição do orçamento precisa ser preenchida.');
+        return false;
+      } else if (value.length < 2) {
+        setErrorDescription('A descrição preenchida tem tamanho inválido.');
+        return false;
+      } else {
+        setErrorDescription(undefined);
+        order.description = value;
+        return true;
+      }
+    },
+    client: (value: string) => {
+      if (value == '0') {
+        setErrorClient('O cliente precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorClient(undefined);
+        order.client = (
+          clients.find((item) => item.id == Number(value)) as Client
+        ).toAttributes;
+        return true;
+      }
+    },
+    destinyState: (value: string) => {
+      if (value == '0') {
+        setErrorDestinyState('O Estado precisa ser selecionado');
+        return false;
+      } else {
+        setErrorDestinyState(undefined);
+        setCities(states[Number(value) - 1].cities);
+        return true;
+      }
+    },
+    destinyCity: (value: string) => {
+      if (value == '0') {
+        setErrorDestinyCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
+        setErrorDestinyCity(undefined);
+        const city = cities.find((item) => item.id == Number(value)) as ICity;
+        order.destiny = city;
+        return true;
+      }
+    },
+    weight: (value: string) => {
+      if (value.length == 0) {
+        setErrorWeight('O peso do frete precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorWeight('O peso do frete informado é inválido.');
+        return false;
+      } else {
+        setErrorWeight(undefined);
+        order.weight = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        return true;
+      }
+    },
+    price: (value: string) => {
+      if (value.length == 0) {
+        setErrorPrice('O preço do produto precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorPrice('O preço do produto informado é inválido.');
+        return false;
+      } else {
+        setErrorPrice(undefined);
+        order.value = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        return true;
+      }
+    },
+    form: (value: string) => {
+      if (value == '0') {
+        setErrorForm('A forma de pagamento precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorForm(undefined);
+        order.paymentForm = (
+          paymentForms.find((item) => item.id == Number(value)) as PaymentForm
+        ).toAttributes;
+        return true;
+      }
+    },
+    items: () => {
+      if (items.length == 0) {
+        toast.info('Não há itens adicionados ao orçamento.');
+        return false;
+      } else {
+        order.items = items;
+        return true;
+      }
+    },
+    itemRepresentation: (value: string) => {
+      if (value == '0') {
+        setErrorItemRepresentation('A representação do item precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorItemRepresentation(undefined);
+        setItemFilter('');
+        if (representations.length > 0) {
+          let newProducts = [...productsDb];
+          const representation = representations.find(
+            (i) => i.id == Number(value),
+          ) as Representation;
+          newProducts = newProducts.filter(
+            (item) => item.representation.id == representation.id,
+          );
+          setProducts(newProducts);
+          if (newProducts.length > 0) {
+            setItem(newProducts[0].id.toString());
+            const product = newProducts.find(
+              (item) => item.id == newProducts[0].id,
+            ) as Product;
+            setItemPrice(
+              formatarValor(
+                product.representation.person.contact.address.city.state.id ==
+                  Number(destinyState)
+                  ? product.price
+                  : product.priceOut,
+              ),
+            );
+            setItemQuantity(1);
+            setTotalItemPrice(
+              formatarValor(
+                product.representation.person.contact.address.city.state.id ==
+                  Number(destinyState)
+                  ? product.price * itemQuantity
+                  : product.priceOut * itemQuantity,
+              ),
+            );
+          }
+        }
+        return true;
+      }
+    },
+    item: (value: string) => {
+      if (value == '0' || products.length == 0) {
+        setErrorItem('O item precisa ser selecionado.');
+        return false;
+      } else {
+        const product = products.find((item) => item.id == Number(value)) as Product;
+        const itemProduct = items.find((i) => i.product.id == product.id);
+        if (itemProduct) {
+          setErrorItem('Este item já foi adicionado.');
+          return false;
+        } else {
+          setErrorItem(undefined);
+
+          setItemPrice(
+            formatarValor(
+              product.representation.person.contact.address.city.state.id ==
+                Number(destinyState)
+                ? product.price
+                : product.priceOut,
+            ),
+          );
+          setItemQuantity(1);
+          setTotalItemPrice(
+            formatarValor(
+              product.representation.person.contact.address.city.state.id ==
+                Number(destinyState)
+                ? product.price * itemQuantity
+                : product.priceOut * itemQuantity,
+            ),
+          );
+          return true;
+        }
+      }
+    },
+    itemPrice: (value: string) => {
+      if (value.length == 0) {
+        setErrorItemPrice('O preço do item precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorItemPrice('O preço do item informado é inválido.');
+        return false;
+      } else {
+        setErrorItemPrice(undefined);
+        return true;
+      }
+    },
+    itemQuantity: (value: string) => {
+      const val = Number(value);
+      if (val <= 0) {
+        setErrorItemQuantity('A quantidade do item precisa ser preenchida.');
+        return false;
+      } else {
+        setErrorItemQuantity(undefined);
+        //const product = products.find((i) => i.id == Number(item)) as Product;
+        const price = Number.parseFloat(
+          itemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        setTotalItemPrice(formatarValor(price * val));
+        return true;
+      }
+    },
+    totalItemPrice: (value: string) => {
+      if (value.length == 0) {
+        setErrorTotalItemPrice('O preço total do item precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorTotalItemPrice('O preço total do item informado é inválido.');
+        return false;
+      } else {
+        setErrorTotalItemPrice(undefined);
+        return true;
+      }
+    },
+  };
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
 
@@ -162,25 +445,35 @@ export function SalesOrder(): JSX.Element {
   };
   const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value);
+    validate.description(e.target.value);
   };
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
+    validate.client(e.target.value);
   };
   const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyState(e.target.value);
+    validate.destinyState(e.target.value);
   };
   const handleDestinyCityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyCity(e.target.value);
+    validate.destinyCity(e.target.value);
   };
 
   const handleClearItemsClick = () => {
-    alert('Limpar itens!');
+    setItems([]);
+    setWeight('');
+    setPrice('');
   };
 
   const [addItems, setAddItems] = useState(false);
 
   const handleSalesmanChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSalesman(e.target.value);
+    if (e.target.value != '0')
+      order.salesman = (
+        salesmans.find((item) => item.id == Number(e.target.value)) as Employee
+      ).toAttributes;
   };
   const handleComissionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setComission(Number.parseInt(e.target.value));
@@ -188,17 +481,55 @@ export function SalesOrder(): JSX.Element {
 
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setWeight(e.target.value);
+    validate.weight(e.target.value);
   };
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value);
+    validate.price(e.target.value);
   };
   const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm(e.target.value);
+    validate.form(e.target.value);
+  };
+
+  const validateFields = () => {
+    return (
+      validate.description(description) &&
+      validate.client(client) &&
+      validate.destinyState(destinyState) &&
+      validate.destinyCity(destinyCity) &&
+      validate.items() &&
+      validate.weight(weight) &&
+      validate.price(price) &&
+      validate.form(form)
+    );
+  };
+
+  const clearFields = () => {
+    setBudget('0');
+    setDescription('');
+    setClient('0');
+    setDestinyState('0');
+    setDestinyCity('0');
+    setItems([]);
+    setSalesman('0');
+    clearItemFields();
+    setWeight('');
+    setPrice('');
+    setForm('0');
+  };
+
+  const persistData = async () => {
+    if (validateFields()) {
+      if (method == 'novo') {
+        if (await order.save(comissions, comission)) clearFields();
+      }
+    }
   };
 
   const handleButtons = {
     handleClearClick: () => {
-      alert('Limpar clicado.');
+      clearFields();
     },
     handleSaveClick: () => {
       alert('Salvar clicado.');
@@ -208,42 +539,214 @@ export function SalesOrder(): JSX.Element {
   // Items
   const [items, setItems] = useState(new Array<ISaleItem>());
   const [itemRepresentation, setItemRepresentation] = useState('0');
-  const [itemRepresentationFilter, setItemRerpesentationFilter] = useState('');
+  const [errorItemRepresentation, setErrorItemRepresentation] = useState<
+    string | undefined
+  >(undefined);
+  const [itemRepresentationFilter, setItemRepresentationFilter] = useState('');
   const [item, setItem] = useState('0');
+  const [errorItem, setErrorItem] = useState<string | undefined>(undefined);
   const [itemFilter, setItemFilter] = useState('');
 
   const [itemPrice, setItemPrice] = useState('');
+  const [errorItemPrice, setErrorItemPrice] = useState<string | undefined>(undefined);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const [errorItemQuantity, setErrorItemQuantity] = useState<string | undefined>(
+    undefined,
+  );
   const [totalItemPrice, setTotalItemPrice] = useState('');
+  const [errorTotalItemPrice, setErrorTotalItemPrice] = useState<string | undefined>(
+    undefined,
+  );
 
   const handleItemRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemRepresentation(e.target.value);
+    validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemRerpesentationFilter(e.target.value);
+    let newRepresentations: IRepresentation[] = [];
+    if (e.target.value.trim().length > 0) {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+      newRepresentations = newRepresentations.filter(
+        (item) =>
+          item.person.enterprise?.fantasyName.includes(e.target.value) ||
+          item.unity.includes(e.target.value),
+      );
+    } else {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+    }
+    setRepresentations(newRepresentations);
+    if (newRepresentations.length > 0) {
+      setItemFilter('');
+      setItemRepresentation(newRepresentations[0].id.toString());
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == newRepresentations[0].id,
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price
+              : product.priceOut,
+          ),
+        );
+        setItemQuantity(1);
+        setTotalItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price * itemQuantity
+              : product.priceOut * itemQuantity,
+          ),
+        );
+      }
+    }
   };
   const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(e.target.value);
+    validate.item(e.target.value);
   };
   const handleItemFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemFilter(e.target.value);
+    if (e.target.value.trim().length > 0) {
+      setItemPrice('');
+      setItemQuantity(1);
+      setTotalItemPrice('');
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) =>
+          item.representation.id == Number(itemRepresentation) &&
+          item.description.includes(e.target.value),
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItem(product.id.toString());
+        setItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price
+              : product.priceOut,
+          ),
+        );
+        setItemQuantity(1);
+        setTotalItemPrice(
+          formatarValor(
+            product.representation.person.contact.address.city.state.id ==
+              Number(destinyState)
+              ? product.price * itemQuantity
+              : product.priceOut * itemQuantity,
+          ),
+        );
+      }
+    }
   };
 
   const handleItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemPrice(e.target.value);
+    validate.itemPrice(e.target.value);
   };
   const handleItemQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemQuantity(Number.parseInt(e.target.value));
+    validate.itemQuantity(e.target.value);
   };
   const handleTotalItemPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTotalItemPrice(e.target.value);
+    validate.totalItemPrice(e.target.value);
+  };
+
+  const clearItemFields = () => {
+    setItemRepresentationFilter('');
+    const newRepresentations = [...representationsDb];
+    setRepresentations(newRepresentations);
+    setItemFilter('');
+    let newProducts = [...products];
+    newProducts = newProducts.filter(
+      (item) => item.representation.id == newRepresentations[0].id,
+    );
+    setProducts(newProducts);
+    if (newProducts.length > 0) {
+      setItem(newProducts[0].id.toString());
+      const product = newProducts.find((item) => item.id == newProducts[0].id) as Product;
+      setItemPrice(formatarValor(product.price));
+      setItemQuantity(1);
+      setTotalItemPrice(formatarValor(product.price * itemQuantity));
+    }
+    //setItems([]);
+  };
+
+  const validateItemFields = () => {
+    return (
+      validate.itemRepresentation(itemRepresentation) &&
+      validate.item(item) &&
+      validate.itemPrice(itemPrice) &&
+      validate.itemQuantity(itemQuantity.toString()) &&
+      validate.totalItemPrice(totalItemPrice)
+    );
   };
 
   const handleClearItemClick = () => {
-    alert('Limpar item!');
+    clearItemFields();
   };
   const handleAddItemClick = () => {
-    alert('Adicionar item!');
+    if (validateItemFields()) {
+      const newItems = [...items];
+      const product = (products.find((i) => i.id == Number(item)) as Product)
+        .toAttributes;
+      newItems.push({
+        id: 0,
+        product: product,
+        quantity: itemQuantity,
+        weight: product.weight * itemQuantity,
+        price: Number.parseFloat(
+          totalItemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ),
+      });
+      setItems(newItems);
+      let totalWeight = 0.0;
+      newItems.forEach((item) => (totalWeight += item.weight));
+      setWeight(formatarValor(totalWeight));
+
+      let totalPrice = 0.0;
+      newItems.forEach((item) => (totalPrice += item.price));
+      setPrice(formatarValor(totalPrice));
+
+      const representationComission = comissions.find(
+        (item) => item.representacao.id == product.representation.id,
+      );
+      if (representationComission) {
+        representationComission.valor += Number.parseFloat(
+          totalItemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+      } else {
+        const newComissions: Comission[] = [...comissions];
+        newComissions.push({
+          representacao: {
+            id: product.representation.id,
+            nomeFantasia: (product.representation.person.enterprise as EnterprisePerson)
+              .fantasyName,
+          },
+          valor: Number.parseFloat(
+            totalItemPrice.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+          ),
+          porcentagem: 5,
+        });
+        setComissions(newComissions);
+      }
+    }
   };
 
   return (
@@ -260,6 +763,11 @@ export function SalesOrder(): JSX.Element {
             onChange={handleBudgetChange}
           >
             <option value="0">SELECIONAR</option>
+            {budgets.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.description}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputText
             colSm={7}
@@ -280,6 +788,13 @@ export function SalesOrder(): JSX.Element {
             onChange={handleClientChange}
           >
             <option value="0">SELECIONAR</option>
+            {clients.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.person.type == 1
+                  ? item.person.individual?.name
+                  : item.person.enterprise?.fantasyName}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputSelect
             colSm={3}
@@ -290,6 +805,11 @@ export function SalesOrder(): JSX.Element {
             onChange={handleDestinyStateChange}
           >
             <option value="0">SELECIONAR</option>
+            {states.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputSelect
             colSm={4}
@@ -301,6 +821,11 @@ export function SalesOrder(): JSX.Element {
             disable={destinyState == '0' ? true : false}
           >
             <option value="0">SELECIONAR</option>
+            {cities.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
           </FormInputSelect>
         </Row>
       </FieldsetCard>
@@ -318,7 +843,70 @@ export function SalesOrder(): JSX.Element {
               </tr>
             </thead>
 
-            <tbody id="tbodyItens"></tbody>
+            <tbody id="tbodyItens">
+              {items.map((item) => (
+                <tr key={item.product.id}>
+                  <td>{item.product.description}</td>
+                  <td>
+                    {item.product.representation.person.enterprise?.fantasyName +
+                      ' (' +
+                      item.product.representation.unity +
+                      ')'}
+                  </td>
+                  <td>
+                    {formatarValor(
+                      item.product.representation.person.contact.address.city.state.id ==
+                        Number(destinyState)
+                        ? item.product.price
+                        : item.product.priceOut,
+                    )}
+                  </td>
+                  <td>{item.quantity}</td>
+                  <td>{formatarValor(item.price)}</td>
+                  <td>
+                    <FaTrash
+                      role="button"
+                      color="red"
+                      size={14}
+                      title="Excluir"
+                      onClick={() => {
+                        const newItems = [...items];
+                        delete newItems[
+                          newItems.findIndex((i) => i.product.id == item.product.id)
+                        ];
+                        newItems.length--;
+                        setItems(newItems);
+                        let totalWeight = 0.0;
+                        newItems.forEach((item) => (totalWeight += item.weight));
+                        setWeight(formatarValor(totalWeight));
+
+                        let totalPrice = 0.0;
+                        newItems.forEach((item) => (totalPrice += item.price));
+                        setPrice(formatarValor(totalPrice));
+
+                        const representationComission = comissions.find(
+                          (i) => i.representacao.id == item.product.representation.id,
+                        );
+                        if (representationComission) {
+                          representationComission.valor -= item.price;
+                          if (representationComission.valor <= 0) {
+                            const newComissions = [...comissions];
+                            delete newComissions[
+                              newComissions.findIndex(
+                                (x) =>
+                                  x.representacao.id ==
+                                  representationComission.representacao.id,
+                              )
+                            ];
+                            setComissions(newComissions);
+                          }
+                        }
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </Table>
         </div>
         <Row>
@@ -370,7 +958,13 @@ export function SalesOrder(): JSX.Element {
                   style={{ width: '100%' }}
                   value={itemRepresentation}
                   onChange={handleItemRepresentationChange}
-                ></Input>
+                >
+                  {representations.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.person.enterprise?.fantasyName + ' (' + item.unity + ')'}
+                    </option>
+                  ))}
+                </Input>
               </FormGroup>
             </Col>
             <Col sm="6">
@@ -393,7 +987,13 @@ export function SalesOrder(): JSX.Element {
                   style={{ width: '100%' }}
                   value={item}
                   onChange={handleItemChange}
-                ></Input>
+                >
+                  {products.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.description}
+                    </option>
+                  ))}
+                </Input>
               </FormGroup>
             </Col>
           </Row>
@@ -464,6 +1064,11 @@ export function SalesOrder(): JSX.Element {
                 onChange={handleSalesmanChange}
               >
                 <option value="0">SELECIONAR</option>
+                {salesmans.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {(item.person.individual as IndividualPerson).name}
+                  </option>
+                ))}
               </FormInputSelect>
             </Row>
             <Row>
@@ -493,7 +1098,15 @@ export function SalesOrder(): JSX.Element {
                   </tr>
                 </thead>
 
-                <tbody id="tbodyComissoes"></tbody>
+                <tbody id="tbodyComissoes">
+                  {comissions.map((item) => (
+                    <tr key={item.representacao.id}>
+                      <td>{item.representacao.nomeFantasia}</td>
+                      <td>{item.valor}</td>
+                      <td>{item.porcentagem}</td>
+                    </tr>
+                  ))}
+                </tbody>
               </Table>
             </div>
           </FieldsetCard>
@@ -536,6 +1149,11 @@ export function SalesOrder(): JSX.Element {
             onChange={handleFormChange}
           >
             <option value="0">SELECIONAR</option>
+            {paymentForms.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.description}
+              </option>
+            ))}
           </FormInputSelect>
         </Row>
       </FieldsetCard>

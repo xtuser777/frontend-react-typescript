@@ -937,15 +937,7 @@ export function SalesBudget(): JSX.Element {
       let totalPrice = 0.0;
       newItems.forEach((item) => (totalPrice += item.price));
       setPrice(formatarValor(totalPrice));
-    } else
-      console.log(
-        'validação retournou false',
-        itemRepresentation,
-        item,
-        itemPrice,
-        itemQuantity,
-        totalItemPrice,
-      );
+    }
   };
 
   return (

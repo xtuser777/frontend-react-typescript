@@ -8,6 +8,7 @@ import { ISaleBudget } from './SaleBudget';
 import { ISaleItem } from './SaleItem';
 import { ITruckType, TruckType } from './TruckType';
 import axios from '../services/axios';
+import { Comission } from '../pages/SalesOrder';
 
 export interface ISaleOrder {
   id: number;
@@ -144,7 +145,7 @@ export class SaleOrder implements ISaleOrder {
     return attributes;
   }
 
-  async save() {
+  async save(comissions: Comission[], salesmanComissionPorcent?: number) {
     const payload = {
       order: {
         date: new Date().toISOString().substring(0, 10),
@@ -153,11 +154,13 @@ export class SaleOrder implements ISaleOrder {
         value: this.value,
         budget: this.budget,
         salesman: this.salesman,
+        salesmanComissionPorcent: salesmanComissionPorcent,
         truckType: this.truckType,
         client: this.client,
         paymentForm: this.paymentForm,
         destiny: this.destiny.id,
         items: this.items,
+        comissions: comissions,
       },
     };
 
