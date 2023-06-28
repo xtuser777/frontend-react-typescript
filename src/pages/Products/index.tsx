@@ -257,7 +257,7 @@ export function Products(): JSX.Element {
         <Table id="tableProducts" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '30%' }}>DESCRIÇÃO</th>
               <th style={{ width: '16%' }}>MEDIDA</th>
               <th style={{ width: '10%' }}>PREÇO</th>
@@ -270,7 +270,7 @@ export function Products(): JSX.Element {
           <tbody id="tbodyProducts">
             {products.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>{item.description}</td>
                 <td>{item.measure}</td>
                 <td>{formatarValor(item.price)}</td>

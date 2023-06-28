@@ -154,7 +154,7 @@ export function TruckTypes(): JSX.Element {
         <Table id="tableTruckType" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '40%' }}>DESCRIÇÃO</th>
               <th style={{ width: '16%' }}>EIXOS</th>
               <th style={{ width: '10%' }}>CAPACIDADE</th>
@@ -166,7 +166,7 @@ export function TruckTypes(): JSX.Element {
           <tbody id="tbodyTruckType">
             {types.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>{item.description}</td>
                 <td>{item.axes}</td>
                 <td>{item.capacity}</td>

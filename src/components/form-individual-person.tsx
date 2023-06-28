@@ -9,7 +9,7 @@ interface IFields {
   cpf: string;
   errorCpf?: string;
   birth: string;
-  errorBirthDate?: string;
+  errorBirth?: string;
   readonly?: boolean;
 }
 
@@ -56,7 +56,7 @@ export function FormIndividualPerson(props: IProps): JSX.Element {
           obrigatory
           value={props.fields.birth}
           onChange={(e) => props.handleChanges.handleBirthChange(e)}
-          message={props.fields.errorBirthDate ? props.fields.errorBirthDate : undefined}
+          message={props.fields.errorBirth ? props.fields.errorBirth : undefined}
           readonly={props.fields.readonly ? true : false}
         />
       </Row>

@@ -338,7 +338,7 @@ export function Employees(): JSX.Element {
         <Table id="tableEmployees" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '20%' }}>NOME</th>
               <th style={{ width: '10%' }}>USUÁRIO</th>
               <th style={{ width: '12%' }}>NÍVEL</th>
@@ -356,7 +356,7 @@ export function Employees(): JSX.Element {
           <tbody id="tbodyEmployees">
             {employees.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>{(item.person.individual as IndividualPerson).name}</td>
                 <td>{item.login}</td>
                 <td>{item.level.description}</td>

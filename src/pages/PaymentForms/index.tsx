@@ -155,7 +155,7 @@ export function PaymentForms(): JSX.Element {
         <Table id="tablePaymentForms" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden></th>
               <th style={{ width: '40%' }}>DESCRIÇÃO</th>
               <th style={{ width: '20%' }}>VÍNCULO</th>
               <th style={{ width: '20%' }}>PRAZO</th>
@@ -167,7 +167,7 @@ export function PaymentForms(): JSX.Element {
           <tbody id="tbodyPaymentForms">
             {forms.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>{item.description}</td>
                 <td>{item.link == 1 ? 'Conta a pagar' : 'Conta a receber'}</td>
                 <td>{item.deadline}</td>

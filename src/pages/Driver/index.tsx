@@ -39,7 +39,7 @@ export function Driver(): JSX.Element {
   const [account, setAccount] = useState('');
   const [accountDigit, setAccountDigit] = useState('');
   const [errorAccount, setErrorAccount] = useState<string | undefined>(undefined);
-  const [type, setType] = useState('');
+  const [type, setType] = useState('0');
   const [errorType, setErrorType] = useState<string | undefined>(undefined);
 
   const [street, setStreet] = useState('');
@@ -273,7 +273,6 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorStreet(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.street = value;
         return true;
       }
@@ -284,7 +283,6 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorNumber(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.number = value;
         return true;
       }
@@ -295,7 +293,6 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorNeighborhood(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.neighborhood = value;
         return true;
       }
@@ -307,7 +304,6 @@ export function Driver(): JSX.Element {
       } else if (value.length < 10) setErrorCode('O CEP preenchido é inválido');
       else {
         setErrorCode(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.code = value;
         return true;
       }
@@ -328,10 +324,9 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorCity(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.address.city = cities.find(
           (item) => item.id == Number(value),
-        ) as City;
+        ) as ICity;
         return true;
       }
     },
@@ -344,7 +339,6 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorPhone(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.phone = value;
         return true;
       }
@@ -358,7 +352,6 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorCellphone(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.cellphone = value;
         return true;
       }
@@ -372,7 +365,6 @@ export function Driver(): JSX.Element {
         return false;
       } else {
         setErrorEmail(undefined);
-        if (!driver.person.individual) driver.person.individual = new IndividualPerson();
         driver.person.contact.email = value;
         return true;
       }
@@ -412,6 +404,7 @@ export function Driver(): JSX.Element {
     setBank('');
     setAgency('');
     setAccount('');
+    setAccountDigit('');
     setType('0');
 
     setStreet('');
