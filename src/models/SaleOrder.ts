@@ -6,7 +6,6 @@ import { Employee, IEmployee } from './Employee';
 import { IPaymentForm, PaymentForm } from './PaymentForm';
 import { ISaleBudget } from './SaleBudget';
 import { ISaleItem } from './SaleItem';
-import { ITruckType, TruckType } from './TruckType';
 import axios from '../services/axios';
 import { Comission } from '../pages/SalesOrder';
 
@@ -19,7 +18,7 @@ export interface ISaleOrder {
   salesman?: IEmployee;
   destiny: ICity;
   budget?: ISaleBudget;
-  truckType: ITruckType;
+  // truckType: ITruckType;
   client: IClient;
   paymentForm: IPaymentForm;
   author: IEmployee;
@@ -41,7 +40,7 @@ export class SaleOrder implements ISaleOrder {
           salesman: undefined,
           budget: undefined,
           destiny: new City(),
-          truckType: new TruckType(),
+          // truckType: new TruckType(),
           client: new Client(),
           paymentForm: new PaymentForm(),
           author: new Employee(),
@@ -105,12 +104,12 @@ export class SaleOrder implements ISaleOrder {
     this.attributes.destiny = v;
   }
 
-  get truckType(): ITruckType {
-    return this.attributes.truckType;
-  }
-  set truckType(v: ITruckType) {
-    this.attributes.truckType = v;
-  }
+  // get truckType(): ITruckType {
+  //   return this.attributes.truckType;
+  // }
+  // set truckType(v: ITruckType) {
+  //   this.attributes.truckType = v;
+  // }
 
   get client(): IClient {
     return this.attributes.client;
@@ -155,7 +154,7 @@ export class SaleOrder implements ISaleOrder {
         budget: this.budget,
         salesman: this.salesman,
         salesmanComissionPorcent: salesmanComissionPorcent,
-        truckType: this.truckType,
+        //truckType: this.truckType,
         client: this.client,
         paymentForm: this.paymentForm,
         destiny: this.destiny.id,
@@ -163,6 +162,8 @@ export class SaleOrder implements ISaleOrder {
         comissions: comissions,
       },
     };
+
+    console.log(payload);
 
     try {
       const response: AxiosRequestConfig = await axios.post('/sale-order', payload);

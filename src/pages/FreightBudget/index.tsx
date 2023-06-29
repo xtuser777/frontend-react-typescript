@@ -237,7 +237,16 @@ export function FreightBudget(): JSX.Element {
       } else {
         setErrorType(undefined);
         const t = types.find((item) => item.id == Number(value)) as ITruckType;
-        if (budget.weight > t.capacity) {
+
+        if (
+          Number.parseFloat(
+            budget.weight
+              .toString()
+              .replace(',', '#')
+              .replaceAll('.', ',')
+              .replace('#', '.'),
+          ) > t.capacity
+        ) {
           setErrorType('O tipo de caminhão não suporta a carga.');
           return false;
         }
@@ -312,17 +321,17 @@ export function FreightBudget(): JSX.Element {
       const val = new Date(value + 'T12:00:00');
       const now = new Date(Date.now());
       if (value.length == 0) {
-        setErrorDueDate('A data de entrega precisa ser preenchida');
+        setErrorShipping('A data de entrega precisa ser preenchida');
         return false;
       } else if (
         now.getFullYear() == val.getFullYear() &&
         now.getMonth() == val.getMonth() &&
         now.getDate() > val.getDate()
       ) {
-        setErrorDueDate('A data de entrega preenchida é inválida');
+        setErrorShipping('A data de entrega preenchida é inválida');
         return false;
       } else {
-        setErrorDueDate(undefined);
+        setErrorShipping(undefined);
         budget.shipping = value;
         return true;
       }
@@ -478,7 +487,6 @@ export function FreightBudget(): JSX.Element {
     setDueDate(formatarDataIso(sale.validate));
 
     const newTypes: ITruckType[] = [];
-    let totalWeight = 0.0;
     const newItems: IFreightItem[] = [];
     for (const item of sale.items) {
       newItems.push({
@@ -486,8 +494,8 @@ export function FreightBudget(): JSX.Element {
         product: item.product,
         quantity: item.quantity,
         weight: item.weight,
+        budget: budget.toAttributes,
       });
-      totalWeight += item.weight;
       for (const t of item.product.types) {
         const exists = newTypes.find((i) => i.id == t.id);
         if (!exists) newTypes.push(t);
@@ -495,8 +503,8 @@ export function FreightBudget(): JSX.Element {
     }
     setItems(newItems);
     setTypes(newTypes);
-    setWeight(formatarValor(totalWeight));
-    budget.weight = totalWeight;
+    budget.weight = sale.toAttributes.weight;
+    setWeight(formatarValor(sale.toAttributes.weight));
     budget.saleBudget = sale.toAttributes;
   };
 
@@ -802,6 +810,7 @@ export function FreightBudget(): JSX.Element {
         product: product,
         quantity: itemQuantity,
         weight: product.weight * itemQuantity,
+        budget: budget.toAttributes,
       });
       setItems(newItems);
       let totalWeight = 0.0;
@@ -934,24 +943,26 @@ export function FreightBudget(): JSX.Element {
                       size={14}
                       title="Excluir"
                       onClick={() => {
-                        const newItems = [...items];
-                        delete newItems[
-                          newItems.findIndex((i) => i.product.id == item.product.id)
-                        ];
-                        newItems.length--;
-                        setItems(newItems);
-                        let totalWeight = 0.0;
-                        newItems.forEach((item) => (totalWeight += item.weight));
-                        setWeight(formatarValor(totalWeight));
-                        budget.weight = totalWeight;
-                        const newTypes: ITruckType[] = [];
-                        newItems.forEach((i) => {
-                          for (const t of i.product.types) {
-                            const exists = newTypes.find((it) => it.id == t.id);
-                            if (!exists) newTypes.push(t);
-                          }
-                        });
-                        setTypes(newTypes);
+                        if (salesBudget == '0') {
+                          const newItems = [...items];
+                          delete newItems[
+                            newItems.findIndex((i) => i.product.id == item.product.id)
+                          ];
+                          newItems.length--;
+                          setItems(newItems);
+                          let totalWeight = 0.0;
+                          newItems.forEach((item) => (totalWeight += item.weight));
+                          setWeight(formatarValor(totalWeight));
+                          budget.weight = totalWeight;
+                          const newTypes: ITruckType[] = [];
+                          newItems.forEach((i) => {
+                            for (const t of i.product.types) {
+                              const exists = newTypes.find((it) => it.id == t.id);
+                              if (!exists) newTypes.push(t);
+                            }
+                          });
+                          setTypes(newTypes);
+                        }
                       }}
                     />
                   </td>

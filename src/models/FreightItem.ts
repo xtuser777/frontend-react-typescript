@@ -1,11 +1,15 @@
 import { Product } from '../models/Product';
 import { IProduct } from './Product';
+import { IFreightBudget } from './FreightBudget';
+import { IFreightOrder } from './FreightOrder';
 
 export interface IFreightItem {
   id: number;
-  product: IProduct;
   quantity: number;
   weight: number;
+  product: IProduct;
+  budget?: IFreightBudget;
+  order?: IFreightOrder;
 }
 
 export class FreightItem implements IFreightItem {
@@ -48,5 +52,24 @@ export class FreightItem implements IFreightItem {
   }
   set weight(v: number) {
     this.attributes.weight = v;
+  }
+
+  get budget(): IFreightBudget | undefined {
+    return this.attributes.budget;
+  }
+  set budget(v: IFreightBudget | undefined) {
+    this.attributes.budget = v;
+  }
+
+  get order(): IFreightOrder | undefined {
+    return this.attributes.order;
+  }
+  set order(v: IFreightOrder | undefined) {
+    this.attributes.order = v;
+  }
+
+  get toAttributes(): IFreightItem {
+    const attributes: IFreightItem = { ...this.attributes };
+    return attributes;
   }
 }

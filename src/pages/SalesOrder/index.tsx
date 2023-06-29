@@ -16,7 +16,7 @@ import { Employee, IEmployee } from '../../models/Employee';
 import { IProduct, Product } from '../../models/Product';
 import { IRepresentation, Representation } from '../../models/Representation';
 import { IState } from '../../models/State';
-import { ISaleBudget } from '../../models/SaleBudget';
+import { ISaleBudget, SaleBudget } from '../../models/SaleBudget';
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import history from '../../services/history';
@@ -167,6 +167,11 @@ export function SalesOrder(): JSX.Element {
       setPaymentForms(response);
     };
 
+    const getBudgets = async () => {
+      const response = await new SaleBudget().get();
+      setBudgets(response);
+    };
+
     const getData = async (states: IState[]) => {
       const order = await new SaleOrderModel().getOne(id);
       if (order) {
@@ -199,6 +204,7 @@ export function SalesOrder(): JSX.Element {
       await getSalesmans();
       await getRepresentations(await getProducts());
       await getPaymentForms();
+      await getBudgets();
       if (method == 'editar') await getData(await getStates());
       else await getStates();
     };
@@ -439,9 +445,58 @@ export function SalesOrder(): JSX.Element {
   };
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
+  const fillFieldsSale = async (saleId: number) => {
+    const sale = (await new SaleBudget().getOne(saleId)) as SaleBudget;
+    setClient(sale.client ? sale.client.id.toString() : '0');
+    setDestinyState(sale.destiny.state.id.toString());
+    setCities(states[sale.destiny.state.id - 1].cities);
+    setDestinyCity(sale.destiny.id.toString());
+    setSalesman(sale.salesman ? sale.salesman.id.toString() : '0');
 
-  const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newItems: ISaleItem[] = [...sale.items];
+    setItems(newItems);
+    const newComissions: Comission[] = [...comissions];
+    for (const item of newItems) {
+      const representationComission = comissions.find(
+        (i) => i.representacao.id == item.product.representation.id,
+      );
+      if (representationComission != undefined) {
+        representationComission.valor += item.price;
+      } else {
+        newComissions.push({
+          representacao: {
+            id: item.product.representation.id,
+            nomeFantasia: (
+              item.product.representation.person.enterprise as EnterprisePerson
+            ).fantasyName,
+          },
+          valor: item.price,
+          porcentagem: 5,
+        });
+      }
+    }
+    setComissions(newComissions);
+    order.weight = sale.toAttributes.weight;
+    setWeight(formatarValor(sale.toAttributes.weight));
+    order.value = sale.toAttributes.value;
+    setPrice(formatarValor(sale.toAttributes.value));
+    order.budget = sale.toAttributes;
+  };
+
+  const handleBudgetChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setBudget(e.target.value);
+    if (e.target.value != '0') {
+      await fillFieldsSale(Number(e.target.value));
+    } else {
+      setClient('0');
+      setDestinyState('0');
+      setDestinyCity('0');
+      setItems([]);
+      setComissions([]);
+      setWeight('');
+      setPrice('');
+      order.budget = undefined;
+    }
   };
   const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value);
@@ -512,7 +567,9 @@ export function SalesOrder(): JSX.Element {
     setDestinyState('0');
     setDestinyCity('0');
     setItems([]);
+    setComissions([]);
     setSalesman('0');
+    setComission(0);
     clearItemFields();
     setWeight('');
     setPrice('');
@@ -521,7 +578,7 @@ export function SalesOrder(): JSX.Element {
 
   const persistData = async () => {
     if (validateFields()) {
-      if (method == 'novo') {
+      if (method == 'abrir') {
         if (await order.save(comissions, comission)) clearFields();
       }
     }
@@ -531,8 +588,8 @@ export function SalesOrder(): JSX.Element {
     handleClearClick: () => {
       clearFields();
     },
-    handleSaveClick: () => {
-      alert('Salvar clicado.');
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 

@@ -1,12 +1,15 @@
 import { IProduct, Product } from './Product';
-import { ISaleBudget, SaleBudget } from './SaleBudget';
+import { ISaleBudget } from './SaleBudget';
+import { ISaleOrder } from './SaleOrder';
 
 export interface ISaleItem {
   id: number;
-  product: IProduct;
   quantity: number;
   weight: number;
   price: number;
+  product: IProduct;
+  budget?: ISaleBudget;
+  order?: ISaleOrder;
 }
 
 export class SaleItem {
@@ -31,13 +34,6 @@ export class SaleItem {
     this.attributes.id = v;
   }
 
-  get product(): IProduct {
-    return this.attributes.product;
-  }
-  set product(v: IProduct) {
-    this.attributes.product = v;
-  }
-
   get quantity(): number {
     return this.attributes.quantity;
   }
@@ -57,6 +53,27 @@ export class SaleItem {
   }
   set price(v: number) {
     this.attributes.price = v;
+  }
+
+  get product(): IProduct {
+    return this.attributes.product;
+  }
+  set product(v: IProduct) {
+    this.attributes.product = v;
+  }
+
+  get budget(): ISaleBudget | undefined {
+    return this.attributes.budget;
+  }
+  set budget(v: ISaleBudget | undefined) {
+    this.attributes.budget = v;
+  }
+
+  get order(): ISaleOrder | undefined {
+    return this.attributes.order;
+  }
+  set order(v: ISaleOrder | undefined) {
+    this.attributes.order = v;
   }
 
   get toAttributes(): ISaleItem {

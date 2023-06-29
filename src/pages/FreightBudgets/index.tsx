@@ -196,10 +196,11 @@ export function FreightBudgets(): JSX.Element {
 
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+    setBudgets(filterData(e.target.value));
   };
 
   const handleFilterClick = () => {
-    alert(`${filter}, ${date}, ${orderBy}`);
+    setBudgets(filterData(orderBy));
   };
 
   const remove = async (id: number) => {
