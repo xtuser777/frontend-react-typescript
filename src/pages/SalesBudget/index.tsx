@@ -14,13 +14,13 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormInputNumber } from '../../components/form-input-number';
 import { FormButton } from '../../components/form-button';
 import { SaleBudget } from '../../models/SaleBudget';
-import { Client } from '../../models/Client';
+import { Client, IClient } from '../../models/Client';
 import { IState, State } from '../../models/State';
 import { ICity } from '../../models/City';
-import { Employee } from '../../models/Employee';
+import { Employee, IEmployee } from '../../models/Employee';
 import axios from '../../services/axios';
 import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format';
-import { Representation } from '../../models/Representation';
+import { IRepresentation, Representation } from '../../models/Representation';
 import { IProduct, Product } from '../../models/Product';
 import isEmail from 'validator/lib/isEmail';
 import { toast } from 'react-toastify';
@@ -33,13 +33,15 @@ import history from '../../services/history';
 export function SalesBudget(): JSX.Element {
   const [budget, setBudget] = useState(new SaleBudget());
 
-  const [clients, setClients] = useState(new Array<Client>());
+  const [clients, setClients] = useState(new Array<IClient>());
   const [states, setStates] = useState(new Array<IState>());
   const [cities, setCities] = useState(new Array<ICity>());
-  const [salesmans, setSalesmans] = useState(new Array<Employee>());
+  const [salesmans, setSalesmans] = useState(new Array<IEmployee>());
 
-  const [representations, setRepresentations] = useState(new Array<Representation>());
-  const [representationsDb, setRepresentationsDb] = useState(new Array<Representation>());
+  const [representations, setRepresentations] = useState(new Array<IRepresentation>());
+  const [representationsDb, setRepresentationsDb] = useState(
+    new Array<IRepresentation>(),
+  );
   const [products, setProducts] = useState(new Array<Product>());
   const [productsDb, setProductsDb] = useState(new Array<Product>());
 
@@ -659,9 +661,9 @@ export function SalesBudget(): JSX.Element {
   const handleSalesmanChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSalesman(e.target.value);
     if (e.target.value != '0')
-      budget.salesman = salesmans.find(
-        (item) => item.id == Number(e.target.value),
-      )?.toAttributes;
+      budget.salesman = (
+        salesmans.find((item) => item.id == Number(e.target.value)) as Employee
+      ).toAttributes;
   };
   const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyState(e.target.value);
@@ -777,7 +779,7 @@ export function SalesBudget(): JSX.Element {
     validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let newRepresentations: Representation[] = [];
+    let newRepresentations: IRepresentation[] = [];
     if (e.target.value.trim().length > 0) {
       clearItemFields();
       setItemRepresentationFilter(e.target.value);
