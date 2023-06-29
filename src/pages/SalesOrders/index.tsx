@@ -7,7 +7,7 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
-import { SaleOrder } from '../../models/SaleOrder';
+import { ISaleOrder, SaleOrder } from '../../models/SaleOrder';
 import { formatarData, formatarValor } from '../../utils/format';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
@@ -15,8 +15,8 @@ import { EnterprisePerson } from '../../models/EnterprisePerson';
 import { IndividualPerson } from '../../models/IndividualPerson';
 
 export function SalesOrders(): JSX.Element {
-  const [data, setData] = useState(new Array<SaleOrder>());
-  const [orders, setOrders] = useState(new Array<SaleOrder>());
+  const [data, setData] = useState(new Array<ISaleOrder>());
+  const [orders, setOrders] = useState(new Array<ISaleOrder>());
 
   const [filter, setfilter] = useState('');
   const [dateInit, setDateInit] = useState(new Date().toISOString().substring(0, 10));
@@ -34,7 +34,7 @@ export function SalesOrders(): JSX.Element {
   }, []);
 
   const filterData = (orderBy: string) => {
-    let filteredData: SaleOrder[] = [...data];
+    let filteredData: ISaleOrder[] = [...data];
     if (dateInit.length == 10 && dateEnd.length == 10) {
       filteredData = filteredData.filter(
         (item) =>
@@ -225,10 +225,11 @@ export function SalesOrders(): JSX.Element {
   };
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+    setOrders(filterData(e.target.value));
   };
 
   const handleFilterClick = () => {
-    alert(`${filter}, ${dateInit}, ${orderBy}`);
+    setOrders(filterData(orderBy));
   };
 
   const remove = async (id: number) => {

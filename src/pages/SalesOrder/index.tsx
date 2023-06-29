@@ -143,9 +143,9 @@ export function SalesOrder(): JSX.Element {
     };
 
     const getComissions = async () => {
-      const response = (await new ReceiveBill().get()).filter(
-        (item) => item.saleOrder?.id == id,
-      );
+      const response = await new ReceiveBill().get();
+      console.log(response);
+
       const comissions: Comission[] = [];
       for (const bill of response)
         comissions.push({
@@ -184,10 +184,12 @@ export function SalesOrder(): JSX.Element {
         setCities(states[order.destiny.state.id - 1].cities);
         setDestinyCity(order.destiny.id.toString());
         setSalesman(order.salesman ? order.salesman.id.toString() : '0');
-        const comission = (await new BillPay().get()).find(
-          (item) => item.saleOrder?.id == id,
-        ) as BillPay;
-        setComission((comission.amount * 100) / order.value);
+        if (order.salesman != undefined) {
+          const comission = (await new BillPay().get()).find(
+            (item) => item.saleOrder?.id == id,
+          ) as BillPay;
+          setComission((comission.amount * 100) / order.value);
+        }
 
         await getComissions();
 
@@ -205,7 +207,7 @@ export function SalesOrder(): JSX.Element {
       await getRepresentations(await getProducts());
       await getPaymentForms();
       await getBudgets();
-      if (method == 'editar') await getData(await getStates());
+      if (method == 'detalhes') await getData(await getStates());
       else await getStates();
     };
 
@@ -809,7 +811,9 @@ export function SalesOrder(): JSX.Element {
 
   return (
     <>
-      <CardTitle text={'Abrir Pedido de Venda'} />
+      <CardTitle
+        text={method == 'abrir' ? 'Abrir Pedido de Venda' : 'Detalhes do pedido de venda'}
+      />
       <FieldsetCard legend="Dados do Pedido" obrigatoryFields>
         <Row>
           <FormInputSelect

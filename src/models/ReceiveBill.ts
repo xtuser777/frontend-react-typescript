@@ -185,7 +185,7 @@ export class ReceiveBill implements IReceiveBill {
     try {
       const response = await axios.get('/receive-bill');
       const bills: ReceiveBill[] = [];
-      for (const data of response.data) bills.push(new ReceiveBill(response.data));
+      for (const data of response.data) bills.push(new ReceiveBill(data));
       return bills;
     } catch (e) {
       console.error(e);
