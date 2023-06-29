@@ -457,6 +457,7 @@ export function SalesOrder(): JSX.Element {
     setItems(newItems);
     const newComissions: Comission[] = [...comissions];
     for (const item of newItems) {
+      item.budget = undefined;
       const representationComission = comissions.find(
         (i) => i.representacao.id == item.product.representation.id,
       );
