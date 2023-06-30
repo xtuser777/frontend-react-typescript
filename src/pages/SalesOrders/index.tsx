@@ -277,8 +277,17 @@ export function SalesOrders(): JSX.Element {
             value={dateEnd}
             onChange={(e) => handleDateEndChange(e)}
           />
-          <FormInputSelect
+          <FormButton
             colSm={3}
+            color="primary"
+            id="filtrar"
+            text="FILTRAR"
+            onClick={handleFilterClick}
+          />
+        </Row>
+        <Row>
+          <FormInputSelect
+            colSm={9}
             id="order"
             label="Ordernar por"
             obrigatory={false}
@@ -298,16 +307,6 @@ export function SalesOrders(): JSX.Element {
             <option value="11">VALOR (CRESCENTE)</option>
             <option value="12">VALOR (DECRESCENTE)</option>
           </FormInputSelect>
-        </Row>
-        <Row>
-          <Col sm="6" />
-          <FormButton
-            colSm={3}
-            color="primary"
-            id="filtrar"
-            text="FILTRAR"
-            onClick={handleFilterClick}
-          />
           <FormButtonLink
             colSm={3}
             color="success"
@@ -354,7 +353,7 @@ export function SalesOrders(): JSX.Element {
                     size={14}
                     title="Editar"
                     onClick={() => {
-                      history.push(`/orcamento/venda/editar/${item.id}`);
+                      history.push(`/pedido/venda/detalhes/${item.id}`);
                       window.location.reload();
                     }}
                   />

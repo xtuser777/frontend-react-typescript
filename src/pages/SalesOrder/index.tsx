@@ -142,12 +142,20 @@ export function SalesOrder(): JSX.Element {
       return response;
     };
 
-    const getComissions = async () => {
+    const getComissions = async (items: ISaleItem[]) => {
       const response = await new ReceiveBill().get();
-      console.log(response);
+      const representationsComission = response.filter(
+        (item) => item.saleOrder?.id == id && item.comission && item.representation,
+      );
 
       const comissions: Comission[] = [];
-      for (const bill of response)
+      for (const bill of representationsComission) {
+        let value = 0;
+        for (const item of items) {
+          if (item.product.representation.id == bill.representation?.id)
+            value += item.price;
+        }
+        value = Number(value.toString());
         comissions.push({
           representacao: {
             id: bill.representation?.id as number,
@@ -156,9 +164,10 @@ export function SalesOrder(): JSX.Element {
                 .enterprise as IEnterprisePerson
             ).fantasyName,
           },
-          porcentagem: 0,
-          valor: bill.amount,
+          porcentagem: Number(((bill.amount * 100) / value).toFixed()),
+          valor: value,
         });
+      }
       setComissions(comissions);
     };
 
@@ -188,10 +197,10 @@ export function SalesOrder(): JSX.Element {
           const comission = (await new BillPay().get()).find(
             (item) => item.saleOrder?.id == id,
           ) as BillPay;
-          setComission((comission.amount * 100) / order.value);
+          setComission(Number(((comission.amount * 100) / order.value).toFixed()));
         }
 
-        await getComissions();
+        await getComissions(order.items);
 
         setWeight(formatarPeso(order.weight));
         setPrice(formatarValor(order.value));
@@ -823,6 +832,7 @@ export function SalesOrder(): JSX.Element {
             obrigatory={false}
             value={budget}
             onChange={handleBudgetChange}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {budgets.map((item) => (
@@ -838,6 +848,7 @@ export function SalesOrder(): JSX.Element {
             obrigatory
             value={description}
             onChange={(e) => handleDescriptionChange(e)}
+            readonly={method == 'detalhes'}
           />
         </Row>
         <Row>
@@ -848,6 +859,7 @@ export function SalesOrder(): JSX.Element {
             obrigatory
             value={client}
             onChange={handleClientChange}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {clients.map((item) => (
@@ -865,6 +877,7 @@ export function SalesOrder(): JSX.Element {
             obrigatory
             value={destinyState}
             onChange={handleDestinyStateChange}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {states.map((item) => (
@@ -880,7 +893,7 @@ export function SalesOrder(): JSX.Element {
             obrigatory
             value={destinyCity}
             onChange={handleDestinyCityChange}
-            disable={destinyState == '0' ? true : false}
+            disable={destinyState == '0' || method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {cities.map((item) => (
@@ -932,35 +945,37 @@ export function SalesOrder(): JSX.Element {
                       size={14}
                       title="Excluir"
                       onClick={() => {
-                        const newItems = [...items];
-                        delete newItems[
-                          newItems.findIndex((i) => i.product.id == item.product.id)
-                        ];
-                        newItems.length--;
-                        setItems(newItems);
-                        let totalWeight = 0.0;
-                        newItems.forEach((item) => (totalWeight += item.weight));
-                        setWeight(formatarValor(totalWeight));
+                        if (budget == '0' && method == 'abrir') {
+                          const newItems = [...items];
+                          delete newItems[
+                            newItems.findIndex((i) => i.product.id == item.product.id)
+                          ];
+                          newItems.length--;
+                          setItems(newItems);
+                          let totalWeight = 0.0;
+                          newItems.forEach((item) => (totalWeight += item.weight));
+                          setWeight(formatarValor(totalWeight));
 
-                        let totalPrice = 0.0;
-                        newItems.forEach((item) => (totalPrice += item.price));
-                        setPrice(formatarValor(totalPrice));
+                          let totalPrice = 0.0;
+                          newItems.forEach((item) => (totalPrice += item.price));
+                          setPrice(formatarValor(totalPrice));
 
-                        const representationComission = comissions.find(
-                          (i) => i.representacao.id == item.product.representation.id,
-                        );
-                        if (representationComission) {
-                          representationComission.valor -= item.price;
-                          if (representationComission.valor <= 0) {
-                            const newComissions = [...comissions];
-                            delete newComissions[
-                              newComissions.findIndex(
-                                (x) =>
-                                  x.representacao.id ==
-                                  representationComission.representacao.id,
-                              )
-                            ];
-                            setComissions(newComissions);
+                          const representationComission = comissions.find(
+                            (i) => i.representacao.id == item.product.representation.id,
+                          );
+                          if (representationComission) {
+                            representationComission.valor -= item.price;
+                            if (representationComission.valor <= 0) {
+                              const newComissions = [...comissions];
+                              delete newComissions[
+                                newComissions.findIndex(
+                                  (x) =>
+                                    x.representacao.id ==
+                                    representationComission.representacao.id,
+                                )
+                              ];
+                              setComissions(newComissions);
+                            }
                           }
                         }
                       }}
@@ -980,6 +995,7 @@ export function SalesOrder(): JSX.Element {
               size="sm"
               style={{ width: '100%' }}
               onClick={handleClearItemsClick}
+              disabled={budget != '0' || method == 'detalhes'}
             >
               LIMPAR ITENS
             </Button>
@@ -991,6 +1007,7 @@ export function SalesOrder(): JSX.Element {
               size="sm"
               style={{ width: '100%' }}
               onClick={() => setAddItems(!addItems)}
+              disabled={budget != '0' || method == 'detalhes'}
             >
               {addItems ? 'CONCLUIR ADIÇÂO' : 'ADICIONAR ITENS'}
             </Button>
@@ -1124,6 +1141,7 @@ export function SalesOrder(): JSX.Element {
                 obrigatory={false}
                 value={salesman}
                 onChange={handleSalesmanChange}
+                disable={method == 'detalhes'}
               >
                 <option value="0">SELECIONAR</option>
                 {salesmans.map((item) => (
@@ -1142,6 +1160,7 @@ export function SalesOrder(): JSX.Element {
                 obrigatory={false}
                 value={comission}
                 onChange={handleComissionChange}
+                readonly={method == 'detalhes'}
               />
             </Row>
             <Row></Row>
@@ -1164,7 +1183,7 @@ export function SalesOrder(): JSX.Element {
                   {comissions.map((item) => (
                     <tr key={item.representacao.id}>
                       <td>{item.representacao.nomeFantasia}</td>
-                      <td>{item.valor}</td>
+                      <td>{formatarValor(item.valor)}</td>
                       <td>{item.porcentagem}</td>
                     </tr>
                   ))}
@@ -1209,6 +1228,7 @@ export function SalesOrder(): JSX.Element {
             obrigatory
             value={form}
             onChange={handleFormChange}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {paymentForms.map((item) => (
@@ -1219,7 +1239,11 @@ export function SalesOrder(): JSX.Element {
           </FormInputSelect>
         </Row>
       </FieldsetCard>
-      <FormButtonsSave backLink="/pedidos/venda" clear handle={handleButtons} />
+      <FormButtonsSave
+        backLink="/pedidos/venda"
+        clear={method == 'abrir'}
+        handle={handleButtons}
+      />
     </>
   );
 }
