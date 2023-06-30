@@ -329,7 +329,7 @@ function App() {
                 }
               />
               <Route
-                path="/pedido/frete/"
+                path="/pedido/frete/:method/:id?"
                 element={
                   <Protected>
                     <FreightOrder />

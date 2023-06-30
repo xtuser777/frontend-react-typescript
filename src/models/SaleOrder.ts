@@ -18,7 +18,6 @@ export interface ISaleOrder {
   salesman?: IEmployee;
   destiny: ICity;
   budget?: ISaleBudget;
-  // truckType: ITruckType;
   client: IClient;
   paymentForm: IPaymentForm;
   author: IEmployee;
@@ -40,7 +39,6 @@ export class SaleOrder implements ISaleOrder {
           salesman: undefined,
           budget: undefined,
           destiny: new City(),
-          // truckType: new TruckType(),
           client: new Client(),
           paymentForm: new PaymentForm(),
           author: new Employee(),
@@ -104,13 +102,6 @@ export class SaleOrder implements ISaleOrder {
     this.attributes.destiny = v;
   }
 
-  // get truckType(): ITruckType {
-  //   return this.attributes.truckType;
-  // }
-  // set truckType(v: ITruckType) {
-  //   this.attributes.truckType = v;
-  // }
-
   get client(): IClient {
     return this.attributes.client;
   }
@@ -154,16 +145,13 @@ export class SaleOrder implements ISaleOrder {
         budget: this.budget,
         salesman: this.salesman,
         salesmanComissionPorcent: salesmanComissionPorcent,
-        //truckType: this.truckType,
         client: this.client,
         paymentForm: this.paymentForm,
-        destiny: this.destiny.id,
+        destiny: this.destiny,
         items: this.items,
         comissions: comissions,
       },
     };
-
-    console.log(payload);
 
     try {
       const response: AxiosRequestConfig = await axios.post('/sale-order', payload);

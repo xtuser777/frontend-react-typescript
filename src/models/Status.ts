@@ -1,3 +1,7 @@
+import { AxiosError, isAxiosError } from 'axios';
+import axios from '../services/axios';
+import { toast } from 'react-toastify';
+
 export interface IStatus {
   id: number;
   description: string;
@@ -22,5 +26,22 @@ export class Status implements IStatus {
   }
   set description(v: string) {
     this.attributes.description = v;
+  }
+
+  get toAttributes(): IStatus {
+    const attributes: IStatus = { ...this.attributes };
+    return attributes;
+  }
+
+  async get() {
+    try {
+      const response = await axios.get('/status');
+      const statuses: Status[] = [];
+      for (const data of response.data) statuses.push(new Status(data));
+      return statuses;
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return [];
+    }
   }
 }

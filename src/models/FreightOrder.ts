@@ -1,3 +1,4 @@
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 import { ICity, City } from './City';
 import { IClient, Client } from './Client';
 import { IDriver, Driver } from './Driver';
@@ -12,6 +13,8 @@ import { IRepresentation } from './Representation';
 import { ISaleOrder } from './SaleOrder';
 import { ITruck, Truck } from './Truck';
 import { ITruckType, TruckType } from './TruckType';
+import axios from '../services/axios';
+import { toast } from 'react-toastify';
 
 export interface IFreightOrder {
   id: number;
@@ -245,5 +248,91 @@ export class FreightOrder implements IFreightOrder {
   get toAttributes(): IFreightOrder {
     const attributes: IFreightOrder = { ...this.attributes };
     return attributes;
+  }
+
+  async save() {
+    const payload = {
+      order: {
+        date: new Date().toISOString().substring(0, 10),
+        description: this.description,
+        weight: this.weight,
+        value: this.value,
+        shipping: this.shipping,
+        distance: this.distance,
+        driverValue: this.driverValue,
+        driverEntry: this.driverEntry,
+        budget: this.budget,
+        saleOrder: this.saleOrder,
+        representation: this.representation,
+        client: this.client,
+        driver: this.driver,
+        proprietary: this.proprietary,
+        truckType: this.truckType,
+        truck: this.truck,
+        paymentFormFreight: this.paymentFormFreight,
+        paymentFormDriver: this.paymentFormDriver,
+        destiny: this.destiny,
+        items: this.items,
+        steps: this.steps,
+      },
+    };
+
+    try {
+      const response: AxiosRequestConfig = await axios.post('/freight-order', payload);
+      if (response.data.length == 0) {
+        toast.success('Pedido de frete aberto com sucesso.');
+        return true;
+      } else {
+        toast.error('Erro: ' + response.data);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  }
+
+  async delete() {
+    try {
+      const response: AxiosRequestConfig = await axios.delete(
+        '/freight-order/' + this.id,
+      );
+      if (response.data.length == 0) {
+        toast.success('Pedido de frete removido com sucesso.');
+        return true;
+      } else {
+        toast.error('Erro: ' + response.data);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  }
+
+  async getOne(id: number) {
+    if (id <= 0) return undefined;
+    try {
+      const response = await axios.get('/freight-order/' + id);
+      const order = response.data ? new FreightOrder(response.data) : undefined;
+
+      return order;
+    } catch (err) {
+      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return undefined;
+    }
+  }
+
+  async get() {
+    try {
+      const response = await axios.get('/freight-order');
+      const orders: FreightOrder[] = [];
+      for (const data of response.data) orders.push(new FreightOrder(data));
+
+      return orders;
+    } catch (err) {
+      if (isAxiosError(err)) toast.error('Erro de requisição: ' + err.response?.data);
+      return [];
+    }
   }
 }

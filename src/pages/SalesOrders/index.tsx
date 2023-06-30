@@ -351,7 +351,7 @@ export function SalesOrders(): JSX.Element {
                     role="button"
                     color="blue"
                     size={14}
-                    title="Editar"
+                    title="Detalhes"
                     onClick={() => {
                       history.push(`/pedido/venda/detalhes/${item.id}`);
                       window.location.reload();
