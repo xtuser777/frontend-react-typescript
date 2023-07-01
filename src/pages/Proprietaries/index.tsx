@@ -12,16 +12,9 @@ import { EnterprisePerson } from '../../models/EnterprisePerson';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import history from '../../services/history';
 import { formatarData } from '../../utils/format';
-import * as actions from '../../store/modules/proprietary/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { Proprietary } from '../../models/Proprietary';
 
 export function Proprietaries(): JSX.Element {
-  const proprietaryState = useSelector((state: RootState) => state.proprietary);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<Proprietary>());
   const [proprietaries, setProprietaries] = useState(new Array<Proprietary>());
 
@@ -424,7 +417,7 @@ export function Proprietaries(): JSX.Element {
         <Table id="tableProprietaries" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '40%' }}>NOME/NOME FANTASIA</th>
               <th style={{ width: '16%' }}>CPF/CNPJ</th>
               <th style={{ width: '10%' }}>CADASTRO</th>
@@ -437,7 +430,7 @@ export function Proprietaries(): JSX.Element {
           <tbody id="tbodyProprietaries">
             {proprietaries.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>
                   {item.person.type == 1
                     ? (item.person.individual as IndividualPerson).name

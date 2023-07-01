@@ -425,7 +425,7 @@ export function Clients(): JSX.Element {
         <Table id="tableClients" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '40%' }}>NOME/NOME FANTASIA</th>
               <th style={{ width: '14%' }}>CPF/CNPJ</th>
               <th style={{ width: '10%' }}>CADASTRO</th>
@@ -439,7 +439,7 @@ export function Clients(): JSX.Element {
           <tbody id="tbodyClients">
             {clients.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>
                   {item.person.type == 1
                     ? (item.person.individual as IndividualPerson).name

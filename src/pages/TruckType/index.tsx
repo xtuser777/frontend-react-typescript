@@ -7,16 +7,9 @@ import { useParams } from 'react-router-dom';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputNumber } from '../../components/form-input-number';
-import * as actions from '../../store/modules/truck-type/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { TruckType as TruckTypeModel } from '../../models/TruckType';
 
 export function TruckType(): JSX.Element {
-  const typeState = useSelector((state: RootState) => state.truckType);
-
-  const dispatch = useDispatch();
-
   const [type, setType] = useState(new TruckTypeModel());
 
   const [description, setDescription] = useState('');

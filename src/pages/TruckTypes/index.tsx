@@ -9,6 +9,7 @@ import { FormButtonLink } from '../../components/form-button-link';
 import history from '../../services/history';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { TruckType } from '../../models/TruckType';
+import { formatarPeso } from '../../utils/format';
 
 export function TruckTypes(): JSX.Element {
   const [data, setData] = useState(new Array<TruckType>());
@@ -169,7 +170,7 @@ export function TruckTypes(): JSX.Element {
                 <td hidden>{item.id}</td>
                 <td>{item.description}</td>
                 <td>{item.axes}</td>
-                <td>{item.capacity}</td>
+                <td>{formatarPeso(item.capacity)}</td>
                 <td>
                   <FaEdit
                     role="button"

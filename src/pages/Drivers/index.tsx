@@ -246,7 +246,7 @@ export function Drivers(): JSX.Element {
         <Table id="tableDrivers" size="sm" striped hover responsive>
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '40%' }}>NOME</th>
               <th style={{ width: '16%' }}>CPF</th>
               <th style={{ width: '10%' }}>CADASTRO</th>
@@ -259,7 +259,7 @@ export function Drivers(): JSX.Element {
           <tbody id="tbodyDrivers">
             {drivers.map((item) => (
               <tr key={item.id}>
-                <td>{item.id}</td>
+                <td hidden>{item.id}</td>
                 <td>{(item.person.individual as IndividualPerson).name}</td>
                 <td>{(item.person.individual as IndividualPerson).cpf}</td>
                 <td>{formatarData(item.register)}</td>

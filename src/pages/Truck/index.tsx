@@ -6,9 +6,6 @@ import { Row } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputSelect } from '../../components/form-input-select';
-import * as actions from '../../store/modules/truck/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { Truck as TruckModel } from '../../models/Truck';
 import { TruckType } from '../../models/TruckType';
 import { Proprietary } from '../../models/Proprietary';
@@ -16,10 +13,6 @@ import { IndividualPerson } from '../../models/IndividualPerson';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function Truck(): JSX.Element {
-  const truckState = useSelector((state: RootState) => state.truck);
-
-  const dispatch = useDispatch();
-
   const [truck, setTruck] = useState(new TruckModel());
 
   const [types, setTypes] = useState(new Array<TruckType>());
