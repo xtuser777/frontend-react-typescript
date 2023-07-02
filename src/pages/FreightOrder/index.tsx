@@ -31,6 +31,7 @@ import { useParams } from 'react-router-dom';
 import { IFreightItem } from '../../models/FreightItem';
 import { FaTrash } from 'react-icons/fa';
 import { calculateMinimumFloor } from '../../utils/calc';
+import { ILoadStep } from '../../models/LoadStep';
 
 export function FreightOrder(): JSX.Element {
   const [order, setOrder] = useState(new FreightOrderModel());
@@ -47,6 +48,8 @@ export function FreightOrder(): JSX.Element {
   );
   const [products, setProducts] = useState(new Array<IProduct>());
   const [productsDb, setProductsDb] = useState(new Array<IProduct>());
+
+  const [steps, setSteps] = useState(new Array<ILoadStep>());
 
   const [paymentForms, setPaymentForms] = useState(new Array<IPaymentForm>());
   const [proprietaries, setProprietaries] = useState(new Array<IProprietary>());
@@ -509,6 +512,8 @@ export function FreightOrder(): JSX.Element {
 
   const fillFieldsSale = async (saleId: number) => {
     const sale = (await new SaleOrder().getOne(saleId)) as SaleOrder;
+    setBudget('0');
+    order.budget = undefined;
     setRepresentation('0');
     order.representation = undefined;
     setClient(sale.client ? sale.client.id.toString() : '0');
@@ -518,6 +523,7 @@ export function FreightOrder(): JSX.Element {
 
     const newTypes: ITruckType[] = [];
     const newItems: IFreightItem[] = [];
+    const newSteps: ILoadStep[] = [];
     for (const item of sale.items) {
       newItems.push({
         id: 0,
@@ -1079,7 +1085,23 @@ export function FreightOrder(): JSX.Element {
               </tr>
             </thead>
 
-            <tbody id="tbodySteps"></tbody>
+            <tbody id="tbodySteps">
+              {steps.map((item) => (
+                <tr key={item.representation.id}>
+                  <td>{item.order}</td>
+                  <td>{item.representation.person.enterprise?.fantasyName}</td>
+                  <td>{item.representation.unity}</td>
+                  <td>{item.load}</td>
+                  <td>
+                    {item.status == 1
+                      ? 'PENDENTE'
+                      : item.status == 2
+                      ? 'AUTORIZADO'
+                      : 'CARREGADO'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </Table>
         </div>
       </FieldsetCard>

@@ -3,9 +3,10 @@ import { IRepresentation, Representation } from './Representation';
 
 export interface ILoadStep {
   id: number;
+  order: number;
   status: number;
   load: number;
-  order: IFreightOrder;
+  freightOrder: IFreightOrder;
   representation: IRepresentation;
 }
 
@@ -17,17 +18,25 @@ export class LoadStep implements ILoadStep {
       ? attributes
       : {
           id: 0,
+          order: 0,
           load: 0.0,
           status: 0,
-          order: new FreightOrder(),
+          freightOrder: new FreightOrder(),
           representation: new Representation(),
         };
   }
+
   get id(): number {
     return this.attributes.id;
   }
   set id(v: number) {
     this.attributes.id = v;
+  }
+  get order(): number {
+    return this.attributes.order;
+  }
+  set order(v: number) {
+    this.attributes.order = v;
   }
   get status(): number {
     return this.attributes.status;
@@ -41,11 +50,11 @@ export class LoadStep implements ILoadStep {
   set load(v: number) {
     this.attributes.load = v;
   }
-  get order(): IFreightOrder {
-    return this.attributes.order;
+  get freightOrder(): IFreightOrder {
+    return this.attributes.freightOrder;
   }
-  set order(v: IFreightOrder) {
-    this.attributes.order = v;
+  set orfreightOrderder(v: IFreightOrder) {
+    this.attributes.freightOrder = v;
   }
   get representation(): IRepresentation {
     return this.attributes.representation;
