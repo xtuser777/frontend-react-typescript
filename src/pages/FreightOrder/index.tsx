@@ -536,8 +536,24 @@ export function FreightOrder(): JSX.Element {
         const exists = newTypes.find((i) => i.id == t.id);
         if (!exists) newTypes.push(t);
       }
+      const loadStep = steps.find(
+        (step) => step.representation.id == item.product.representation.id,
+      );
+      if (loadStep != undefined) {
+        loadStep.load += item.weight;
+      } else {
+        newSteps.push({
+          id: 0,
+          order: newSteps.length + 1,
+          load: item.weight,
+          status: 1,
+          representation: item.product.representation,
+          freightOrder: order.toAttributes,
+        });
+      }
     }
     setItems(newItems);
+    setSteps(newSteps);
     setTruckTypes(newTypes);
     order.weight = sale.toAttributes.weight;
     setWeight(formatarValor(sale.toAttributes.weight));
