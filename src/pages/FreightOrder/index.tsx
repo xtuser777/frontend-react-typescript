@@ -19,10 +19,10 @@ import { IPaymentForm, PaymentForm } from '../../models/PaymentForm';
 import { IProduct, Product } from '../../models/Product';
 import { IRepresentation, Representation } from '../../models/Representation';
 import { IState } from '../../models/State';
-import { IProprietary } from '../../models/Proprietary';
+import { IProprietary, Proprietary } from '../../models/Proprietary';
 import { ITruckType } from '../../models/TruckType';
-import { ITruck } from '../../models/Truck';
-import { IDriver } from '../../models/Driver';
+import { ITruck, Truck } from '../../models/Truck';
+import { Driver, IDriver } from '../../models/Driver';
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import history from '../../services/history';
@@ -30,6 +30,7 @@ import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format
 import { useParams } from 'react-router-dom';
 import { IFreightItem } from '../../models/FreightItem';
 import { FaTrash } from 'react-icons/fa';
+import { calculateMinimumFloor } from '../../utils/calc';
 
 export function FreightOrder(): JSX.Element {
   const [order, setOrder] = useState(new FreightOrderModel());
@@ -53,31 +54,50 @@ export function FreightOrder(): JSX.Element {
   const [truckTypes, setTruckTypes] = useState(new Array<ITruckType>());
   const [trucks, setTrucks] = useState(new Array<ITruck>());
   const [trucksDb, setTrucksDb] = useState(new Array<ITruck>());
-  const [forms, setForms] = useState(new Array<IPaymentForm>());
 
   const [budget, setBudget] = useState('0');
   const [sale, setSale] = useState('0');
   const [representation, setRepresentation] = useState('0');
   const [description, setDescription] = useState('');
+  const [errorDescription, setErrorDescription] = useState<string | undefined>(undefined);
   const [client, setClient] = useState('0');
+  const [errorClient, setErrorClient] = useState<string | undefined>(undefined);
 
   const [truckType, setTruckType] = useState('0');
+  const [errorTruckType, setErrorTruckType] = useState<string | undefined>(undefined);
   const [proprietary, setProprietary] = useState('0');
+  const [errorProprietary, setErrorProprietary] = useState<string | undefined>(undefined);
   const [truck, setTruck] = useState('0');
+  const [errorTruck, setErrorTruck] = useState<string | undefined>(undefined);
   const [distance, setDistance] = useState(1);
+  const [errorDistance, setErrorDistance] = useState<string | undefined>(undefined);
 
   const [destinyState, setDestinyState] = useState('0');
+  const [errorDestinyState, setErrorDestinyState] = useState<string | undefined>(
+    undefined,
+  );
   const [destinyCity, setDestinyCity] = useState('0');
+  const [errorDestinyCity, setErrorDestinyCity] = useState<string | undefined>(undefined);
 
   const [driver, setDriver] = useState('0');
+  const [errorDriver, setErrorDriver] = useState<string | undefined>(undefined);
   const [driverAmount, setDriverAmount] = useState('');
+  const [errorDriverAmount, setErrorDriverAmount] = useState<string | undefined>(
+    undefined,
+  );
   const [driverAmountEntry, setDriverAmountEntry] = useState('');
   const [driverForm, setDriverForm] = useState('0');
 
   const [weight, setWeight] = useState('');
+  const [errorWeight, setErrorWeight] = useState<string | undefined>(undefined);
   const [price, setPrice] = useState('');
+  const [errorPrice, setErrorPrice] = useState<string | undefined>(undefined);
   const [shipping, setShipping] = useState(new Date().toISOString().substring(0, 10));
+  const [errorShipping, setErrorShipping] = useState<string | undefined>(undefined);
   const [form, setForm] = useState('0');
+  const [errorForm, setErrorForm] = useState<string | undefined>(undefined);
+
+  const [minimumFloor, setMinimumFloor] = useState(0);
 
   const routeParams = useParams();
   const method = routeParams.method as string;
@@ -89,19 +109,23 @@ export function FreightOrder(): JSX.Element {
       const response = await new FreightBudget().get();
       setBudgets(response);
     };
+
     const getSales = async () => {
       const response = await new SaleOrder().get();
       setSales(response);
     };
+
     const getStates = async () => {
       const response = await axios.get('/state');
       setStates(response.data);
       return response.data;
     };
+
     const getClients = async () => {
       const response = await new Client().get();
       setClients(response);
     };
+
     const getRepresentations = async (products: Product[]) => {
       const response = await new Representation().get();
       if (response.length == 0) {
@@ -128,6 +152,7 @@ export function FreightOrder(): JSX.Element {
         setTotalItemWeight(formatarPeso(product.weight * itemQuantity));
       }
     };
+
     const getProducts = async () => {
       const response = await new Product().get();
       if (response.length == 0) {
@@ -138,6 +163,23 @@ export function FreightOrder(): JSX.Element {
       setProductsDb(response);
       return response;
     };
+
+    const getDrivers = async () => {
+      const response = await new Driver().get();
+      setDrivers(response);
+    };
+
+    const getProprietaries = async () => {
+      const response = await new Proprietary().get();
+      setProprietaries(response);
+    };
+
+    const getTrucks = async () => {
+      const response = await new Truck().get();
+      setTrucksDb(response);
+      setTrucks(response);
+    };
+
     const getPaymentForms = async () => {
       const response = (await new PaymentForm().get()).filter((item) => item.link == 2);
       setPaymentForms(response);
@@ -180,21 +222,340 @@ export function FreightOrder(): JSX.Element {
       await getSales();
       await getClients();
       await getRepresentations(await getProducts());
+      await getDrivers();
+      await getProprietaries();
+      await getTrucks();
       await getPaymentForms();
-      if (method == 'editar') await getData(await getStates());
+      if (method == 'detalhes') await getData(await getStates());
       else await getStates();
     };
 
     load();
   }, []);
 
+  const validate = {
+    description: (value: string) => {
+      if (value.length == 0) {
+        setErrorDescription('A descrição do orçamento precisa ser preenchida.');
+        return false;
+      } else if (value.length < 2) {
+        setErrorDescription('A descrição preenchida tem tamanho inválido.');
+        return false;
+      } else {
+        setErrorDescription(undefined);
+        order.description = value;
+        return true;
+      }
+    },
+    client: (value: string) => {
+      if (value == '0') {
+        setErrorClient('O cliente precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorClient(undefined);
+        order.client = (
+          clients.find((item) => item.id == Number(value)) as Client
+        ).toAttributes;
+        return true;
+      }
+    },
+    destinyState: (value: string) => {
+      if (value == '0') {
+        setErrorDestinyState('O Estado precisa ser selecionado');
+        return false;
+      } else {
+        setErrorDestinyState(undefined);
+        setCities(states[Number(value) - 1].cities);
+        return true;
+      }
+    },
+    destinyCity: (value: string) => {
+      if (value == '0') {
+        setErrorDestinyCity('A cidade precisa ser selecionada');
+        return false;
+      } else {
+        setErrorDestinyCity(undefined);
+        const city = cities.find((item) => item.id == Number(value)) as ICity;
+        order.destiny = city;
+        return true;
+      }
+    },
+    type: (value: string) => {
+      if (value == '0') {
+        setErrorTruckType('O tipo de caminhão precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorTruckType(undefined);
+        const t = truckTypes.find((item) => item.id == Number(value)) as ITruckType;
+
+        if (
+          Number.parseFloat(
+            order.weight
+              .toString()
+              .replace(',', '#')
+              .replaceAll('.', ',')
+              .replace('#', '.'),
+          ) > t.capacity
+        ) {
+          setErrorTruckType('O tipo de caminhão não suporta a carga.');
+          return false;
+        }
+
+        order.truckType = t;
+        return true;
+      }
+    },
+    distance: (value: string) => {
+      const v = Number(value);
+      if (Number.isNaN(v)) {
+        setErrorDistance('A distância do frete precisa ser preenchida.');
+        return false;
+      } else if (v <= 0) {
+        setErrorDistance('A distância preenchida é inválida.');
+        return false;
+      } else if (truckType == '0') {
+        setErrorDistance('o Tipo de caminhão precisa ser selecionado primeiro.');
+        return false;
+      } else {
+        setErrorDistance(undefined);
+
+        const t = truckTypes.find((x) => x.id == Number(truckType)) as ITruckType;
+        const piso = t.axes > 3 ? calculateMinimumFloor(Number(value), t.axes) : 1.0;
+        setPrice(formatarValor(piso));
+        setMinimumFloor(piso);
+
+        order.distance = v;
+        if (order.value < piso) order.value = piso;
+        return true;
+      }
+    },
+    weight: (value: string) => {
+      if (value.length == 0) {
+        setErrorWeight('O peso do frete precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorWeight('O peso do frete informado é inválido.');
+        return false;
+      } else {
+        setErrorWeight(undefined);
+        order.weight = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        return true;
+      }
+    },
+    price: (value: string) => {
+      if (value.length == 0) {
+        setErrorPrice('O preço do frete precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) < minimumFloor
+      ) {
+        setErrorPrice('O preço do frete informado é inválido ou abaixo do piso.');
+        return false;
+      } else {
+        setErrorPrice(undefined);
+        order.value = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        return true;
+      }
+    },
+    shipping: (value: string) => {
+      const val = new Date(value + 'T12:00:00');
+      const now = new Date(Date.now());
+      if (value.length == 0) {
+        setErrorShipping('A data de entrega precisa ser preenchida');
+        return false;
+      } else if (
+        now.getFullYear() == val.getFullYear() &&
+        now.getMonth() == val.getMonth() &&
+        now.getDate() > val.getDate()
+      ) {
+        setErrorShipping('A data de entrega preenchida é inválida');
+        return false;
+      } else {
+        setErrorShipping(undefined);
+        order.shipping = value;
+        return true;
+      }
+    },
+    items: () => {
+      if (items.length == 0) {
+        toast.info('Não há itens adicionados ao pedido.');
+        return false;
+      } else {
+        order.items = filterItems();
+        return true;
+      }
+    },
+    itemRepresentation: (value: string) => {
+      if (value == '0') {
+        setErrorItemRepresentation('A representação do item precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorItemRepresentation(undefined);
+        setItemFilter('');
+        if (representations.length > 0) {
+          let newProducts = [...productsDb];
+          const representation = representations.find(
+            (i) => i.id == Number(value),
+          ) as Representation;
+          newProducts = newProducts.filter(
+            (item) => item.representation.id == representation.id,
+          );
+          setProducts(newProducts);
+          if (newProducts.length > 0) {
+            setItem(newProducts[0].id.toString());
+            const product = newProducts.find(
+              (item) => item.id == newProducts[0].id,
+            ) as Product;
+            setItemWeight(formatarPeso(product.weight));
+            setItemQuantity(1);
+            setTotalItemWeight(formatarPeso(product.weight * itemQuantity));
+          }
+        }
+        return true;
+      }
+    },
+    item: (value: string) => {
+      if (value == '0' || products.length == 0) {
+        setErrorItem('O item precisa ser selecionado.');
+        return false;
+      } else {
+        const product = products.find((item) => item.id == Number(value)) as Product;
+        const itemProduct = items.find((i) => i.product.id == product.id);
+        if (itemProduct) {
+          setErrorItem('Este item já foi adicionado.');
+          return false;
+        } else {
+          let typesCommon = 0;
+          product.types.forEach((x) => {
+            truckTypes.forEach((y) => {
+              if (x.id == y.id) typesCommon++;
+            });
+          });
+
+          if (items.length > 0 && typesCommon == 0) {
+            setErrorTruckType(
+              'Este produto não pode ser carregado junto os outros já adicionados.',
+            );
+            return false;
+          }
+
+          setErrorItem(undefined);
+
+          setItemWeight(formatarPeso(product.weight));
+          setItemQuantity(1);
+          setTotalItemWeight(formatarPeso(product.weight * itemQuantity));
+          return true;
+        }
+      }
+    },
+    itemWeight: (value: string) => {
+      if (value.length == 0) {
+        setErrorItemWeight('O peso do item precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorItemWeight('O peso do item informado é inválido.');
+        return false;
+      } else {
+        setErrorItemWeight(undefined);
+        return true;
+      }
+    },
+    itemQuantity: (value: string) => {
+      const val = Number(value);
+      if (val <= 0) {
+        setErrorItemQuantity('A quantidade do item precisa ser preenchida.');
+        return false;
+      } else {
+        setErrorItemQuantity(undefined);
+        //const product = products.find((i) => i.id == Number(item)) as Product;
+        const weight = Number.parseFloat(
+          itemWeight.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        setTotalItemWeight(formatarValor(weight * val));
+        return true;
+      }
+    },
+    totalItemWeight: (value: string) => {
+      if (value.length == 0) {
+        setErrorTotalItemWeight('O peso total do item precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorTotalItemWeight('O peso total do item informado é inválido.');
+        return false;
+      } else {
+        setErrorTotalItemWeight(undefined);
+        return true;
+      }
+    },
+  };
+
+  const fillFieldsSale = async (saleId: number) => {
+    const sale = (await new SaleOrder().getOne(saleId)) as SaleOrder;
+    setRepresentation('0');
+    order.representation = undefined;
+    setClient(sale.client ? sale.client.id.toString() : '0');
+    setDestinyState(sale.destiny.state.id.toString());
+    setCities(states[sale.destiny.state.id - 1].cities);
+    setDestinyCity(sale.destiny.id.toString());
+
+    const newTypes: ITruckType[] = [];
+    const newItems: IFreightItem[] = [];
+    for (const item of sale.items) {
+      newItems.push({
+        id: 0,
+        product: item.product,
+        quantity: item.quantity,
+        weight: item.weight,
+        order: order.toAttributes,
+      });
+      for (const t of item.product.types) {
+        const exists = newTypes.find((i) => i.id == t.id);
+        if (!exists) newTypes.push(t);
+      }
+    }
+    setItems(newItems);
+    setTruckTypes(newTypes);
+    order.weight = sale.toAttributes.weight;
+    setWeight(formatarValor(sale.toAttributes.weight));
+    order.saleOrder = sale.toAttributes;
+  };
+
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
 
   const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
     setBudget(e.target.value);
   };
-  const handleSaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSaleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setSale(e.target.value);
+    if (e.target.value != '0') {
+      await fillFieldsSale(Number(e.target.value));
+    } else {
+      setClient('0');
+      setDestinyState('0');
+      setDestinyCity('0');
+      setItems([]);
+      setWeight('');
+      setTruckTypes([]);
+      order.saleOrder = undefined;
+    }
   };
   const handleRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRepresentation(e.target.value);
@@ -270,39 +631,141 @@ export function FreightOrder(): JSX.Element {
   // Items
   const [items, setItems] = useState(new Array<IFreightItem>());
   const [itemRepresentation, setItemRepresentation] = useState('0');
-  const [itemRepresentationFilter, setItemRerpesentationFilter] = useState('');
+  const [errorItemRepresentation, setErrorItemRepresentation] = useState<
+    string | undefined
+  >(undefined);
+  const [itemRepresentationFilter, setItemRepresentationFilter] = useState('');
   const [item, setItem] = useState('0');
+  const [errorItem, setErrorItem] = useState<string | undefined>(undefined);
   const [itemFilter, setItemFilter] = useState('');
 
   const [itemWeight, setItemWeight] = useState('');
+  const [errorItemWeight, setErrorItemWeight] = useState<string | undefined>(undefined);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const [errorItemQuantity, setErrorItemQuantity] = useState<string | undefined>(
+    undefined,
+  );
   const [totalItemWeight, setTotalItemWeight] = useState('');
+  const [errorTotalItemWeight, setErrorTotalItemWeight] = useState<string | undefined>(
+    undefined,
+  );
 
   const handleItemRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemRepresentation(e.target.value);
+    validate.itemRepresentation(e.target.value);
   };
   const handleItemRepresentationFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemRerpesentationFilter(e.target.value);
+    let newRepresentations: IRepresentation[] = [];
+    if (e.target.value.trim().length > 0) {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+      newRepresentations = newRepresentations.filter(
+        (item) =>
+          item.person.enterprise?.fantasyName.includes(e.target.value) ||
+          item.unity.includes(e.target.value),
+      );
+    } else {
+      clearItemFields();
+      setItemRepresentationFilter(e.target.value);
+      newRepresentations = [...representationsDb];
+    }
+    setRepresentations(newRepresentations);
+    if (newRepresentations.length > 0) {
+      setItemFilter('');
+      setItemRepresentation(newRepresentations[0].id.toString());
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == newRepresentations[0].id,
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItemWeight(formatarValor(product.weight));
+        setItemQuantity(1);
+        setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+      }
+    }
   };
   const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(e.target.value);
+    validate.item(e.target.value);
   };
   const handleItemFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemFilter(e.target.value);
+    if (e.target.value.trim().length > 0) {
+      setItemWeight('');
+      setItemQuantity(1);
+      setTotalItemWeight('');
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) =>
+          item.representation.id == Number(itemRepresentation) &&
+          item.description.includes(e.target.value),
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as Product;
+        setItem(product.id.toString());
+        setItemWeight(formatarValor(product.weight));
+        setItemQuantity(1);
+        setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+      }
+    }
   };
 
   const handleItemWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemWeight(e.target.value);
+    validate.itemWeight(e.target.value);
   };
   const handleItemQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItemQuantity(Number.parseInt(e.target.value));
+    validate.itemQuantity(e.target.value);
   };
   const handleTotalItemWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTotalItemWeight(e.target.value);
+    validate.totalItemWeight(e.target.value);
+  };
+
+  const clearItemFields = () => {
+    setItemRepresentationFilter('');
+    const newRepresentations = [...representationsDb];
+    setRepresentations(newRepresentations);
+    setItemFilter('');
+    let newProducts = [...products];
+    newProducts = newProducts.filter(
+      (item) => item.representation.id == newRepresentations[0].id,
+    );
+    setProducts(newProducts);
+    if (newProducts.length > 0) {
+      setItem(newProducts[0].id.toString());
+      const product = newProducts.find(
+        (item) => item.id == newProducts[0].id,
+      ) as IProduct;
+      setItemWeight(formatarPeso(product.weight));
+      setItemQuantity(1);
+      setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+    }
+    //setItems([]);
+  };
+
+  const validateItemFields = () => {
+    return (
+      validate.itemRepresentation(itemRepresentation) &&
+      validate.item(item) &&
+      validate.itemWeight(itemWeight) &&
+      validate.itemQuantity(itemQuantity.toString()) &&
+      validate.totalItemWeight(totalItemWeight)
+    );
   };
 
   const handleClearItemClick = () => {
-    alert('Limpar item!');
+    clearItemFields();
   };
   const handleAddItemClick = () => {
     alert('Adicionar item!');

@@ -39,7 +39,6 @@ export function FreightBudget(): JSX.Element {
   const [clients, setClients] = useState(new Array<IClient>());
   const [states, setStates] = useState(new Array<IState>());
   const [cities, setCities] = useState(new Array<ICity>());
-  const [typesDb, setTypesDb] = useState(new Array<ITruckType>());
   const [types, setTypes] = useState(new Array<ITruckType>());
 
   const [description, setDescription] = useState('');
@@ -91,12 +90,6 @@ export function FreightBudget(): JSX.Element {
     const getClients = async () => {
       const response = await new Client().get();
       setClients(response);
-    };
-
-    const getTypes = async () => {
-      const data = await new TruckType().get();
-      setTypesDb(data);
-      //setTypes(data);
     };
 
     const getRepresentations = async (products: IProduct[]) => {
@@ -174,7 +167,6 @@ export function FreightBudget(): JSX.Element {
     const load = async () => {
       await getSales();
       await getClients();
-      await getTypes();
       await getRepresentations(await getProducts());
       if (method == 'editar') await getData(await getStates());
       else await getStates();
