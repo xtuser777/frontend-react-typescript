@@ -26,7 +26,12 @@ import { Driver, IDriver } from '../../models/Driver';
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import history from '../../services/history';
-import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format';
+import {
+  formatarData,
+  formatarDataIso,
+  formatarPeso,
+  formatarValor,
+} from '../../utils/format';
 import { useParams } from 'react-router-dom';
 import { IFreightItem } from '../../models/FreightItem';
 import { FaTrash } from 'react-icons/fa';
@@ -308,6 +313,34 @@ export function FreightOrder(): JSX.Element {
         return true;
       }
     },
+    proprietary: (value: string) => {
+      if (value == '0') {
+        setErrorProprietary('O proprietário do caminhão precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorProprietary(undefined);
+        order.proprietary = (
+          proprietaries.find((item) => item.id == Number(value)) as Proprietary
+        ).toAttributes;
+        if (order.proprietary.driver) setDriver(order.proprietary.driver.id.toString());
+        let newTrucks = [...trucksDb];
+        newTrucks = newTrucks.filter((item) => item.proprietary.id == Number(value));
+        setTrucks(newTrucks);
+        return true;
+      }
+    },
+    truck: (value: string) => {
+      if (value == '0') {
+        setErrorTruck('O caminhão precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorTruck(undefined);
+        order.truck = (
+          trucks.find((item) => item.id == Number(value)) as Truck
+        ).toAttributes;
+        return true;
+      }
+    },
     distance: (value: string) => {
       const v = Number(value);
       if (Number.isNaN(v)) {
@@ -329,6 +362,37 @@ export function FreightOrder(): JSX.Element {
 
         order.distance = v;
         if (order.value < piso) order.value = piso;
+        return true;
+      }
+    },
+    driver: (value: string) => {
+      if (value == '0') {
+        setErrorDriver('O motorista precisa ser selecionado.');
+        return false;
+      } else {
+        setErrorDriver(undefined);
+        order.driver = (
+          drivers.find((item) => item.id == Number(value)) as Driver
+        ).toAttributes;
+        return true;
+      }
+    },
+    driverAmount: (value: string) => {
+      if (value.length == 0) {
+        setErrorDriverAmount('O valor do motorista precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) < 1
+      ) {
+        setErrorDriverAmount('O valor do motorista informado é inválido.');
+        return false;
+      } else {
+        setErrorDriverAmount(undefined);
+        order.driverValue = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
         return true;
       }
     },
@@ -386,6 +450,18 @@ export function FreightOrder(): JSX.Element {
       } else {
         setErrorShipping(undefined);
         order.shipping = value;
+        return true;
+      }
+    },
+    form: (value: string) => {
+      if (value == '0') {
+        setErrorForm('A forma de pagamento precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorForm(undefined);
+        order.paymentFormFreight = (
+          paymentForms.find((item) => item.id == Number(value)) as PaymentForm
+        ).toAttributes;
         return true;
       }
     },
@@ -516,6 +592,7 @@ export function FreightOrder(): JSX.Element {
     order.budget = undefined;
     setRepresentation('0');
     order.representation = undefined;
+    setDescription(sale.description);
     setClient(sale.client ? sale.client.id.toString() : '0');
     setDestinyState(sale.destiny.state.id.toString());
     setCities(states[sale.destiny.state.id - 1].cities);
@@ -560,43 +637,156 @@ export function FreightOrder(): JSX.Element {
     order.saleOrder = sale.toAttributes;
   };
 
+  const fillFieldsBudget = async (saleId: number) => {
+    const budget = (await new FreightBudget().getOne(saleId)) as FreightBudget;
+    setSale('0');
+    order.saleOrder = undefined;
+    setRepresentation('0');
+    order.representation = undefined;
+    setDescription(budget.description);
+    setClient(budget.client ? budget.client.id.toString() : '0');
+    setDestinyState(budget.destiny.state.id.toString());
+    setCities(states[budget.destiny.state.id - 1].cities);
+    setDestinyCity(budget.destiny.id.toString());
+
+    const newTypes: ITruckType[] = [];
+    const newItems: IFreightItem[] = [];
+    const newSteps: ILoadStep[] = [];
+    for (const item of budget.items) {
+      item.budget = undefined;
+      item.order = order;
+      newItems.push(item);
+      for (const t of item.product.types) {
+        const exists = newTypes.find((i) => i.id == t.id);
+        if (!exists) newTypes.push(t);
+      }
+      const loadStep = steps.find(
+        (step) => step.representation.id == item.product.representation.id,
+      );
+      if (loadStep != undefined) {
+        loadStep.load += item.weight;
+      } else {
+        newSteps.push({
+          id: 0,
+          order: newSteps.length + 1,
+          load: item.weight,
+          status: 1,
+          representation: item.product.representation,
+          freightOrder: order.toAttributes,
+        });
+      }
+    }
+    setItems(newItems);
+    setSteps(newSteps);
+    setTruckTypes(newTypes);
+    order.truckType = budget.truckType;
+    setTruckType(budget.truckType.id.toString());
+    order.distance = budget.distance;
+    setDistance(budget.distance);
+    order.weight = budget.toAttributes.weight;
+    setWeight(formatarPeso(budget.toAttributes.weight));
+    order.value = budget.value;
+    setPrice(formatarValor(budget.value));
+    order.shipping = budget.shipping;
+    setShipping(budget.shipping);
+    order.budget = budget.toAttributes;
+  };
+
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
 
-  const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleBudgetChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setBudget(e.target.value);
+    if (e.target.value != '0') {
+      await fillFieldsBudget(Number(e.target.value));
+    } else {
+      setDescription('');
+      setClient('0');
+      setDestinyState('0');
+      setDestinyCity('0');
+      setItems([]);
+      setTruckType('0');
+      setDistance(0);
+      setWeight('');
+      setPrice('');
+      setShipping('');
+      setTruckTypes([]);
+      setSteps([]);
+      order.budget = undefined;
+    }
   };
   const handleSaleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setSale(e.target.value);
     if (e.target.value != '0') {
       await fillFieldsSale(Number(e.target.value));
     } else {
+      setDescription('');
       setClient('0');
       setDestinyState('0');
       setDestinyCity('0');
       setItems([]);
       setWeight('');
       setTruckTypes([]);
+      setSteps([]);
       order.saleOrder = undefined;
     }
   };
   const handleRepresentationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRepresentation(e.target.value);
+    if (e.target.value != '0') {
+      setItemRepresentation(e.target.value);
+      let newProducts = [...productsDb];
+      newProducts = newProducts.filter(
+        (item) => item.representation.id == Number(e.target.value),
+      );
+      setProducts(newProducts);
+      if (newProducts.length > 0) {
+        setItem(newProducts[0].id.toString());
+        const product = newProducts.find(
+          (item) => item.id == newProducts[0].id,
+        ) as IProduct;
+        setItemWeight(formatarPeso(product.weight));
+        setItemQuantity(1);
+        setTotalItemWeight(formatarValor(product.weight * itemQuantity));
+      }
+      const r = representations.find(
+        (x) => x.id == Number(e.target.value),
+      ) as Representation;
+      order.representation = r.toAttributes;
+      setItems([]);
+      setSteps([]);
+      setWeight('');
+      setPrice('');
+      setSale('0');
+      setBudget('0');
+      setClient('0');
+      setDestinyState('0');
+      setDestinyCity('0');
+      setTruckTypes([]);
+      order.saleOrder = undefined;
+    } else order.representation = undefined;
   };
   const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value);
+    validate.description(e.target.value);
   };
   const handleClientChange = (e: ChangeEvent<HTMLInputElement>) => {
     setClient(e.target.value);
+    validate.client(e.target.value);
   };
 
   const handleClearItemsClick = () => {
-    alert('Limpar itens!');
+    setItems([]);
+    setWeight('');
+    setPrice('');
+    setTruckTypes([]);
+    setSteps([]);
   };
 
   const [addItems, setAddItems] = useState(false);
 
   const handleTruckTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTruckType(e.target.value);
+    validate.type(e.target.value);
   };
   const handleProprietaryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setProprietary(e.target.value);
@@ -606,39 +796,54 @@ export function FreightOrder(): JSX.Element {
   };
   const handleDistanceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDistance(Number.parseInt(e.target.value));
+    validate.distance(e.target.value);
   };
 
   const handleDestinyStateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyState(e.target.value);
+    validate.destinyState(e.target.value);
   };
   const handleDestinyCityChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDestinyCity(e.target.value);
+    validate.destinyCity(e.target.value);
   };
 
   const handleDriverChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriver(e.target.value);
+    validate.driver(e.target.value);
   };
   const handleDriverAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverAmount(e.target.value);
+    validate.driverAmount(e.target.value);
   };
   const handleDriverAmountEntryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverAmountEntry(e.target.value);
+    order.driverEntry = Number.parseFloat(
+      e.target.value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+    );
   };
   const handleDriverFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverForm(e.target.value);
+    order.paymentFormDriver = (
+      paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
+    ).toAttributes;
   };
 
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
     setWeight(e.target.value);
+    validate.weight(e.target.value);
   };
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value);
+    validate.price(e.target.value);
   };
   const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm(e.target.value);
+    validate.form(e.target.value);
   };
   const handleShippingChange = (e: ChangeEvent<HTMLInputElement>) => {
     setShipping(e.target.value);
+    validate.shipping(e.target.value);
   };
 
   const handleButtons = {
@@ -790,7 +995,47 @@ export function FreightOrder(): JSX.Element {
     clearItemFields();
   };
   const handleAddItemClick = () => {
-    alert('Adicionar item!');
+    if (validateItemFields()) {
+      const newItems = [...items];
+      const product = (products.find((i) => i.id == Number(item)) as Product)
+        .toAttributes;
+      newItems.push({
+        id: 0,
+        product: product,
+        quantity: itemQuantity,
+        weight: product.weight * itemQuantity,
+        order: order.toAttributes,
+      });
+      setItems(newItems);
+      let totalWeight = 0.0;
+      newItems.forEach((item) => (totalWeight += item.weight));
+      const newTypes = [...truckTypes];
+      for (const t of product.types) {
+        const exists = newTypes.find((i) => i.id == t.id);
+        if (!exists) newTypes.push(t);
+      }
+      totalWeight = Number(totalWeight.toString());
+      setWeight(formatarValor(totalWeight));
+      order.weight = totalWeight;
+      setTruckTypes(newTypes);
+      const loadStep = steps.find(
+        (step) => step.representation.id == product.representation.id,
+      );
+      if (loadStep != undefined) {
+        loadStep.load += product.weight * itemQuantity;
+      } else {
+        const newSteps = [...steps];
+        newSteps.push({
+          id: 0,
+          order: newSteps.length + 1,
+          load: product.weight * itemQuantity,
+          status: 1,
+          representation: product.representation,
+          freightOrder: order.toAttributes,
+        });
+        setSteps(newSteps);
+      }
+    }
   };
 
   const filterItems = () => {
@@ -816,6 +1061,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory={false}
             value={budget}
             onChange={handleBudgetChange}
+            disable={sale != '0' || representation != '0'}
           >
             <option value="0">SELECIONE</option>
             {budgets.map((item) => (
@@ -831,6 +1077,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory={false}
             value={sale}
             onChange={handleSaleChange}
+            disable={budget != '0' || representation != '0'}
           >
             <option value="0">SELECIONE</option>
             {sales.map((item) => (
@@ -846,6 +1093,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={representation}
             onChange={handleRepresentationChange}
+            disable={budget != '0' || sale != '0'}
           >
             <option value="0">SELECIONE</option>
             {representationsDb.map((item) => (
@@ -863,6 +1111,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={description}
             onChange={(e) => handleDescriptionChange(e)}
+            message={errorDescription}
           />
           <FormInputSelect
             colSm={5}
@@ -871,6 +1120,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={client}
             onChange={handleClientChange}
+            message={errorClient}
           >
             <option value="0">SELECIONAR</option>
             {clients.map((item) => (
@@ -918,11 +1168,10 @@ export function FreightOrder(): JSX.Element {
                       title="Excluir"
                       onClick={() => {
                         if (sale == '0' && budget == '0') {
-                          const newItems = [...items];
-                          delete newItems[
-                            newItems.findIndex((i) => i.product.id == item.product.id)
-                          ];
-                          newItems.length--;
+                          let newItems = [...items];
+                          newItems = newItems.filter(
+                            (i) => i.product.id != item.product.id,
+                          );
                           setItems(newItems);
                           let totalWeight = 0.0;
                           newItems.forEach((item) => (totalWeight += item.weight));
@@ -937,6 +1186,20 @@ export function FreightOrder(): JSX.Element {
                             }
                           });
                           setTruckTypes(newTypes);
+                          const loadStep = steps.find(
+                            (step) =>
+                              step.representation.id == item.product.representation.id,
+                          );
+                          if (loadStep != undefined && loadStep.load - item.weight > 0) {
+                            loadStep.load -= item.weight;
+                          } else {
+                            let newSteps = [...steps];
+                            newSteps = newSteps.filter(
+                              (i) =>
+                                i.representation.id != item.product.representation.id,
+                            );
+                            setSteps(newSteps);
+                          }
                         }
                       }}
                     />
@@ -955,6 +1218,7 @@ export function FreightOrder(): JSX.Element {
               size="sm"
               style={{ width: '100%' }}
               onClick={handleClearItemsClick}
+              disabled={budget != '0' || sale != '0'}
             >
               LIMPAR ITENS
             </Button>
@@ -966,6 +1230,7 @@ export function FreightOrder(): JSX.Element {
               size="sm"
               style={{ width: '100%' }}
               onClick={() => setAddItems(!addItems)}
+              disabled={budget != '0' || sale != '0'}
             >
               {addItems ? 'CONCLUIR ADIÇÂO' : 'ADICIONAR ITENS'}
             </Button>
@@ -987,6 +1252,7 @@ export function FreightOrder(): JSX.Element {
                   style={{ width: '100%', marginBottom: '5px' }}
                   value={itemRepresentationFilter}
                   onChange={handleItemRepresentationFilterChange}
+                  readOnly={representation != '0'}
                 />
                 <Input
                   type="select"
@@ -995,6 +1261,7 @@ export function FreightOrder(): JSX.Element {
                   style={{ width: '100%' }}
                   value={itemRepresentation}
                   onChange={handleItemRepresentationChange}
+                  disabled={representation != '0'}
                 >
                   {representations.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -1046,6 +1313,7 @@ export function FreightOrder(): JSX.Element {
               maskPlaceholder="0,0"
               value={itemWeight}
               onChange={handleItemWeightChange}
+              message={errorItemWeight}
               readonly
             />
             <FormInputNumber
@@ -1055,6 +1323,7 @@ export function FreightOrder(): JSX.Element {
               obrigatory
               value={itemQuantity}
               onChange={handleItemQuantityChange}
+              message={errorItemQuantity}
             />
             <FormInputGroupText
               colSm={3}
@@ -1067,6 +1336,7 @@ export function FreightOrder(): JSX.Element {
               maskPlaceholder="0,0"
               value={totalItemWeight}
               onChange={handleTotalItemWeightChange}
+              message={errorTotalItemWeight}
               readonly
             />
             <FormButton
@@ -1130,6 +1400,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={truckType}
             onChange={handleTruckTypeChange}
+            message={errorTruckType}
           >
             <option value="0">SELECIONAR</option>
             {truckTypes.map((item) => (
@@ -1145,6 +1416,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={proprietary}
             onChange={handleProprietaryChange}
+            message={errorProprietary}
           >
             <option value="0">SELECIONE</option>
             {proprietaries.map((item) => (
@@ -1162,6 +1434,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={truck}
             onChange={handleTruckChange}
+            message={errorTruck}
           >
             <option value="0">SELECIONE</option>
             {trucks.map((item) => (
@@ -1178,6 +1451,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={distance}
             onChange={handleDistanceChange}
+            message={errorDistance}
           />
         </Row>
       </FieldsetCard>
@@ -1192,6 +1466,7 @@ export function FreightOrder(): JSX.Element {
                 obrigatory
                 value={destinyState}
                 onChange={handleDestinyStateChange}
+                message={errorDestinyState}
               >
                 <option value="0">SELECIONAR</option>
                 {states.map((item) => (
@@ -1210,6 +1485,7 @@ export function FreightOrder(): JSX.Element {
                 value={destinyCity}
                 onChange={handleDestinyCityChange}
                 disable={destinyState == '0' ? true : false}
+                message={errorDestinyCity}
               >
                 <option value="0">SELECIONAR</option>
                 {cities.map((item) => (
@@ -1231,6 +1507,7 @@ export function FreightOrder(): JSX.Element {
                 obrigatory
                 value={driver}
                 onChange={handleDriverChange}
+                message={errorDriver}
               >
                 <option value="0">SELECIONE</option>
                 {drivers.map((item) => (
@@ -1250,6 +1527,7 @@ export function FreightOrder(): JSX.Element {
                 maskPlaceholder="0,00"
                 value={driverAmount}
                 onChange={handleDriverAmountChange}
+                message={errorDriverAmount}
               />
             </Row>
             <Row>
@@ -1297,6 +1575,7 @@ export function FreightOrder(): JSX.Element {
             maskPlaceholder="0,0"
             value={weight}
             onChange={(e) => handleWeightChange(e)}
+            message={errorWeight}
             readonly
           />
           <FormInputGroupText
@@ -1310,6 +1589,7 @@ export function FreightOrder(): JSX.Element {
             maskPlaceholder="0,00"
             value={price}
             onChange={(e) => handlePriceChange(e)}
+            message={errorPrice}
           />
           <FormInputSelect
             colSm={3}
@@ -1318,6 +1598,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={form}
             onChange={handleFormChange}
+            message={errorForm}
           >
             <option value="0">SELECIONE</option>
             {paymentForms.map((item) => (
@@ -1333,6 +1614,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={shipping}
             onChange={handleShippingChange}
+            message={errorShipping}
           />
         </Row>
       </FieldsetCard>
