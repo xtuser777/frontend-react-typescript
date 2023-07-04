@@ -26,12 +26,7 @@ import { Driver, IDriver } from '../../models/Driver';
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import history from '../../services/history';
-import {
-  formatarData,
-  formatarDataIso,
-  formatarPeso,
-  formatarValor,
-} from '../../utils/format';
+import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format';
 import { useParams } from 'react-router-dom';
 import { IFreightItem } from '../../models/FreightItem';
 import { FaTrash } from 'react-icons/fa';
@@ -839,9 +834,11 @@ export function FreightOrder(): JSX.Element {
   };
   const handleDriverAmountEntryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverAmountEntry(e.target.value);
-    order.driverEntry = Number.parseFloat(
-      e.target.value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
-    );
+    if (e.target.value.length > 0) {
+      order.driverEntry = Number.parseFloat(
+        e.target.value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+      );
+    } else order.driverEntry = 0.0;
   };
   const handleDriverFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverForm(e.target.value);
@@ -849,10 +846,7 @@ export function FreightOrder(): JSX.Element {
       order.paymentFormDriver = (
         paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
       ).toAttributes;
-    }
-    order.paymentFormDriver = (
-      paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
-    ).toAttributes;
+    } else order.paymentFormDriver = undefined;
   };
 
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
