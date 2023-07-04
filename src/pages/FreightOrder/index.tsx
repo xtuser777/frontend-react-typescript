@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import { Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
+import { Badge, Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputGroupText } from '../../components/form-input-group-text';
@@ -471,6 +471,7 @@ export function FreightOrder(): JSX.Element {
         return false;
       } else {
         order.items = filterItems();
+        order.steps = filterSteps();
         return true;
       }
     },
@@ -790,9 +791,11 @@ export function FreightOrder(): JSX.Element {
   };
   const handleProprietaryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setProprietary(e.target.value);
+    validate.proprietary(e.target.value);
   };
   const handleTruckChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTruck(e.target.value);
+    validate.truck(e.target.value);
   };
   const handleDistanceChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDistance(Number.parseInt(e.target.value));
@@ -824,6 +827,11 @@ export function FreightOrder(): JSX.Element {
   };
   const handleDriverFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverForm(e.target.value);
+    if (e.target.value != '0') {
+      order.paymentFormDriver = (
+        paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
+      ).toAttributes;
+    }
     order.paymentFormDriver = (
       paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
     ).toAttributes;
@@ -846,12 +854,65 @@ export function FreightOrder(): JSX.Element {
     validate.shipping(e.target.value);
   };
 
+  const validateFields = () => {
+    return (
+      validate.description(description) &&
+      validate.client(client) &&
+      validate.type(truckType) &&
+      validate.proprietary(proprietary) &&
+      validate.truck(truck) &&
+      validate.distance(distance.toString()) &&
+      validate.destinyState(destinyState) &&
+      validate.destinyCity(destinyCity) &&
+      validate.driver(driver) &&
+      validate.driverAmount(driverAmount) &&
+      validate.items() &&
+      validate.weight(weight) &&
+      validate.price(price) &&
+      validate.shipping(shipping) &&
+      validate.form(form)
+    );
+  };
+
+  const clearFields = () => {
+    setBudget('0');
+    setSale('0');
+    setRepresentation('0');
+    setDescription('');
+    setClient('0');
+    setItems([]);
+    clearItemFields();
+    setSteps([]);
+    setTruckType('0');
+    setProprietary('0');
+    setTruck('0');
+    setDistance(1);
+    setDestinyState('0');
+    setDestinyCity('0');
+    setDriver('0');
+    setDriverAmount('');
+    setDriverAmountEntry('');
+    setDriverForm('0');
+    setWeight('');
+    setPrice('');
+    setShipping('');
+    setForm('0');
+  };
+
+  const persistData = async () => {
+    if (validateFields()) {
+      if (method == 'novo') {
+        if (await order.save()) clearFields();
+      }
+    }
+  };
+
   const handleButtons = {
     handleClearClick: () => {
-      alert('Limpar clicado.');
+      clearFields();
     },
-    handleSaveClick: () => {
-      alert('Salvar clicado.');
+    handleSaveClick: async () => {
+      await persistData();
     },
   };
 
@@ -1047,6 +1108,20 @@ export function FreightOrder(): JSX.Element {
     }
 
     return items;
+  };
+
+  const filterSteps = () => {
+    if (truckType != '0') {
+      const tmp = [...steps];
+      return tmp.filter(
+        (s) =>
+          filterItems().findLast(
+            (i) => i.product.representation.id == s.representation.id,
+          ) != undefined,
+      );
+    }
+
+    return steps;
   };
 
   return (
@@ -1269,6 +1344,13 @@ export function FreightOrder(): JSX.Element {
                     </option>
                   ))}
                 </Input>
+                <Badge
+                  id={`ms-representacao-item`}
+                  color="danger"
+                  className={errorItemRepresentation ? 'hidden' : ''}
+                >
+                  {errorItemRepresentation ? errorItemRepresentation : ''}
+                </Badge>
               </FormGroup>
             </Col>
             <Col sm="6">
@@ -1298,6 +1380,13 @@ export function FreightOrder(): JSX.Element {
                     </option>
                   ))}
                 </Input>
+                <Badge
+                  id={`ms-item`}
+                  color="danger"
+                  className={errorItem ? 'hidden' : ''}
+                >
+                  {errorItem ? errorItem : ''}
+                </Badge>
               </FormGroup>
             </Col>
           </Row>
@@ -1372,7 +1461,7 @@ export function FreightOrder(): JSX.Element {
             </thead>
 
             <tbody id="tbodySteps">
-              {steps.map((item) => (
+              {filterSteps().map((item) => (
                 <tr key={item.representation.id}>
                   <td>{item.order}</td>
                   <td>{item.representation.person.enterprise?.fantasyName}</td>

@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { FormButtonsSave } from '../../components/form-buttons-save';
-import { Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
+import { Badge, Button, Col, FormGroup, Input, Label, Row, Table } from 'reactstrap';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormInputGroupText } from '../../components/form-input-group-text';
@@ -1044,6 +1044,13 @@ export function SalesOrder(): JSX.Element {
                     </option>
                   ))}
                 </Input>
+                <Badge
+                  id={`ms-representacao-item`}
+                  color="danger"
+                  className={errorItemRepresentation ? 'hidden' : ''}
+                >
+                  {errorItemRepresentation ? errorItemRepresentation : ''}
+                </Badge>
               </FormGroup>
             </Col>
             <Col sm="6">
@@ -1073,6 +1080,13 @@ export function SalesOrder(): JSX.Element {
                     </option>
                   ))}
                 </Input>
+                <Badge
+                  id={`ms-item`}
+                  color="danger"
+                  className={errorItem ? 'hidden' : ''}
+                >
+                  {errorItem ? errorItem : ''}
+                </Badge>
               </FormGroup>
             </Col>
           </Row>
