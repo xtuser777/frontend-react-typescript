@@ -37,7 +37,7 @@ export interface IFreightOrder {
   truck: ITruck;
   status: IOrderStatus;
   paymentFormFreight: IPaymentForm;
-  paymentFormDriver: IPaymentForm;
+  paymentFormDriver?: IPaymentForm;
   author: IEmployee;
   items: IFreightItem[];
   steps: ILoadStep[];
@@ -68,10 +68,10 @@ export class FreightOrder implements IFreightOrder {
           proprietary: new Proprietary(),
           truckType: new TruckType(),
           truck: new Truck(),
-          status: new OrderStatus(),
+          status: new OrderStatus().toAttributes,
           paymentFormFreight: new PaymentForm(),
-          paymentFormDriver: new PaymentForm(),
-          author: new Employee(),
+          paymentFormDriver: undefined,
+          author: new Employee().toAttributes,
           items: [],
           steps: [],
         };
@@ -217,10 +217,10 @@ export class FreightOrder implements IFreightOrder {
     this.attributes.paymentFormFreight = v;
   }
 
-  get paymentFormDriver(): IPaymentForm {
+  get paymentFormDriver(): IPaymentForm | undefined {
     return this.attributes.paymentFormDriver;
   }
-  set paymentFormDriver(v: IPaymentForm) {
+  set paymentFormDriver(v: IPaymentForm | undefined) {
     this.attributes.paymentFormDriver = v;
   }
 

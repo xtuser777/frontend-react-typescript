@@ -21,8 +21,8 @@ export function FreightOrders(): JSX.Element {
   const [statuses, setStatuses] = useState(new Array<IStatus>());
 
   const [filter, setfilter] = useState('');
-  const [dateInit, setDateInit] = useState(new Date().toISOString().substring(0, 10));
-  const [dateEnd, setDateEnd] = useState(new Date().toISOString().substring(0, 10));
+  const [dateInit, setDateInit] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
   const [status, setStatus] = useState('0');
   const [orderBy, setOrderBy] = useState('1');
 
@@ -344,6 +344,7 @@ export function FreightOrders(): JSX.Element {
                 </td>
                 <td>{formatarData(item.date)}</td>
                 <td>{item.author.person.individual?.name}</td>
+                <td>{item.paymentFormFreight.description}</td>
                 <td>{item.status.status.description}</td>
                 <td>{formatarValor(item.value)}</td>
                 <td>
@@ -353,7 +354,7 @@ export function FreightOrders(): JSX.Element {
                     size={14}
                     title="Detalhes"
                     onClick={() => {
-                      history.push(`/pedido/venda/detalhes/${item.id}`);
+                      history.push(`/pedido/frete/detalhes/${item.id}`);
                       window.location.reload();
                     }}
                   />

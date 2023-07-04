@@ -198,6 +198,7 @@ export function FreightOrder(): JSX.Element {
         setOrder(order);
 
         setDescription(order.description);
+        setBudget(order.budget ? order.budget.id.toString() : '0');
         setSale(order.saleOrder ? order.saleOrder.id.toString() : '0');
         setRepresentation(
           order.representation ? order.representation.id.toString() : '0',
@@ -207,10 +208,19 @@ export function FreightOrder(): JSX.Element {
         setCities(states[order.destiny.state.id - 1].cities);
         setDestinyCity(order.destiny.id.toString());
         setTruckType(order.truckType.id.toString());
+        setProprietary(order.proprietary.id.toString());
+        setTruck(order.truck.id.toString());
         setDistance(order.distance);
+        setDriver(order.driver.id.toString());
+        setDriverAmount(formatarValor(order.driverValue));
+        setDriverAmountEntry(formatarValor(order.driverEntry));
+        setDriverForm(
+          order.paymentFormDriver ? order.paymentFormDriver.id.toString() : '0',
+        );
 
         setWeight(formatarPeso(order.weight));
         setPrice(formatarValor(order.value));
+        setForm(order.paymentFormFreight.id.toString());
         setShipping(formatarDataIso(order.shipping));
 
         setItems(order.items);
@@ -222,6 +232,7 @@ export function FreightOrder(): JSX.Element {
           }
         }
         setTruckTypes(newTypes);
+        setSteps(order.steps);
       }
     };
 
@@ -330,14 +341,18 @@ export function FreightOrder(): JSX.Element {
       }
     },
     truck: (value: string) => {
+      console.log(trucks, truck);
+
       if (value == '0') {
         setErrorTruck('O caminhão precisa ser selecionado.');
         return false;
       } else {
         setErrorTruck(undefined);
-        order.truck = (
-          trucks.find((item) => item.id == Number(value)) as Truck
-        ).toAttributes;
+        console.log(value);
+
+        order.truck = trucks.find((item) => item.id == Number(value)) as ITruck;
+        console.log(order.truck, value);
+
         return true;
       }
     },
@@ -654,8 +669,9 @@ export function FreightOrder(): JSX.Element {
     const newItems: IFreightItem[] = [];
     const newSteps: ILoadStep[] = [];
     for (const item of budget.items) {
+      item.id = 0;
       item.budget = undefined;
-      item.order = order;
+      item.order = order.toAttributes;
       newItems.push(item);
       for (const t of item.product.types) {
         const exists = newTypes.find((i) => i.id == t.id);
@@ -795,6 +811,8 @@ export function FreightOrder(): JSX.Element {
   };
   const handleTruckChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTruck(e.target.value);
+    console.log(e.target.value);
+
     validate.truck(e.target.value);
   };
   const handleDistanceChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -901,7 +919,7 @@ export function FreightOrder(): JSX.Element {
 
   const persistData = async () => {
     if (validateFields()) {
-      if (method == 'novo') {
+      if (method == 'abrir') {
         if (await order.save()) clearFields();
       }
     }
@@ -1115,9 +1133,8 @@ export function FreightOrder(): JSX.Element {
       const tmp = [...steps];
       return tmp.filter(
         (s) =>
-          filterItems().findLast(
-            (i) => i.product.representation.id == s.representation.id,
-          ) != undefined,
+          filterItems().find((i) => i.product.representation.id == s.representation.id) !=
+          undefined,
       );
     }
 
@@ -1136,7 +1153,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory={false}
             value={budget}
             onChange={handleBudgetChange}
-            disable={sale != '0' || representation != '0'}
+            disable={sale != '0' || representation != '0' || method == 'detalhes'}
           >
             <option value="0">SELECIONE</option>
             {budgets.map((item) => (
@@ -1152,7 +1169,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory={false}
             value={sale}
             onChange={handleSaleChange}
-            disable={budget != '0' || representation != '0'}
+            disable={budget != '0' || representation != '0' || method == 'detalhes'}
           >
             <option value="0">SELECIONE</option>
             {sales.map((item) => (
@@ -1168,7 +1185,7 @@ export function FreightOrder(): JSX.Element {
             obrigatory
             value={representation}
             onChange={handleRepresentationChange}
-            disable={budget != '0' || sale != '0'}
+            disable={budget != '0' || sale != '0' || method == 'detalhes'}
           >
             <option value="0">SELECIONE</option>
             {representationsDb.map((item) => (
@@ -1187,6 +1204,7 @@ export function FreightOrder(): JSX.Element {
             value={description}
             onChange={(e) => handleDescriptionChange(e)}
             message={errorDescription}
+            readonly={method == 'detalhes'}
           />
           <FormInputSelect
             colSm={5}
@@ -1196,6 +1214,7 @@ export function FreightOrder(): JSX.Element {
             value={client}
             onChange={handleClientChange}
             message={errorClient}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {clients.map((item) => (
@@ -1242,7 +1261,7 @@ export function FreightOrder(): JSX.Element {
                       size={14}
                       title="Excluir"
                       onClick={() => {
-                        if (sale == '0' && budget == '0') {
+                        if (sale == '0' && budget == '0' && method == 'abrir') {
                           let newItems = [...items];
                           newItems = newItems.filter(
                             (i) => i.product.id != item.product.id,
@@ -1293,7 +1312,7 @@ export function FreightOrder(): JSX.Element {
               size="sm"
               style={{ width: '100%' }}
               onClick={handleClearItemsClick}
-              disabled={budget != '0' || sale != '0'}
+              disabled={budget != '0' || sale != '0' || method == 'detalhes'}
             >
               LIMPAR ITENS
             </Button>
@@ -1305,7 +1324,7 @@ export function FreightOrder(): JSX.Element {
               size="sm"
               style={{ width: '100%' }}
               onClick={() => setAddItems(!addItems)}
-              disabled={budget != '0' || sale != '0'}
+              disabled={budget != '0' || sale != '0' || method == 'detalhes'}
             >
               {addItems ? 'CONCLUIR ADIÇÂO' : 'ADICIONAR ITENS'}
             </Button>
@@ -1490,6 +1509,7 @@ export function FreightOrder(): JSX.Element {
             value={truckType}
             onChange={handleTruckTypeChange}
             message={errorTruckType}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONAR</option>
             {truckTypes.map((item) => (
@@ -1506,6 +1526,7 @@ export function FreightOrder(): JSX.Element {
             value={proprietary}
             onChange={handleProprietaryChange}
             message={errorProprietary}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONE</option>
             {proprietaries.map((item) => (
@@ -1524,6 +1545,7 @@ export function FreightOrder(): JSX.Element {
             value={truck}
             onChange={handleTruckChange}
             message={errorTruck}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONE</option>
             {trucks.map((item) => (
@@ -1541,6 +1563,7 @@ export function FreightOrder(): JSX.Element {
             value={distance}
             onChange={handleDistanceChange}
             message={errorDistance}
+            readonly={method == 'detalhes'}
           />
         </Row>
       </FieldsetCard>
@@ -1556,6 +1579,7 @@ export function FreightOrder(): JSX.Element {
                 value={destinyState}
                 onChange={handleDestinyStateChange}
                 message={errorDestinyState}
+                disable={method == 'detalhes'}
               >
                 <option value="0">SELECIONAR</option>
                 {states.map((item) => (
@@ -1573,7 +1597,7 @@ export function FreightOrder(): JSX.Element {
                 obrigatory
                 value={destinyCity}
                 onChange={handleDestinyCityChange}
-                disable={destinyState == '0' ? true : false}
+                disable={destinyState == '0' || method == 'detalhes'}
                 message={errorDestinyCity}
               >
                 <option value="0">SELECIONAR</option>
@@ -1597,6 +1621,7 @@ export function FreightOrder(): JSX.Element {
                 value={driver}
                 onChange={handleDriverChange}
                 message={errorDriver}
+                disable={method == 'detalhes'}
               >
                 <option value="0">SELECIONE</option>
                 {drivers.map((item) => (
@@ -1617,6 +1642,7 @@ export function FreightOrder(): JSX.Element {
                 value={driverAmount}
                 onChange={handleDriverAmountChange}
                 message={errorDriverAmount}
+                readonly={method == 'detalhes'}
               />
             </Row>
             <Row>
@@ -1631,6 +1657,7 @@ export function FreightOrder(): JSX.Element {
                 maskPlaceholder="0,00"
                 value={driverAmountEntry}
                 onChange={handleDriverAmountEntryChange}
+                readonly={method == 'detalhes'}
               />
               <FormInputSelect
                 colSm={7}
@@ -1639,6 +1666,7 @@ export function FreightOrder(): JSX.Element {
                 obrigatory
                 value={driverForm}
                 onChange={handleDriverFormChange}
+                disable={method == 'detalhes'}
               >
                 <option value="0">SELECIONE</option>
                 {paymentForms.map((item) => (
@@ -1679,6 +1707,7 @@ export function FreightOrder(): JSX.Element {
             value={price}
             onChange={(e) => handlePriceChange(e)}
             message={errorPrice}
+            readonly={method == 'detalhes'}
           />
           <FormInputSelect
             colSm={3}
@@ -1688,6 +1717,7 @@ export function FreightOrder(): JSX.Element {
             value={form}
             onChange={handleFormChange}
             message={errorForm}
+            disable={method == 'detalhes'}
           >
             <option value="0">SELECIONE</option>
             {paymentForms.map((item) => (
@@ -1704,10 +1734,15 @@ export function FreightOrder(): JSX.Element {
             value={shipping}
             onChange={handleShippingChange}
             message={errorShipping}
+            readonly={method == 'detalhes'}
           />
         </Row>
       </FieldsetCard>
-      <FormButtonsSave backLink="/pedido/frete" clear handle={handleButtons} />
+      <FormButtonsSave
+        backLink="/pedidos/frete"
+        clear={method == 'abrir'}
+        handle={handleButtons}
+      />
     </>
   );
 }
