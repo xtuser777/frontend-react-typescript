@@ -12,7 +12,6 @@ import { FreightOrder } from '../../models/FreightOrder';
 import { IStatus, Status } from '../../models/Status';
 import { OrderStatus } from '../../models/OrderStatus';
 import { FormInputTime } from '../../components/form-input-time';
-import { toast } from 'react-toastify';
 import history from '../../services/history';
 
 export function FreightOrderStatus(): JSX.Element {
