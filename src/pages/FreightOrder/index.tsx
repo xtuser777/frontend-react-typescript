@@ -330,20 +330,20 @@ export function FreightOrder(): JSX.Element {
         ).toAttributes;
         if (order.proprietary.driver) setDriver(order.proprietary.driver.id.toString());
         let newTrucks = [...trucksDb];
-        newTrucks = newTrucks.filter((item) => item.proprietary.id == Number(value));
+        newTrucks = newTrucks.filter(
+          (item) =>
+            item.proprietary.id == Number(value) && item.type.id == Number(truckType),
+        );
         setTrucks(newTrucks);
         return true;
       }
     },
     truck: (value: string) => {
-      console.log(trucks, truck);
-
       if (value == '0') {
         setErrorTruck('O caminhão precisa ser selecionado.');
         return false;
       } else {
         setErrorTruck(undefined);
-        console.log(value);
 
         order.truck = trucks.find((item) => item.id == Number(value)) as ITruck;
         console.log(order.truck, value);

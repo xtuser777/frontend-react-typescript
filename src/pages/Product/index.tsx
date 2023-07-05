@@ -215,9 +215,8 @@ export function Product(): JSX.Element {
   };
 
   const delType = (id: number) => {
-    const newTypes = [...typesLinked];
-    delete newTypes[newTypes.findIndex((item) => item.id == id)];
-    newTypes.length--;
+    let newTypes = [...typesLinked];
+    newTypes = newTypes.filter((type) => type.id != id);
     setTypesLinked(newTypes);
   };
 
