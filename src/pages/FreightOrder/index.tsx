@@ -26,12 +26,7 @@ import { Driver, IDriver } from '../../models/Driver';
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import history from '../../services/history';
-import {
-  formatarData,
-  formatarDataIso,
-  formatarPeso,
-  formatarValor,
-} from '../../utils/format';
+import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format';
 import { useParams } from 'react-router-dom';
 import { IFreightItem } from '../../models/FreightItem';
 import { FaTrash } from 'react-icons/fa';
@@ -335,20 +330,20 @@ export function FreightOrder(): JSX.Element {
         ).toAttributes;
         if (order.proprietary.driver) setDriver(order.proprietary.driver.id.toString());
         let newTrucks = [...trucksDb];
-        newTrucks = newTrucks.filter((item) => item.proprietary.id == Number(value));
+        newTrucks = newTrucks.filter(
+          (item) =>
+            item.proprietary.id == Number(value) && item.type.id == Number(truckType),
+        );
         setTrucks(newTrucks);
         return true;
       }
     },
     truck: (value: string) => {
-      console.log(trucks, truck);
-
       if (value == '0') {
         setErrorTruck('O caminhão precisa ser selecionado.');
         return false;
       } else {
         setErrorTruck(undefined);
-        console.log(value);
 
         order.truck = trucks.find((item) => item.id == Number(value)) as ITruck;
         console.log(order.truck, value);
@@ -839,9 +834,11 @@ export function FreightOrder(): JSX.Element {
   };
   const handleDriverAmountEntryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverAmountEntry(e.target.value);
-    order.driverEntry = Number.parseFloat(
-      e.target.value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
-    );
+    if (e.target.value.length > 0) {
+      order.driverEntry = Number.parseFloat(
+        e.target.value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+      );
+    } else order.driverEntry = 0.0;
   };
   const handleDriverFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDriverForm(e.target.value);
@@ -849,10 +846,7 @@ export function FreightOrder(): JSX.Element {
       order.paymentFormDriver = (
         paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
       ).toAttributes;
-    }
-    order.paymentFormDriver = (
-      paymentForms.find((item) => item.id == Number(e.target.value)) as PaymentForm
-    ).toAttributes;
+    } else order.paymentFormDriver = undefined;
   };
 
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {

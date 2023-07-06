@@ -1,5 +1,8 @@
+import { toast } from 'react-toastify';
+import axios from '../services/axios';
 import { IEmployee, Employee } from './Employee';
 import { IStatus, Status } from './Status';
+import { isAxiosError } from 'axios';
 
 export interface IOrderStatus {
   id: number;
@@ -71,5 +74,30 @@ export class OrderStatus implements IOrderStatus {
   get toAttributes(): IOrderStatus {
     const attributes: IOrderStatus = { ...this.attributes };
     return attributes;
+  }
+
+  async update(id: number) {
+    const payload = {
+      status: {
+        date: this.date,
+        time: this.time,
+        status: this.status,
+        observation: this.observation,
+      },
+    };
+
+    try {
+      const response = await axios.put('/order-status/' + id, payload);
+      if (response.data.length == 0) {
+        toast.success('Status do pedido atualizado com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
   }
 }

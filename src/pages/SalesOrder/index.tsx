@@ -541,6 +541,7 @@ export function SalesOrder(): JSX.Element {
       order.salesman = (
         salesmans.find((item) => item.id == Number(e.target.value)) as Employee
       ).toAttributes;
+    else order.salesman = undefined;
   };
   const handleComissionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setComission(Number.parseInt(e.target.value));

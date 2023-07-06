@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, Row, Table } from 'reactstrap';
@@ -8,11 +8,20 @@ import { redirect, useParams } from 'react-router-dom';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputGroupNumber } from '../../components/form-input-group-number';
 import { FormButton } from '../../components/form-button';
+import { FreightOrder } from '../../models/FreightOrder';
+import { OrderStatus } from '../../models/OrderStatus';
+import { ILoadStep, LoadStep } from '../../models/LoadStep';
+import { IIndividualPerson } from '../../models/IndividualPerson';
+import { IEnterprisePerson } from '../../models/EnterprisePerson';
+import { formatarPeso } from '../../utils/format';
 
 export function FreightOrderAuthorize(): JSX.Element {
-  const routeParams = useParams();
-  let id = 0;
-  if (routeParams.id) id = Number.parseInt(routeParams.id);
+  const [order, setOrder] = useState(new FreightOrder());
+  const [orderStatus, setOrderStatus] = useState(new OrderStatus());
+
+  const [steps, setSteps] = useState(new Array<ILoadStep>());
+
+  const [loadStep, setLoadStep] = useState(new LoadStep());
 
   const [orderDescription, setOrderDescription] = useState('');
   const [orderDestiny, setOrderDestiny] = useState('');
@@ -29,6 +38,53 @@ export function FreightOrderAuthorize(): JSX.Element {
   const [orderRepresentation, setOrderRepresentation] = useState('');
   const [orderDestinyCity, setOrderDestinyCity] = useState('');
   const [orderLoad, setOrderLoad] = useState('');
+
+  const routeParams = useParams();
+  let id = 0;
+  if (routeParams.id) id = Number.parseInt(routeParams.id);
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = (await new FreightOrder().getOne(id)) as FreightOrder;
+
+      setOrder(response);
+
+      setOrderStatus(new OrderStatus(order.status));
+
+      setOrderDescription(response.description);
+      setOrderDestiny(response.destiny.name + ' - ' + response.destiny.state.acronym);
+      setOrderDriver((response.driver.person.individual as IIndividualPerson).name);
+      setOrderTruckProprietary(
+        response.proprietary.person.type == 1
+          ? (response.proprietary.person.individual as IIndividualPerson).name
+          : (response.proprietary.person.enterprise as IEnterprisePerson).fantasyName,
+      );
+      setOrderTruck(response.truck.brand + ' ' + response.truck.model);
+      setOrderTruckType(response.truckType.description);
+      setOrderDistance(response.distance);
+      setOrderShipping(response.shipping);
+
+      setSteps(response.steps);
+      setLoadStep(new LoadStep(response.steps[0]));
+
+      setOrderRepresentation(
+        (response.steps[0].representation.person.enterprise as IEnterprisePerson)
+          .fantasyName,
+      );
+      setOrderDestinyCity(
+        response.steps[0].representation.person.contact.address.city.name +
+          ' - ' +
+          response.steps[0].representation.person.contact.address.city.state.acronym,
+      );
+      setOrderLoad(formatarPeso(response.steps[0].load));
+    };
+
+    const load = async () => {
+      await getData();
+    };
+
+    load();
+  }, []);
 
   //const handleChange = (e: ChangeEvent<HTMLInputElement>) => {};
 
@@ -171,7 +227,23 @@ export function FreightOrderAuthorize(): JSX.Element {
               </tr>
             </thead>
 
-            <tbody id="tbodyEtapas"></tbody>
+            <tbody id="tbodyEtapas">
+              {steps.map((item) => (
+                <tr key={item.representation.id}>
+                  <td>{item.order}</td>
+                  <td>{item.representation.person.enterprise?.fantasyName}</td>
+                  <td>{item.representation.unity}</td>
+                  <td>{item.load}</td>
+                  <td>
+                    {item.status == 1
+                      ? 'PENDENTE'
+                      : item.status == 2
+                      ? 'AUTORIZADO'
+                      : 'CARREGADO'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </Table>
         </div>
       </FieldsetCard>
