@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { Button } from 'reactstrap';
 
 interface Props {
   children: ReactNode;

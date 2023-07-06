@@ -3,7 +3,7 @@ import { City, ICity } from './City';
 import { Client, IClient } from './Client';
 import { Employee, IEmployee } from './Employee';
 import { IFreightItem } from './FreightItem';
-import { IRepresentation, Representation } from './Representation';
+import { IRepresentation } from './Representation';
 import { ISaleBudget } from './SaleBudget';
 import { ITruckType, TruckType } from './TruckType';
 import axios from '../services/axios';

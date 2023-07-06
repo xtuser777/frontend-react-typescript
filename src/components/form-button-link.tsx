@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Col, FormGroup, Label, Button } from 'reactstrap';
 
