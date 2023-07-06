@@ -850,6 +850,7 @@ export function SalesOrder(): JSX.Element {
             value={description}
             onChange={(e) => handleDescriptionChange(e)}
             readonly={method == 'detalhes'}
+            message={errorDescription}
           />
         </Row>
         <Row>
@@ -861,6 +862,7 @@ export function SalesOrder(): JSX.Element {
             value={client}
             onChange={handleClientChange}
             disable={method == 'detalhes'}
+            message={errorClient}
           >
             <option value="0">SELECIONAR</option>
             {clients.map((item) => (
@@ -879,6 +881,7 @@ export function SalesOrder(): JSX.Element {
             value={destinyState}
             onChange={handleDestinyStateChange}
             disable={method == 'detalhes'}
+            message={errorDestinyState}
           >
             <option value="0">SELECIONAR</option>
             {states.map((item) => (
@@ -895,6 +898,7 @@ export function SalesOrder(): JSX.Element {
             value={destinyCity}
             onChange={handleDestinyCityChange}
             disable={destinyState == '0' || method == 'detalhes'}
+            message={errorDestinyCity}
           >
             <option value="0">SELECIONAR</option>
             {cities.map((item) => (
@@ -1103,6 +1107,7 @@ export function SalesOrder(): JSX.Element {
               maskPlaceholder="0,00"
               value={itemPrice}
               onChange={handleItemPriceChange}
+              message={errorItemPrice}
               readonly
             />
             <FormInputNumber
@@ -1112,6 +1117,7 @@ export function SalesOrder(): JSX.Element {
               obrigatory
               value={itemQuantity}
               onChange={handleItemQuantityChange}
+              message={errorItemQuantity}
             />
             <FormInputGroupText
               colSm={3}
@@ -1124,6 +1130,7 @@ export function SalesOrder(): JSX.Element {
               maskPlaceholder="0,00"
               value={totalItemPrice}
               onChange={handleTotalItemPriceChange}
+              message={errorTotalItemPrice}
               readonly
             />
             <FormButton
@@ -1221,6 +1228,7 @@ export function SalesOrder(): JSX.Element {
             maskPlaceholder="0,0"
             value={weight}
             onChange={(e) => handleWeightChange(e)}
+            message={errorWeight}
             readonly
           />
           <FormInputGroupText
@@ -1234,6 +1242,7 @@ export function SalesOrder(): JSX.Element {
             maskPlaceholder="0,00"
             value={price}
             onChange={(e) => handlePriceChange(e)}
+            message={errorPrice}
             readonly
           />
           <FormInputSelect
@@ -1244,6 +1253,7 @@ export function SalesOrder(): JSX.Element {
             value={form}
             onChange={handleFormChange}
             disable={method == 'detalhes'}
+            message={errorForm}
           >
             <option value="0">SELECIONAR</option>
             {paymentForms.map((item) => (

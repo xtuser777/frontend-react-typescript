@@ -7,8 +7,6 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButtonLink } from '../../components/form-button-link';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import { Representation } from '../../models/Representation';
 import { formatarData } from '../../utils/format';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -17,10 +15,6 @@ import { MdAdd } from 'react-icons/md';
 import { EnterprisePerson } from '../../models/EnterprisePerson';
 
 export function Representations(): JSX.Element {
-  const representationState = useSelector((state: RootState) => state.representation);
-
-  const dispatch = useDispatch();
-
   const [data, setData] = useState(new Array<Representation>());
   const [representations, setRepresentations] = useState(new Array<Representation>());
 

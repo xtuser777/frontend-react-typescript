@@ -10,7 +10,7 @@ import { FreightOrder, IFreightOrder } from '../../models/FreightOrder';
 import { IStatus, Status } from '../../models/Status';
 import { IIndividualPerson } from '../../models/IndividualPerson';
 import { formatarData, formatarValor } from '../../utils/format';
-import { FaCheck, FaEdit } from 'react-icons/fa';
+import { FaCheck } from 'react-icons/fa';
 import history from '../../services/history';
 
 export function FreightOrdersAuthorize(): JSX.Element {

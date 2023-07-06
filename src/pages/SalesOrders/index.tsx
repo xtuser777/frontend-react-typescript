@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
-import { Col, Row, Table } from 'reactstrap';
+import { Row, Table } from 'reactstrap';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputDate } from '../../components/form-input-date';
 import { FormButton } from '../../components/form-button';

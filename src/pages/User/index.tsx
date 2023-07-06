@@ -6,7 +6,7 @@ import { FormIndividualPerson } from '../../components/form-individual-person';
 import { FormAuthenticationData } from '../../components/form-authentication-data';
 import { FormButtonsSave } from '../../components/form-buttons-save';
 import axios from '../../services/axios';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { formatarDataIso } from '../../utils/format';
 import isEmail from 'validator/lib/isEmail';
