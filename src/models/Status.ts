@@ -1,4 +1,4 @@
-import { AxiosError, isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
