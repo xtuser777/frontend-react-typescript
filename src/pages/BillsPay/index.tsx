@@ -9,6 +9,10 @@ import { FormButton } from '../../components/form-button';
 import { FormButtonLink } from '../../components/form-button-link';
 import { BillPay, IBillPay } from '../../models/BillPay';
 import { Employee, IEmployee } from '../../models/Employee';
+import { formatarData, formatarValor } from '../../utils/format';
+import { FaEdit, FaUndo } from 'react-icons/fa';
+import history from '../../services/history';
+import { toast } from 'react-toastify';
 
 export function BillsPay(): JSX.Element {
   const [data, setData] = useState(new Array<IBillPay>());
@@ -21,14 +25,12 @@ export function BillsPay(): JSX.Element {
     setFilter(e.target.value);
   };
 
-  const [dueDateInit, setDueDateInit] = useState(
-    new Date().toISOString().substring(0, 10),
-  );
+  const [dueDateInit, setDueDateInit] = useState('');
   const handleDueDateInitChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDueDateInit(e.target.value);
   };
 
-  const [dueDateEnd, setDueDateEnd] = useState(new Date().toISOString().substring(0, 10));
+  const [dueDateEnd, setDueDateEnd] = useState('');
   const handleDueDateEndChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDueDateEnd(e.target.value);
   };
@@ -41,6 +43,7 @@ export function BillsPay(): JSX.Element {
   const [comission, setComission] = useState('0');
   const handleComissionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setComission(e.target.value);
+    if (e.target.value == '0' || e.target.value == '2') setSalesman('0');
   };
 
   const [salesman, setSalesman] = useState('0');
@@ -51,6 +54,7 @@ export function BillsPay(): JSX.Element {
   const [orderBy, setOrderBy] = useState('1');
   const handleOrderByChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+    setBills(filterData(e.target.value));
   };
 
   useEffect(() => {
@@ -94,8 +98,8 @@ export function BillsPay(): JSX.Element {
     }
 
     if (comission != '0') {
-      filteredData = filteredData.filter(
-        (item) => item.comission == Boolean(Number(comission)),
+      filteredData = filteredData.filter((item) =>
+        comission == '1' ? item.comission : !item.comission,
       );
     }
 
@@ -105,36 +109,100 @@ export function BillsPay(): JSX.Element {
 
     switch (orderBy) {
       case '1':
+        filteredData = filteredData.sort(
+          (a, b) => a.bill - b.bill && a.installment - b.installment,
+        );
         break;
       case '2':
+        filteredData = filteredData.sort((a, b) => a.bill - b.bill);
         break;
       case '3':
+        filteredData = filteredData.sort((a, b) => b.bill - a.bill);
         break;
       case '4':
+        filteredData = filteredData.sort((a, b) => {
+          if (a.description.toUpperCase() > b.description.toUpperCase()) return 1;
+          if (a.description.toUpperCase() < b.description.toUpperCase()) return -1;
+          return 0;
+        });
         break;
       case '5':
+        filteredData = filteredData.sort((a, b) => {
+          if (b.description.toUpperCase() > a.description.toUpperCase()) return 1;
+          if (b.description.toUpperCase() < a.description.toUpperCase()) return -1;
+          return 0;
+        });
         break;
       case '6':
+        filteredData = filteredData.sort((a, b) => a.installment - b.installment);
         break;
       case '7':
+        filteredData = filteredData.sort((a, b) => b.installment - a.installment);
         break;
       case '8':
+        filteredData = filteredData.sort((a, b) => a.amount - b.amount);
         break;
       case '9':
+        filteredData = filteredData.sort((a, b) => b.amount - a.amount);
         break;
       case '10':
+        filteredData = filteredData.sort((a, b) => {
+          if (a.dueDate.toUpperCase() > b.dueDate.toUpperCase()) return 1;
+          if (a.dueDate.toUpperCase() < b.dueDate.toUpperCase()) return -1;
+          return 0;
+        });
         break;
       case '11':
+        filteredData = filteredData.sort((a, b) => {
+          if (b.dueDate.toUpperCase() > a.dueDate.toUpperCase()) return 1;
+          if (b.dueDate.toUpperCase() < a.dueDate.toUpperCase()) return -1;
+          return 0;
+        });
         break;
       case '12':
+        filteredData = filteredData.sort((a, b) => a.situation - b.situation);
         break;
       case '13':
+        filteredData = filteredData.sort((a, b) => b.situation - a.situation);
         break;
     }
+
+    return filteredData;
   };
 
   const handleFilterClick = () => {
-    alert('Filtrando...');
+    setBills(filterData(orderBy));
+  };
+
+  const reversal = async (id: number, situation: number) => {
+    if (situation == 1) {
+      toast.error('Não é possível estornar uma conta não quitada.');
+    } else {
+      const response = confirm('Confirma o estorno desta conta?');
+      if (response) {
+        const bill = bills.find((item) => item.id == id) as BillPay;
+        bill.paymentDate = undefined;
+        bill.amountPaid = 0.0;
+        bill.situation = 1;
+        bill.paymentForm = undefined;
+        if (await bill.update()) {
+          const newData = [...data];
+          const d = newData[newData.findIndex((item) => item.id == id)];
+          d.paymentDate = undefined;
+          d.amountPaid = 0.0;
+          d.situation = 1;
+          d.paymentForm = undefined;
+          setData(newData);
+          const newBills = [...bills];
+          const b = newBills[newBills.findIndex((item) => item.id == id)];
+          b.paymentDate = undefined;
+          b.amountPaid = 0.0;
+          b.situation = 1;
+          b.paymentForm = undefined;
+          setBills(newBills);
+        }
+      }
+    }
   };
 
   return (
@@ -201,8 +269,14 @@ export function BillsPay(): JSX.Element {
             obrigatory={false}
             value={salesman}
             onChange={handleSalesmanChange}
+            disable={comission == '0' || comission == '2'}
           >
             <option value="0">SELECIONE</option>
+            {salesmans.map((salesman) => (
+              <option key={salesman.id} value={salesman.id}>
+                {salesman.person.individual?.name}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputSelect
             colSm={3}
@@ -250,21 +324,62 @@ export function BillsPay(): JSX.Element {
         <Table id="table-bills" striped hover responsive size="sm">
           <thead>
             <tr>
-              <th className="hidden">ID</th>
+              <th hidden>ID</th>
               <th style={{ width: '5%' }}>CONTA</th>
               <th style={{ width: '28%' }}>DESCRIÇÃO</th>
               <th style={{ width: '6%' }}>PARCELA</th>
-              <th>VALOR (R$)</th>
+              <th>VALOR</th>
               <th style={{ width: '10%' }}>VENCIMENTO</th>
-              <th>VALOR PAGO (R$)</th>
-              <th style={{ width: '13%' }}>DATA PAGAMENTO</th>
+              <th>VALOR PAGO</th>
+              <th style={{ width: '14%' }}>DATA PAGAMENTO</th>
               <th>SITUAÇÃO</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
             </tr>
           </thead>
 
-          <tbody id="tbodyContas"></tbody>
+          <tbody id="tbodyContas">
+            {bills.map((bill) => (
+              <tr key={bill.id}>
+                <td hidden>{bill.id}</td>
+                <td>{bill.bill}</td>
+                <td>{bill.description}</td>
+                <td>{bill.installment}</td>
+                <td>{formatarValor(bill.amount)}</td>
+                <td>{formatarData(bill.dueDate)}</td>
+                <td>{formatarValor(bill.amountPaid)}</td>
+                <td>{bill.paymentDate ? formatarData(bill.paymentDate) : ''}</td>
+                <td>
+                  {bill.situation == 1
+                    ? 'PENDENTE'
+                    : bill.situation == 2
+                    ? 'PAGO PARCIALMENTE'
+                    : 'PAGO'}
+                </td>
+                <td>
+                  <FaEdit
+                    role="button"
+                    color="blue"
+                    size={14}
+                    title="Editar"
+                    onClick={() => {
+                      history.push(`/conta/pagar/${bill.id}`);
+                      window.location.reload();
+                    }}
+                  />
+                </td>
+                <td>
+                  <FaUndo
+                    role="button"
+                    color="red"
+                    size={14}
+                    title="Estornar"
+                    onClick={async () => await reversal(bill.id, bill.situation)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </Table>
       </FieldsetCard>
     </>

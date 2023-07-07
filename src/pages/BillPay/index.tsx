@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, Row } from 'reactstrap';
@@ -7,11 +7,114 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputSelect } from '../../components/form-input-select';
 import { useParams } from 'react-router-dom';
+import { BillPay as BillPayModel } from '../../models/BillPay';
+import { IPaymentForm, PaymentForm } from '../../models/PaymentForm';
+import { formatarValor } from '../../utils/format';
+import history from '../../services/history';
 
 export function BillPay(): JSX.Element {
+  const [billPay, setBillPay] = useState(new BillPayModel());
+  const [forms, setForms] = useState(new Array<IPaymentForm>());
+
   const routeParams = useParams();
   let id = 0;
   if (routeParams.id) id = Number.parseInt(routeParams.id);
+
+  useEffect(() => {
+    const getForms = async () => {
+      const response = (await new PaymentForm().get()).filter((form) => form.link == 1);
+      setForms(response);
+    };
+
+    const getData = async () => {
+      const data = await new BillPayModel().getOne(id);
+      if (data) {
+        setBillPay(data);
+
+        setBill(data.bill.toString());
+        setType(data.type == 1 ? 'A VISTA' : data.type == 2 ? 'A PRAZO' : 'FIXA');
+        setDescription(data.description);
+        setEnterprise(data.enterprise);
+        setSource(
+          data.saleOrder
+            ? 'Pedido de venda ' + data.saleOrder.id
+            : data.freightOrder
+            ? 'Pedido de frete ' + data.freightOrder.id
+            : 'INTERNO',
+        );
+        setInstallment(data.installment.toString());
+        setDate(data.date);
+        setAmount(formatarValor(data.amount));
+        setDueDate(data.dueDate);
+        setCategory(data.category.description);
+        setSituation(
+          data.situation == 1
+            ? 'PENDENTE'
+            : data.situation == 2
+            ? 'PAGO PARCIALMENTE'
+            : 'PAGO',
+        );
+      }
+    };
+
+    const load = async () => {
+      await getForms();
+      await getData();
+    };
+
+    load();
+  }, []);
+
+  const validate = {
+    form: (value: string) => {
+      if (value == '0') {
+        setErrorForm('A forma de pagamento precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorForm(undefined);
+        return true;
+      }
+    },
+    amount: (value: string) => {
+      if (value.length == 0) {
+        setErrorAmountPaid('O valor pago precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) < 0
+      ) {
+        setErrorAmountPaid('O valor pago preenchido é inválido.');
+        return false;
+      } else {
+        setErrorAmountPaid(undefined);
+        billPay.amountPaid = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        return true;
+      }
+    },
+    date: (value: string) => {
+      const val = new Date(value + 'T12:00:00');
+      const dat = new Date(billPay.date);
+      const now = new Date(Date.now());
+      if (value.length == 0) {
+        setErrorPaymentDate('A data de pagamento precisa ser preenchida.');
+        return false;
+      } else if (
+        now.getFullYear() == val.getFullYear() &&
+        now.getMonth() == val.getMonth() &&
+        (dat.getDate() > val.getDate() || now.getDate() < val.getDate())
+      ) {
+        setErrorPaymentDate('A data de pagamento preenchida é inválida.');
+        return false;
+      } else {
+        setErrorPaymentDate(undefined);
+        billPay.paymentDate = value;
+        return true;
+      }
+    },
+  };
 
   const [bill, setBill] = useState('');
   const handleBillChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -69,11 +172,13 @@ export function BillPay(): JSX.Element {
   };
 
   const [form, setForm] = useState('0');
+  const [errorForm, setErrorForm] = useState<string | undefined>(undefined);
   const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm(e.target.value);
   };
 
   const [amountPaid, setAmountPaid] = useState('');
+  const [errorAmountPaid, setErrorAmountPaid] = useState<string | undefined>(undefined);
   const handleAmountPaidChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAmountPaid(e.target.value);
   };
@@ -81,15 +186,32 @@ export function BillPay(): JSX.Element {
   const [paymentDate, setPaymentDate] = useState(
     new Date().toISOString().substring(0, 10),
   );
+  const [errorPaymentDate, setErrorPaymentDate] = useState<string | undefined>(undefined);
   const handlePaymentDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPaymentDate(e.target.value);
   };
 
-  const handleCancelClick = () => {
-    alert('Cancelando...');
+  const validateFields = () => {
+    return (
+      validate.form(form) && validate.amount(amountPaid) && validate.date(paymentDate)
+    );
   };
-  const handlePayOffClick = () => {
-    alert('Quitando...');
+
+  const persistData = async () => {
+    if (validateFields()) {
+      if (await billPay.update()) {
+        history.push(`/contas/pagar`);
+        window.location.reload();
+      }
+    }
+  };
+
+  const handleCancelClick = () => {
+    history.push(`/contas/pagar`);
+    window.location.reload();
+  };
+  const handlePayOffClick = async () => {
+    await persistData();
   };
 
   return (
@@ -107,7 +229,7 @@ export function BillPay(): JSX.Element {
             readonly
           />
           <FormInputDate
-            colSm={3}
+            colSm={2}
             id="data"
             label="Data"
             obrigatory={false}
@@ -116,7 +238,7 @@ export function BillPay(): JSX.Element {
             readonly
           />
           <FormInputText
-            colSm={2}
+            colSm={1}
             id="parcela"
             label="Parcela"
             obrigatory={false}
@@ -125,7 +247,7 @@ export function BillPay(): JSX.Element {
             readonly
           />
           <FormInputText
-            colSm={6}
+            colSm={8}
             id="descricao"
             label="Descrição"
             obrigatory={false}
@@ -215,8 +337,14 @@ export function BillPay(): JSX.Element {
             obrigatory
             value={form}
             onChange={handleFormChange}
+            message={errorForm}
           >
             <option value="0">SELECIONE</option>
+            {forms.map((form) => (
+              <option key={form.id} value={form.id}>
+                {form.description}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputGroupText
             colSm={3}
@@ -229,6 +357,7 @@ export function BillPay(): JSX.Element {
             maskPlaceholder="0,00"
             value={amountPaid}
             onChange={handleAmountPaidChange}
+            message={errorAmountPaid}
           />
           <FormInputDate
             colSm={3}
@@ -237,6 +366,7 @@ export function BillPay(): JSX.Element {
             obrigatory
             value={paymentDate}
             onChange={handlePaymentDateChange}
+            message={errorPaymentDate}
           />
         </Row>
       </FieldsetCard>
