@@ -155,12 +155,12 @@ export function ReceiveBills(): JSX.Element {
               <th className="hidden">ID</th>
               <th style={{ width: '5%' }}>CONTA</th>
               <th style={{ width: '28%' }}>DESCRIÇÃO</th>
+              <th style={{ width: '6%' }}>PARCELA</th>
+              <th style={{ width: '14%' }}>CATEGORIA</th>
+              <th style={{ width: '8%' }}>VENC.</th>
+              <th style={{ width: '12%' }}>AUTOR</th>
               <th>VALOR (R$)</th>
-              <th style={{ width: '10%' }}>VENCIMENTO</th>
-              <th>VALOR PAGO (R$)</th>
-              <th style={{ width: '13%' }}>DATA RECEBIMENTO</th>
               <th>SITUAÇÃO</th>
-              <th style={{ width: '2%' }}>&nbsp;</th>
               <th style={{ width: '2%' }}>&nbsp;</th>
             </tr>
           </thead>

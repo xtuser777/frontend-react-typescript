@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Col, Row, Table } from 'reactstrap';
@@ -7,8 +7,15 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormInputSelect } from '../../components/form-input-select';
 import { FormButton } from '../../components/form-button';
 import { FormButtonLink } from '../../components/form-button-link';
+import { BillPay, IBillPay } from '../../models/BillPay';
+import { Employee, IEmployee } from '../../models/Employee';
 
 export function BillsPay(): JSX.Element {
+  const [data, setData] = useState(new Array<IBillPay>());
+  const [bills, setBills] = useState(new Array<IBillPay>());
+
+  const [salesmans, setSalesmans] = useState(new Array<IEmployee>());
+
   const [filter, setFilter] = useState('');
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
@@ -44,6 +51,86 @@ export function BillsPay(): JSX.Element {
   const [orderBy, setOrderBy] = useState('1');
   const handleOrderByChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOrderBy(e.target.value);
+  };
+
+  useEffect(() => {
+    const getSalesmans = async () => {
+      const response = (await new Employee().get()).filter(
+        (employee) => employee.type == 2,
+      );
+      setSalesmans(response);
+    };
+
+    const getData = async () => {
+      const response = await new BillPay().get();
+      setData(response);
+      setBills(response);
+    };
+
+    const load = async () => {
+      await getSalesmans();
+      await getData();
+    };
+
+    load();
+  }, []);
+
+  const filterData = (orderBy: string) => {
+    let filteredData: IBillPay[] = [...data];
+    if (dueDateInit.length == 10 && dueDateEnd.length == 10) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.date.substring(0, 10) >= dueDateInit &&
+          item.date.substring(0, 10) <= dueDateEnd,
+      );
+    }
+
+    if (filter.length > 0) {
+      filteredData = filteredData.filter((item) => item.description.includes(filter));
+    }
+
+    if (situation != '0') {
+      filteredData = filteredData.filter((item) => item.situation == Number(situation));
+    }
+
+    if (comission != '0') {
+      filteredData = filteredData.filter(
+        (item) => item.comission == Boolean(Number(comission)),
+      );
+    }
+
+    if (salesman != '0') {
+      filteredData = filteredData.filter((item) => item.salesman?.id == Number(salesman));
+    }
+
+    switch (orderBy) {
+      case '1':
+        break;
+      case '2':
+        break;
+      case '3':
+        break;
+      case '4':
+        break;
+      case '5':
+        break;
+      case '6':
+        break;
+      case '7':
+        break;
+      case '8':
+        break;
+      case '9':
+        break;
+      case '10':
+        break;
+      case '11':
+        break;
+      case '12':
+        break;
+      case '13':
+        break;
+    }
   };
 
   const handleFilterClick = () => {

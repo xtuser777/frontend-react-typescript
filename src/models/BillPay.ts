@@ -1,3 +1,4 @@
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { BillPayCategory, IBillPayCategory } from './BillPayCategory';
 import { IDriver } from './Driver';
@@ -5,6 +6,7 @@ import { IEmployee, Employee } from './Employee';
 import { IFreightOrder } from './FreightOrder';
 import { IPaymentForm } from './PaymentForm';
 import { ISaleOrder } from './SaleOrder';
+import { toast } from 'react-toastify';
 
 export interface IBillPay {
   id: number;
@@ -211,6 +213,89 @@ export class BillPay implements IBillPay {
   get toAttributes(): IBillPay {
     const attributes: IBillPay = { ...this.attributes };
     return attributes;
+  }
+
+  async save(installments: number, interval: number, frequency: number) {
+    const payload = {
+      bill: {
+        bill: this.bill,
+        date: this.date,
+        type: this.type,
+        description: this.description,
+        enterprise: this.enterprise,
+        installment: this.installment,
+        amount: this.amount,
+        amountPaid: this.amountPaid,
+        duedate: this.dueDate,
+        paymentDate:
+          this.amountPaid > 0 ? new Date().toISOString().substring(0, 10) : undefined,
+        situation: this.amountPaid > 0 ? (this.amountPaid < this.amount ? 2 : 3) : 1,
+        freightOrder: this.freightOrder,
+        paymentForm: this.paymentForm,
+        installments,
+        interval,
+        frequency,
+      },
+    };
+
+    try {
+      const response: AxiosRequestConfig = await axios.post('/bill-pay', payload);
+      if (response.data.length == 0) {
+        toast.success('Conta a pagar lançada com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  }
+
+  async update() {
+    const payload = {
+      bill: {
+        amountPaid: this.amountPaid,
+        paymentDate:
+          this.amountPaid > 0 ? new Date().toISOString().substring(0, 10) : undefined,
+        situation: this.amountPaid > 0 ? (this.amountPaid < this.amount ? 2 : 3) : 1,
+        paymentForm: this.paymentForm,
+      },
+    };
+
+    try {
+      const response: AxiosRequestConfig = await axios.put(
+        '/bill-pay/' + this.id,
+        payload,
+      );
+      if (response.data.length == 0) {
+        toast.success('Conta a pagar quitada com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
+  }
+
+  async delete() {
+    try {
+      const response: AxiosRequestConfig = await axios.delete('/bill-pay/' + this.id);
+      if (response.data.length == 0) {
+        toast.success('Conta a pagar excluída com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
   }
 
   async getOne(id: number) {
