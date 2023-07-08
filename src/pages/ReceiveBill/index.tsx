@@ -168,9 +168,12 @@ export function ReceiveBill(): JSX.Element {
         setErrorReceiveDate('A data de pagamento precisa ser preenchida.');
         return false;
       } else if (
-        now.getFullYear() == val.getFullYear() &&
-        now.getMonth() == val.getMonth() &&
-        (dat.getDate() > val.getDate() || now.getDate() < val.getDate())
+        (now.getFullYear() == val.getFullYear() &&
+          now.getMonth() == val.getMonth() &&
+          now.getDate() < val.getDate()) ||
+        (dat.getFullYear() == val.getFullYear() &&
+          dat.getMonth() == val.getMonth() &&
+          dat.getDate() > val.getDate())
       ) {
         setErrorReceiveDate('A data de recebimento preenchida é inválida.');
         return false;
@@ -191,7 +194,7 @@ export function ReceiveBill(): JSX.Element {
   const persistData = async () => {
     if (validateFields()) {
       if (await receiveBill.update()) {
-        history.push(`/contas/pagar`);
+        history.push(`/contas/receber`);
         window.location.reload();
       }
     }

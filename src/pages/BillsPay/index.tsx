@@ -361,10 +361,12 @@ export function BillsPay(): JSX.Element {
                     role="button"
                     color="blue"
                     size={14}
-                    title="Editar"
+                    title="Detalhes"
                     onClick={() => {
-                      history.push(`/conta/pagar/${bill.id}`);
-                      window.location.reload();
+                      if (bill.situation == 1) {
+                        history.push(`/conta/pagar/${bill.id}`);
+                        window.location.reload();
+                      }
                     }}
                   />
                 </td>
