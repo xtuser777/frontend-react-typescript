@@ -257,8 +257,7 @@ export class BillPay implements IBillPay {
     const payload = {
       bill: {
         amountPaid: this.amountPaid,
-        paymentDate:
-          this.amountPaid > 0 ? new Date().toISOString().substring(0, 10) : undefined,
+        paymentDate: this.amountPaid > 0 ? this.paymentDate : undefined,
         situation: this.amountPaid > 0 ? (this.amountPaid < this.amount ? 2 : 3) : 1,
         paymentForm: this.paymentForm,
       },

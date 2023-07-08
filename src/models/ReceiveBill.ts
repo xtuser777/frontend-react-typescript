@@ -1,9 +1,11 @@
+import { AxiosRequestConfig, isAxiosError } from 'axios';
 import axios from '../services/axios';
 import { IEmployee, Employee } from './Employee';
 import { IFreightOrder } from './FreightOrder';
 import { IPaymentForm } from './PaymentForm';
 import { IRepresentation } from './Representation';
 import { ISaleOrder } from './SaleOrder';
+import { toast } from 'react-toastify';
 
 export interface IReceiveBill {
   id: number;
@@ -168,6 +170,35 @@ export class ReceiveBill implements IReceiveBill {
   get toAttributes(): IReceiveBill {
     const attributes: IReceiveBill = { ...this.attributes };
     return attributes;
+  }
+
+  async update() {
+    const payload = {
+      bill: {
+        amountReceived: this.amountReceived,
+        receiveDate: this.amountReceived > 0 ? this.receiveDate : undefined,
+        situation:
+          this.amountReceived > 0 ? (this.amountReceived < this.amount ? 2 : 3) : 1,
+        paymentForm: this.paymentForm,
+      },
+    };
+
+    try {
+      const response: AxiosRequestConfig = await axios.put(
+        '/receive-bill/' + this.id,
+        payload,
+      );
+      if (response.data.length == 0) {
+        toast.success('Conta a pagar quitada com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
   }
 
   async getOne(id: number) {

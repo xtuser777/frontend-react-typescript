@@ -72,6 +72,9 @@ export function BillPay(): JSX.Element {
         return false;
       } else {
         setErrorForm(undefined);
+        billPay.paymentForm = (
+          forms.find((form) => form.id == Number(value)) as PaymentForm
+        ).toAttributes;
         return true;
       }
     },
@@ -82,7 +85,7 @@ export function BillPay(): JSX.Element {
       } else if (
         Number.parseFloat(
           value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
-        ) < 0
+        ) <= 0
       ) {
         setErrorAmountPaid('O valor pago preenchido é inválido.');
         return false;
@@ -96,7 +99,7 @@ export function BillPay(): JSX.Element {
     },
     date: (value: string) => {
       const val = new Date(value + 'T12:00:00');
-      const dat = new Date(billPay.date);
+      const dat = new Date(billPay.date + 'T12:00:00');
       const now = new Date(Date.now());
       if (value.length == 0) {
         setErrorPaymentDate('A data de pagamento precisa ser preenchida.');
@@ -175,12 +178,14 @@ export function BillPay(): JSX.Element {
   const [errorForm, setErrorForm] = useState<string | undefined>(undefined);
   const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm(e.target.value);
+    validate.form(e.target.value);
   };
 
   const [amountPaid, setAmountPaid] = useState('');
   const [errorAmountPaid, setErrorAmountPaid] = useState<string | undefined>(undefined);
   const handleAmountPaidChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAmountPaid(e.target.value);
+    validate.amount(e.target.value);
   };
 
   const [paymentDate, setPaymentDate] = useState(
@@ -189,6 +194,7 @@ export function BillPay(): JSX.Element {
   const [errorPaymentDate, setErrorPaymentDate] = useState<string | undefined>(undefined);
   const handlePaymentDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPaymentDate(e.target.value);
+    validate.date(e.target.value);
   };
 
   const validateFields = () => {

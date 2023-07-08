@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CardTitle } from '../../components/card-title';
 import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, Row } from 'reactstrap';
@@ -7,8 +7,16 @@ import { FormInputDate } from '../../components/form-input-date';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputSelect } from '../../components/form-input-select';
 import { useParams } from 'react-router-dom';
+import { ReceiveBill as ReceiveBillModel } from '../../models/ReceiveBill';
+import { IPaymentForm, PaymentForm } from '../../models/PaymentForm';
+import { formatarValor } from '../../utils/format';
+import history from '../../services/history';
 
 export function ReceiveBill(): JSX.Element {
+  const [receiveBill, setReceiveBill] = useState(new ReceiveBillModel());
+
+  const [forms, setForms] = useState(new Array<IPaymentForm>());
+
   const routeParams = useParams();
   let id = 0;
   if (routeParams.id) id = Number.parseInt(routeParams.id);
@@ -54,27 +62,147 @@ export function ReceiveBill(): JSX.Element {
   };
 
   const [form, setForm] = useState('0');
+  const [errorForm, setErrorForm] = useState<string | undefined>(undefined);
   const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm(e.target.value);
+    validate.form(e.target.value);
   };
 
   const [amountReceived, setAmountReceived] = useState('');
+  const [errorAmountReceived, setErrorAmountReceived] = useState<string | undefined>(
+    undefined,
+  );
   const handleAmountReceivedChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAmountReceived(e.target.value);
+    validate.amount(e.target.value);
   };
 
   const [receiveDate, setReceiveDate] = useState(
     new Date().toISOString().substring(0, 10),
   );
+  const [errorReceiveDate, setErrorReceiveDate] = useState<string | undefined>(undefined);
   const handleReceiveDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setReceiveDate(e.target.value);
+    validate.date(e.target.value);
+  };
+
+  useEffect(() => {
+    const getForms = async () => {
+      const response = (await new PaymentForm().get()).filter((form) => form.link == 2);
+      setForms(response);
+    };
+
+    const getData = async () => {
+      const data = await new ReceiveBillModel().getOne(id);
+      if (data) {
+        setReceiveBill(data);
+
+        setBill(data.bill.toString());
+        setDescription(data.description);
+        setPayer(data.payer);
+        setSource(
+          data.saleOrder
+            ? 'Pedido de venda ' + data.saleOrder.id
+            : data.freightOrder
+            ? 'Pedido de frete ' + data.freightOrder.id
+            : 'INTERNO',
+        );
+        setDate(data.date);
+        setAmount(formatarValor(data.amount));
+        setDueDate(data.dueDate);
+        setSituation(
+          data.situation == 1
+            ? 'PENDENTE'
+            : data.situation == 2
+            ? 'PAGO PARCIALMENTE'
+            : 'PAGO',
+        );
+      }
+    };
+
+    const load = async () => {
+      await getForms();
+      await getData();
+    };
+
+    load();
+  }, []);
+
+  const validate = {
+    form: (value: string) => {
+      if (value == '0') {
+        setErrorForm('A forma de pagamento precisa ser selecionada.');
+        return false;
+      } else {
+        setErrorForm(undefined);
+        receiveBill.paymentForm = (
+          forms.find((form) => form.id == Number(value)) as PaymentForm
+        ).toAttributes;
+        return true;
+      }
+    },
+    amount: (value: string) => {
+      if (value.length == 0) {
+        setErrorAmountReceived('O valor pago precisa ser preenchido.');
+        return false;
+      } else if (
+        Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        ) <= 0
+      ) {
+        setErrorAmountReceived('O valor pago preenchido é inválido.');
+        return false;
+      } else {
+        setErrorAmountReceived(undefined);
+        receiveBill.amountReceived = Number.parseFloat(
+          value.replace(',', '#').replaceAll('.', ',').replace('#', '.'),
+        );
+        return true;
+      }
+    },
+    date: (value: string) => {
+      const val = new Date(value + 'T12:00:00');
+      const dat = new Date(receiveBill.date + 'T12:00:00');
+      const now = new Date(Date.now());
+      if (value.length == 0) {
+        setErrorReceiveDate('A data de pagamento precisa ser preenchida.');
+        return false;
+      } else if (
+        now.getFullYear() == val.getFullYear() &&
+        now.getMonth() == val.getMonth() &&
+        (dat.getDate() > val.getDate() || now.getDate() < val.getDate())
+      ) {
+        setErrorReceiveDate('A data de recebimento preenchida é inválida.');
+        return false;
+      } else {
+        setErrorReceiveDate(undefined);
+        receiveBill.receiveDate = value;
+        return true;
+      }
+    },
+  };
+
+  const validateFields = () => {
+    return (
+      validate.form(form) && validate.amount(amountReceived) && validate.date(receiveDate)
+    );
+  };
+
+  const persistData = async () => {
+    if (validateFields()) {
+      if (await receiveBill.update()) {
+        history.push(`/contas/pagar`);
+        window.location.reload();
+      }
+    }
   };
 
   const handleCancelClick = () => {
-    alert('Cancelando...');
+    history.push(`/contas/receber`);
+    window.location.reload();
   };
-  const handleReceiveClick = () => {
-    alert('Quitando...');
+  const handleReceiveClick = async () => {
+    await persistData();
   };
 
   return (
@@ -171,8 +299,14 @@ export function ReceiveBill(): JSX.Element {
             obrigatory
             value={form}
             onChange={handleFormChange}
+            message={errorForm}
           >
             <option value="0">SELECIONE</option>
+            {forms.map((form) => (
+              <option key={form.id} value={form.id}>
+                {form.description}
+              </option>
+            ))}
           </FormInputSelect>
           <FormInputGroupText
             colSm={3}
@@ -185,6 +319,7 @@ export function ReceiveBill(): JSX.Element {
             maskPlaceholder="0,00"
             value={amountReceived}
             onChange={handleAmountReceivedChange}
+            message={errorAmountReceived}
           />
           <FormInputDate
             colSm={3}
@@ -193,6 +328,7 @@ export function ReceiveBill(): JSX.Element {
             obrigatory
             value={receiveDate}
             onChange={handleReceiveDateChange}
+            message={errorReceiveDate}
           />
         </Row>
       </FieldsetCard>
