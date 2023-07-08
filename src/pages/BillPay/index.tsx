@@ -105,9 +105,12 @@ export function BillPay(): JSX.Element {
         setErrorPaymentDate('A data de pagamento precisa ser preenchida.');
         return false;
       } else if (
-        now.getFullYear() == val.getFullYear() &&
-        now.getMonth() == val.getMonth() &&
-        (dat.getDate() > val.getDate() || now.getDate() < val.getDate())
+        (now.getFullYear() == val.getFullYear() &&
+          now.getMonth() == val.getMonth() &&
+          now.getDate() < val.getDate()) ||
+        (dat.getFullYear() == val.getFullYear() &&
+          dat.getMonth() == val.getMonth() &&
+          dat.getDate() > val.getDate())
       ) {
         setErrorPaymentDate('A data de pagamento preenchida é inválida.');
         return false;

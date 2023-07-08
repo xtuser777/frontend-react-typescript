@@ -181,25 +181,36 @@ export function BillsPay(): JSX.Element {
       const response = confirm('Confirma o estorno desta conta?');
       if (response) {
         const bill = bills.find((item) => item.id == id) as BillPay;
+        const paymentDate = bill.paymentDate;
+        const amountPaid = bill.amountPaid;
+        const situation = bill.situation;
+        const paymentForm = bill.paymentForm;
         bill.paymentDate = undefined;
         bill.amountPaid = 0.0;
         bill.situation = 1;
         bill.paymentForm = undefined;
         if (await bill.update()) {
-          const newData = [...data];
-          const d = newData[newData.findIndex((item) => item.id == id)];
+          let newData = [...data];
+          const d = newData.find((item) => item.id == id) as BillPay;
           d.paymentDate = undefined;
           d.amountPaid = 0.0;
           d.situation = 1;
           d.paymentForm = undefined;
+          if (d.pendency) {
+            newData = newData.filter((bill) => bill.id != d.pendency?.id);
+          }
           setData(newData);
-          const newBills = [...bills];
-          const b = newBills[newBills.findIndex((item) => item.id == id)];
-          b.paymentDate = undefined;
-          b.amountPaid = 0.0;
-          b.situation = 1;
-          b.paymentForm = undefined;
+          let newBills = [...bills];
+          if (bill.pendency) {
+            newBills = newBills.filter((b) => b.id != bill.pendency?.id);
+          }
+          bill.pendency = undefined;
           setBills(newBills);
+        } else {
+          bill.paymentDate = paymentDate;
+          bill.amountPaid = amountPaid;
+          bill.situation = situation;
+          bill.paymentForm = paymentForm;
         }
       }
     }

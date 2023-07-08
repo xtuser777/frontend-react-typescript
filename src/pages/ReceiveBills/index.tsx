@@ -170,25 +170,36 @@ export function ReceiveBills(): JSX.Element {
       const response = confirm('Confirma o estorno desta conta?');
       if (response) {
         const bill = bills.find((item) => item.id == id) as ReceiveBill;
+        const receiveDate = bill.receiveDate;
+        const amountReceived = bill.amountReceived;
+        const situation = bill.situation;
+        const paymentForm = bill.paymentForm;
         bill.receiveDate = undefined;
         bill.amountReceived = 0.0;
         bill.situation = 1;
         bill.paymentForm = undefined;
         if (await bill.update()) {
-          const newData = [...data];
-          const d = newData[newData.findIndex((item) => item.id == id)];
+          let newData = [...data];
+          const d = newData.find((item) => item.id == id) as ReceiveBill;
           d.receiveDate = undefined;
           d.amountReceived = 0.0;
           d.situation = 1;
           d.paymentForm = undefined;
+          if (d.pendency) {
+            newData = newData.filter((bill) => bill.id != d.pendency?.id);
+          }
           setData(newData);
-          const newBills = [...bills];
-          const b = newBills[newBills.findIndex((item) => item.id == id)];
-          b.receiveDate = undefined;
-          b.amountReceived = 0.0;
-          b.situation = 1;
-          b.paymentForm = undefined;
+          let newBills = [...bills];
+          if (bill.pendency) {
+            newBills = newBills.filter((b) => b.id != bill.pendency?.id);
+          }
+          bill.pendency = undefined;
           setBills(newBills);
+        } else {
+          bill.receiveDate = receiveDate;
+          bill.amountReceived = amountReceived;
+          bill.situation = situation;
+          bill.paymentForm = paymentForm;
         }
       }
     }
