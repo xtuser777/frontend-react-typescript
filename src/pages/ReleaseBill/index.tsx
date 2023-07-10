@@ -34,13 +34,21 @@ export function ReleaseBill(): JSX.Element {
   };
 
   const [freightOrder, setFreightOrder] = useState('0');
+  const [errorFreightOrder, setErrorFreightOrder] = useState<string | undefined>(
+    undefined,
+  );
   const handleFreightOrderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFreightOrder(e.target.value);
     if (e.target.value != '0') {
+      setErrorFreightOrder(undefined);
       billPay.freightOrder = (
         freightOrders.find((order) => order.id == Number(e.target.value)) as FreightOrder
       ).toAttributes;
-    } else billPay.freightOrder = undefined;
+    } else {
+      if (category == '250') setErrorFreightOrder('Selecione o pedido de frete.');
+      else setErrorFreightOrder(undefined);
+      billPay.freightOrder = undefined;
+    }
   };
 
   const [bill, setBill] = useState('');
@@ -70,7 +78,9 @@ export function ReleaseBill(): JSX.Element {
     setForm(e.target.value);
     if (e.target.value != '0') {
       setErrorForm(undefined);
-      billPay.paymentForm = forms.find((form) => form.id == Number(e.target.value));
+      billPay.paymentForm = (
+        forms.find((form) => form.id == Number(e.target.value)) as PaymentForm
+      ).toAttributes;
     } else {
       if (type == '1')
         setErrorForm('A forma de pagamento do valor a vista precisa ser preenchido.');
@@ -128,6 +138,7 @@ export function ReleaseBill(): JSX.Element {
       if (form != '0')
         setErrorAmountPaid('O valor pago na conta a vista precisa ser preenchido.');
       else setErrorAmountPaid(undefined);
+      billPay.amountPaid = 0.0;
     }
   };
 
@@ -203,11 +214,17 @@ export function ReleaseBill(): JSX.Element {
       }
     },
     category: (value: string) => {
-      if (value != '0') {
+      if (value == '0') {
         setErrorCategory('A categoria da conta precisa ser selecionada.');
+        setFreightOrder('0');
+        setErrorFreightOrder(undefined);
         return false;
       } else {
         setErrorCategory(undefined);
+        if (value != '250') {
+          setFreightOrder('0');
+          setErrorFreightOrder(undefined);
+        }
         billPay.category = (
           categories.find((category) => category.id == Number(value)) as BillPayCategory
         ).toAttributes;
@@ -427,6 +444,8 @@ export function ReleaseBill(): JSX.Element {
             obrigatory={false}
             value={freightOrder}
             onChange={handleFreightOrderChange}
+            disable={category != '250'}
+            message={errorFreightOrder}
           >
             <option value="0">SELECIONE</option>
             {freightOrders.map((order) => (

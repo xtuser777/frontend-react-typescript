@@ -58,8 +58,8 @@ export class BillPay implements IBillPay {
           freightOrder: undefined,
           saleOrder: undefined,
           paymentForm: undefined,
-          category: new BillPayCategory(),
-          author: new Employee(),
+          category: new BillPayCategory().toAttributes,
+          author: new Employee().toAttributes,
         };
   }
 
@@ -226,11 +226,13 @@ export class BillPay implements IBillPay {
         installment: this.installment,
         amount: this.amount,
         amountPaid: this.amountPaid,
-        duedate: this.dueDate,
+        comission: false,
+        dueDate: this.dueDate,
         paymentDate:
           this.amountPaid > 0 ? new Date().toISOString().substring(0, 10) : undefined,
         situation: this.amountPaid > 0 ? (this.amountPaid < this.amount ? 2 : 3) : 1,
         freightOrder: this.freightOrder,
+        category: this.category,
         paymentForm: this.paymentForm,
         installments,
         interval,
