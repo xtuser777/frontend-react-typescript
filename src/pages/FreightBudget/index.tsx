@@ -22,7 +22,7 @@ import { toast } from 'react-toastify';
 import history from '../../services/history';
 import { formatarDataIso, formatarPeso, formatarValor } from '../../utils/format';
 import { IFreightItem } from '../../models/FreightItem';
-import { ITruckType, TruckType } from '../../models/TruckType';
+import { ITruckType } from '../../models/TruckType';
 import { FaTrash } from 'react-icons/fa';
 import { calculateMinimumFloor } from '../../utils/calc';
 
