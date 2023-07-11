@@ -115,6 +115,8 @@ export function ReleaseBill(): JSX.Element {
           setInterval(365);
         }
       }
+      setAmountPaid('');
+      billPay.amountPaid = 0.0;
     }
   };
 
@@ -276,6 +278,8 @@ export function ReleaseBill(): JSX.Element {
     type: (value: string) => {
       if (value == '0') {
         setErrorType('O tipo da conta precisa ser selecionado.');
+        setAmountPaid('');
+        billPay.amountPaid = 0.0;
         return false;
       } else {
         setInstallments(1);
@@ -291,6 +295,8 @@ export function ReleaseBill(): JSX.Element {
           setErrorAmountPaid(undefined);
         }
         setErrorType(undefined);
+        setAmountPaid('');
+        billPay.amountPaid = 0.0;
         billPay.type = Number(value);
         return true;
       }

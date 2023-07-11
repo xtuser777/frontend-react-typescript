@@ -175,10 +175,10 @@ export function ReleaseBills(): JSX.Element {
         const bill = bills.find((item) => item.id == id) as BillPay;
         if (await bill.delete()) {
           let newData = [...data];
-          newData = newData.filter((bill) => bill.id != id);
+          newData = newData.filter((b) => b.bill != bill.bill);
           setData(newData);
           let newBills = [...bills];
-          newBills = newBills.filter((bill) => bill.id != id);
+          newBills = newBills.filter((b) => b.bill != bill.bill);
           setBills(newBills);
         }
       }
