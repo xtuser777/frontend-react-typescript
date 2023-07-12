@@ -4,12 +4,11 @@ import { FieldsetCard } from '../../components/fieldset-card';
 import { Button, Col, Row, Table } from 'reactstrap';
 import { FormInputText } from '../../components/form-input-text';
 import { FormInputDate } from '../../components/form-input-date';
-import { redirect, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FormInputGroupText } from '../../components/form-input-group-text';
 import { FormInputGroupNumber } from '../../components/form-input-group-number';
 import { FormButton } from '../../components/form-button';
 import { FreightOrder } from '../../models/FreightOrder';
-import { OrderStatus } from '../../models/OrderStatus';
 import { ILoadStep, LoadStep } from '../../models/LoadStep';
 import { IIndividualPerson } from '../../models/IndividualPerson';
 import { IEnterprisePerson } from '../../models/EnterprisePerson';
@@ -122,8 +121,25 @@ export function FreightOrderAuthorize(): JSX.Element {
     setOrderLoad(e.target.value);
   };
 
-  const handleAuthorizeClick = () => {
-    alert('Autorizando...');
+  const handleAuthorizeClick = async () => {
+    if (steps.length > 0) {
+      const step = loadStep.id;
+      loadStep.status = 2;
+      if (await loadStep.update()) {
+        const newSteps = [...steps];
+        newSteps.shift();
+        setSteps(newSteps);
+        setLoadStep(new LoadStep(newSteps[0]));
+
+        const result = confirm(
+          'Etapa de carregamento autorizada com sucesso. ' +
+            '<br />Deseja imprimir o documento de autorização?',
+        );
+        if (result) {
+          const guia = window.open(`http://localhost:3001/step-load/${step}`, '_blank');
+        }
+      }
+    }
   };
 
   const handleBackClick = () => {

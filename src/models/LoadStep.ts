@@ -1,5 +1,8 @@
+import { toast } from 'react-toastify';
+import axios from '../services/axios';
 import { FreightOrder, IFreightOrder } from './FreightOrder';
 import { IRepresentation, Representation } from './Representation';
+import { isAxiosError } from 'axios';
 
 export interface ILoadStep {
   id: number;
@@ -66,5 +69,25 @@ export class LoadStep implements ILoadStep {
   get toAttributes(): ILoadStep {
     const attributes: ILoadStep = { ...this.attributes };
     return attributes;
+  }
+
+  async update() {
+    const payload = {
+      step: { status: 2 },
+    };
+
+    try {
+      const response = await axios.put('/load-step/' + this.id, payload);
+      if (response.data.length == 0) {
+        toast.success('Etapa de carregamento atualizada com sucesso!');
+        return true;
+      } else {
+        toast.error(`Erro: ${response.data}`);
+        return false;
+      }
+    } catch (e) {
+      if (isAxiosError(e)) toast.error('Erro de requisição: ' + e.response?.data);
+      return false;
+    }
   }
 }
