@@ -14,10 +14,10 @@ import { ILoadStep, LoadStep } from '../../models/LoadStep';
 import { IIndividualPerson } from '../../models/IndividualPerson';
 import { IEnterprisePerson } from '../../models/EnterprisePerson';
 import { formatarPeso } from '../../utils/format';
+import history from '../../services/history';
 
 export function FreightOrderAuthorize(): JSX.Element {
   const [order, setOrder] = useState(new FreightOrder());
-  const [orderStatus, setOrderStatus] = useState(new OrderStatus());
 
   const [steps, setSteps] = useState(new Array<ILoadStep>());
 
@@ -48,8 +48,6 @@ export function FreightOrderAuthorize(): JSX.Element {
       const response = (await new FreightOrder().getOne(id)) as FreightOrder;
 
       setOrder(response);
-
-      setOrderStatus(new OrderStatus(order.status));
 
       setOrderDescription(response.description);
       setOrderDestiny(response.destiny.name + ' - ' + response.destiny.state.acronym);
@@ -129,7 +127,8 @@ export function FreightOrderAuthorize(): JSX.Element {
   };
 
   const handleBackClick = () => {
-    redirect('/pedidos/frete/autorizar');
+    history.push('/pedidos/frete/autorizar');
+    window.location.reload();
   };
 
   return (

@@ -4,7 +4,7 @@ import { IPerson, Person } from './Person';
 import { toast } from 'react-toastify';
 import { EnterprisePerson } from './EnterprisePerson';
 
-interface IParameterization {
+export interface IParameterization {
   id: number;
   logotype: string;
   person: IPerson;
