@@ -14,6 +14,8 @@ import { IIndividualPerson } from '../../models/IndividualPerson';
 import { IEnterprisePerson } from '../../models/EnterprisePerson';
 import { formatarPeso } from '../../utils/format';
 import history from '../../services/history';
+import axios from '../../services/axios';
+import { toast } from 'react-toastify';
 
 export function FreightOrderAuthorize(): JSX.Element {
   const [order, setOrder] = useState(new FreightOrder());
@@ -46,34 +48,46 @@ export function FreightOrderAuthorize(): JSX.Element {
     const getData = async () => {
       const response = (await new FreightOrder().getOne(id)) as FreightOrder;
 
-      setOrder(response);
+      if (response.steps.filter((step) => step.status == 1).length == 0) {
+        alert('Todas as etapas deste pedido foram autorizadas para carregamento');
+        history.push('/pedidos/frete/autorizar');
+        window.location.reload();
+      } else {
+        setOrder(response);
 
-      setOrderDescription(response.description);
-      setOrderDestiny(response.destiny.name + ' - ' + response.destiny.state.acronym);
-      setOrderDriver((response.driver.person.individual as IIndividualPerson).name);
-      setOrderTruckProprietary(
-        response.proprietary.person.type == 1
-          ? (response.proprietary.person.individual as IIndividualPerson).name
-          : (response.proprietary.person.enterprise as IEnterprisePerson).fantasyName,
-      );
-      setOrderTruck(response.truck.brand + ' ' + response.truck.model);
-      setOrderTruckType(response.truckType.description);
-      setOrderDistance(response.distance);
-      setOrderShipping(response.shipping);
+        setOrderDescription(response.description);
+        setOrderDestiny(response.destiny.name + ' - ' + response.destiny.state.acronym);
+        setOrderDriver((response.driver.person.individual as IIndividualPerson).name);
+        setOrderTruckProprietary(
+          response.proprietary.person.type == 1
+            ? (response.proprietary.person.individual as IIndividualPerson).name
+            : (response.proprietary.person.enterprise as IEnterprisePerson).fantasyName,
+        );
+        setOrderTruck(response.truck.brand + ' ' + response.truck.model);
+        setOrderTruckType(response.truckType.description);
+        setOrderDistance(response.distance);
+        setOrderShipping(response.shipping);
 
-      setSteps(response.steps);
-      setLoadStep(new LoadStep(response.steps[0]));
+        setSteps(response.steps.filter((step) => step.status == 1));
+        setLoadStep(new LoadStep(response.steps.filter((step) => step.status == 1)[0]));
 
-      setOrderRepresentation(
-        (response.steps[0].representation.person.enterprise as IEnterprisePerson)
-          .fantasyName,
-      );
-      setOrderDestinyCity(
-        response.steps[0].representation.person.contact.address.city.name +
-          ' - ' +
-          response.steps[0].representation.person.contact.address.city.state.acronym,
-      );
-      setOrderLoad(formatarPeso(response.steps[0].load));
+        setOrderRepresentation(
+          (
+            response.steps.filter((step) => step.status == 1)[0].representation.person
+              .enterprise as IEnterprisePerson
+          ).fantasyName,
+        );
+        setOrderDestinyCity(
+          response.steps.filter((step) => step.status == 1)[0].representation.person
+            .contact.address.city.name +
+            ' - ' +
+            response.steps.filter((step) => step.status == 1)[0].representation.person
+              .contact.address.city.state.acronym,
+        );
+        setOrderLoad(
+          formatarPeso(response.steps.filter((step) => step.status == 1)[0].load),
+        );
+      }
     };
 
     const load = async () => {
@@ -129,17 +143,40 @@ export function FreightOrderAuthorize(): JSX.Element {
         const newSteps = [...steps];
         newSteps.shift();
         setSteps(newSteps);
-        setLoadStep(new LoadStep(newSteps[0]));
+        if (newSteps.length > 0) {
+          setLoadStep(new LoadStep(newSteps[0]));
+          setOrderRepresentation(
+            (newSteps[0].representation.person.enterprise as IEnterprisePerson)
+              .fantasyName,
+          );
+          setOrderDestinyCity(
+            newSteps[0].representation.person.contact.address.city.name +
+              ' - ' +
+              newSteps[0].representation.person.contact.address.city.state.acronym,
+          );
+          setOrderLoad(formatarPeso(newSteps[0].load));
+        }
 
         const result = confirm(
           'Etapa de carregamento autorizada com sucesso. ' +
             '<br />Deseja imprimir o documento de autorização?',
         );
         if (result) {
-          const guia = window.open(`http://localhost:3001/step-load/${step}`, '_blank');
+          const result = await axios.get(`/load-step/${step}`);
+          if (result.data) {
+            const guia = window.open(
+              `http://localhost:3001/reports/AutorizacaoCarregamentoPedido${order.id}Etapa${step}.pdf`,
+              '_blank',
+            );
+          }
+        }
+        if (newSteps.length == 0) {
+          toast.info('Todas as etapas deste pedido foram autorizadas para carregamento');
+          history.push('/pedidos/frete/autorizar');
+          window.location.reload();
         }
       }
-    }
+    } else toast.error('Não há mais etapas para autorizar o carregamento.');
   };
 
   const handleBackClick = () => {

@@ -56,6 +56,17 @@ export function FreightOrderStatus(): JSX.Element {
         history.push(`/pedidos/frete/status`);
         return window.location.reload();
       } else {
+        if (response.status.status.id == 2) {
+          let statusCount = 0;
+          for (const step of response.steps) {
+            if (step.status == 1) statusCount += 1;
+          }
+          if (statusCount > 0) {
+            alert('Este pedido ainda não foi carregado.');
+            history.push(`/pedidos/frete/status`);
+            return window.location.reload();
+          }
+        }
         setOrder(response);
 
         setOrderStatus(new OrderStatus(order.status));

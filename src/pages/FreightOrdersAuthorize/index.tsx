@@ -20,8 +20,8 @@ export function FreightOrdersAuthorize(): JSX.Element {
   const [statuses, setStatuses] = useState(new Array<IStatus>());
 
   const [filter, setfilter] = useState('');
-  const [dateInit, setDateInit] = useState(new Date().toISOString().substring(0, 10));
-  const [dateEnd, setDateEnd] = useState(new Date().toISOString().substring(0, 10));
+  const [dateInit, setDateInit] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
   const [status, setStatus] = useState('0');
   const [orderBy, setOrderBy] = useState('1');
 
@@ -33,7 +33,7 @@ export function FreightOrdersAuthorize(): JSX.Element {
 
     const getData = async () => {
       const response = (await new FreightOrder().get()).filter(
-        (order) => order.status.status.id == 1,
+        (order) => order.status.status.id == 1 || order.status.status.id == 2,
       );
       setData(response);
       setOrders(response);
@@ -328,13 +328,7 @@ export function FreightOrdersAuthorize(): JSX.Element {
                 <td>
                   <FaCheck
                     role="button"
-                    color={
-                      item.status.status.id == 1
-                        ? 'grey'
-                        : item.status.status.id == 2
-                        ? 'lightblue'
-                        : 'green'
-                    }
+                    color={item.status.status.id == 1 ? 'grey' : 'green'}
                     size={14}
                     title="Autorizar Carregamento"
                     onClick={() => {
