@@ -155,7 +155,7 @@ export function Header(): JSX.Element {
                       Relatório
                     </DropdownToggle>
                     <DropdownMenu end>
-                      <DropdownItem href="/relatorio/cliente/">
+                      <DropdownItem href="/relatorio/clientes/">
                         Relatório de Clientes
                       </DropdownItem>
                       <DropdownItem href="/relatorio/pedido/venda/">
