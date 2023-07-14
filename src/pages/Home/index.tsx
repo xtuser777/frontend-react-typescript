@@ -8,6 +8,7 @@ import { FormInputSelect } from '../../components/form-input-select';
 import { FormButton } from '../../components/form-button';
 import { formatarData } from '../../utils/format';
 import { Event, IEvent } from '../../models/Event';
+import axios from '../../services/axios';
 
 export function Home(): JSX.Element {
   const [data, setData] = useState(new Array<IEvent>());
@@ -65,8 +66,25 @@ export function Home(): JSX.Element {
     setEvents(data);
   };
 
-  const handlePdfClick = () => {
-    alert('Gerar PDF clicado.');
+  const handlePdfClick = async () => {
+    const result = await axios.get(
+      `/event/report/{"filter": "${filter}", "date": "${date}", "type": "${orderType}"}`,
+    );
+    if (result.data) {
+      const fileDate = new Date().toISOString().substring(0, 10);
+      const time = new Date()
+        .toLocaleTimeString('en-US', {
+          timeZone: 'America/Sao_Paulo',
+        })
+        .substring(0, 8);
+      const guia = window.open(
+        `http://localhost:3001/reports/RelatorioEventos${fileDate.replaceAll(
+          '-',
+          '',
+        )}-${time.trim().replaceAll(':', '')}.pdf`,
+        '_blank',
+      );
+    }
   };
 
   return (
