@@ -51,6 +51,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { ClientsReport } from './pages/ClientsReport';
+import { SalesOrdersReport } from './pages/SalesOrdersReport';
+import { FreightOrdersReport } from './pages/FreightOrdersReport';
 
 const Protected = (props: { children: JSX.Element }) => {
   const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
@@ -422,6 +424,22 @@ function App() {
                 element={
                   <Protected>
                     <ClientsReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/pedidos/venda"
+                element={
+                  <Protected>
+                    <SalesOrdersReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/pedidos/frete"
+                element={
+                  <Protected>
+                    <FreightOrdersReport />
                   </Protected>
                 }
               />

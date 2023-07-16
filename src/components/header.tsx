@@ -158,25 +158,25 @@ export function Header(): JSX.Element {
                       <DropdownItem href="/relatorio/clientes/">
                         Relatório de Clientes
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/pedido/venda/">
+                      <DropdownItem href="/relatorio/pedidos/venda/">
                         Relatório de Pedidos de Venda
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/pedido/frete/">
+                      <DropdownItem href="/relatorio/pedidos/frete/">
                         Relatório de Pedidos de Frete
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/orcamento/venda/">
+                      <DropdownItem href="/relatorio/orcamentos/venda/">
                         Relatório de Orçamentos de Venda
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/orcamento/frete/">
+                      <DropdownItem href="/relatorio/orcamentos/frete/">
                         Relatório de Orçamentos de Frete
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/conta/pagar/">
+                      <DropdownItem href="/relatorio/contas/pagar/">
                         Relatório de Contas a Pagar
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/conta/receber/">
+                      <DropdownItem href="/relatorio/contas/receber/">
                         relatório de Contas a Receber
                       </DropdownItem>
-                      <DropdownItem href="/relatorio/produto/">
+                      <DropdownItem href="/relatorio/produtos/">
                         Relatório de Produtos
                       </DropdownItem>
                     </DropdownMenu>
