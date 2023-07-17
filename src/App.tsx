@@ -56,6 +56,8 @@ import { FreightOrdersReport } from './pages/FreightOrdersReport';
 import { SalesBudgetsReport } from './pages/SalesBudgetsReport';
 import { FreightBudgetsReport } from './pages/FreightBudgetsReport';
 import { BillsPayReport } from './pages/BillsPayReport';
+import { ReceiveBillsReport } from './pages/ReceiveBillsReport';
+import { ProductsReport } from './pages/ProductsReport';
 
 const Protected = (props: { children: JSX.Element }) => {
   const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
@@ -467,6 +469,22 @@ function App() {
                 element={
                   <Protected>
                     <BillsPayReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/contas/receber"
+                element={
+                  <Protected>
+                    <ReceiveBillsReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/produtos"
+                element={
+                  <Protected>
+                    <ProductsReport />
                   </Protected>
                 }
               />

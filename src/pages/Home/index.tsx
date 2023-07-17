@@ -93,7 +93,7 @@ export function Home(): JSX.Element {
       <FieldsetCard legend="Filtragem dos Eventos">
         <Row>
           <FormInputText
-            colSm={5}
+            colSm={4}
             id="filtro"
             label="Filtro"
             obrigatory={false}
@@ -109,7 +109,7 @@ export function Home(): JSX.Element {
             onChange={(e) => handleDateChange(e)}
           />
           <FormInputSelect
-            colSm={3}
+            colSm={2}
             id="tipo"
             label="Tipo de Pedido"
             obrigatory={false}
@@ -126,6 +126,13 @@ export function Home(): JSX.Element {
             id="filtrar"
             text="FILTRAR"
             onClick={async () => await handleFilterClick()}
+          />
+          <FormButton
+            colSm={2}
+            color={'info'}
+            id="emitir"
+            text="EMITIR PDF"
+            onClick={async () => await handlePdfClick()}
           />
         </Row>
       </FieldsetCard>
@@ -160,21 +167,6 @@ export function Home(): JSX.Element {
           </tbody>
         </Table>
       </FieldsetCard>
-      <Row>
-        <Col sm="4"></Col>
-        <Col sm="4">
-          <Button
-            color="primary"
-            id="pdf"
-            style={{ width: '100%' }}
-            size="sm"
-            onClick={(e) => handlePdfClick()}
-          >
-            Gerar PDF
-          </Button>
-        </Col>
-        <Col sm="4"></Col>
-      </Row>
     </>
   );
 }
