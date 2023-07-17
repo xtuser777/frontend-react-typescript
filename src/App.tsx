@@ -53,6 +53,9 @@ import { ToastContainer } from 'react-toastify';
 import { ClientsReport } from './pages/ClientsReport';
 import { SalesOrdersReport } from './pages/SalesOrdersReport';
 import { FreightOrdersReport } from './pages/FreightOrdersReport';
+import { SalesBudgetsReport } from './pages/SalesBudgetsReport';
+import { FreightBudgetsReport } from './pages/FreightBudgetsReport';
+import { BillsPayReport } from './pages/BillsPayReport';
 
 const Protected = (props: { children: JSX.Element }) => {
   const isloggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
@@ -440,6 +443,30 @@ function App() {
                 element={
                   <Protected>
                     <FreightOrdersReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/orcamentos/venda"
+                element={
+                  <Protected>
+                    <SalesBudgetsReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/orcamentos/frete"
+                element={
+                  <Protected>
+                    <FreightBudgetsReport />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/relatorio/contas/pagar"
+                element={
+                  <Protected>
+                    <BillsPayReport />
                   </Protected>
                 }
               />
