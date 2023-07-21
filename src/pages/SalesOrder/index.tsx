@@ -463,11 +463,13 @@ export function SalesOrder(): JSX.Element {
     setCities(states[sale.destiny.state.id - 1].cities);
     setDestinyCity(sale.destiny.id.toString());
     setSalesman(sale.salesman ? sale.salesman.id.toString() : '0');
+    order.salesman = sale.salesman;
 
     const newItems: ISaleItem[] = [...sale.items];
     setItems(newItems);
     const newComissions: Comission[] = [...comissions];
     for (const item of newItems) {
+      item.id = 0;
       item.budget = undefined;
       const representationComission = comissions.find(
         (i) => i.representacao.id == item.product.representation.id,
@@ -951,11 +953,10 @@ export function SalesOrder(): JSX.Element {
                       title="Excluir"
                       onClick={() => {
                         if (budget == '0' && method == 'abrir') {
-                          const newItems = [...items];
-                          delete newItems[
-                            newItems.findIndex((i) => i.product.id == item.product.id)
-                          ];
-                          newItems.length--;
+                          const newItems: ISaleItem[] = [];
+                          items.forEach((i) => {
+                            if (i.product.id != item.product.id) newItems.push(i);
+                          });
                           setItems(newItems);
                           let totalWeight = 0.0;
                           newItems.forEach((item) => (totalWeight += item.weight));
@@ -971,14 +972,11 @@ export function SalesOrder(): JSX.Element {
                           if (representationComission) {
                             representationComission.valor -= item.price;
                             if (representationComission.valor <= 0) {
-                              const newComissions = [...comissions];
-                              delete newComissions[
-                                newComissions.findIndex(
-                                  (x) =>
-                                    x.representacao.id ==
-                                    representationComission.representacao.id,
-                                )
-                              ];
+                              const newComissions: Comission[] = [];
+                              comissions.forEach((c) => {
+                                if (c.representacao.id != item.product.representation.id)
+                                  newComissions.push(c);
+                              });
                               setComissions(newComissions);
                             }
                           }

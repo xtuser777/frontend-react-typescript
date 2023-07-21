@@ -19,8 +19,8 @@ export function SalesOrders(): JSX.Element {
   const [orders, setOrders] = useState(new Array<ISaleOrder>());
 
   const [filter, setfilter] = useState('');
-  const [dateInit, setDateInit] = useState(new Date().toISOString().substring(0, 10));
-  const [dateEnd, setDateEnd] = useState(new Date().toISOString().substring(0, 10));
+  const [dateInit, setDateInit] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
   const [orderBy, setOrderBy] = useState('1');
 
   useEffect(() => {
@@ -237,11 +237,15 @@ export function SalesOrders(): JSX.Element {
     if (response) {
       const order = orders.find((item) => item.id == id) as SaleOrder;
       if (await order.delete()) {
-        const newData = [...data];
-        delete newData[newData.findIndex((item) => item.id == id)];
+        const newData: ISaleOrder[] = [];
+        data.forEach((o) => {
+          if (o.id != id) newData.push(o);
+        });
         setData(newData);
-        const newOrders = [...orders];
-        delete newOrders[newOrders.findIndex((item) => item.id == id)];
+        const newOrders: ISaleOrder[] = [];
+        orders.forEach((o) => {
+          if (o.id != id) newOrders.push(o);
+        });
         setOrders(newOrders);
       }
     }

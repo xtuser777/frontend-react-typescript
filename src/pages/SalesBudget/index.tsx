@@ -933,11 +933,19 @@ export function SalesBudget(): JSX.Element {
       });
       setItems(newItems);
       let totalWeight = 0.0;
-      newItems.forEach((item) => (totalWeight += item.weight));
-      setWeight(formatarValor(totalWeight));
+      totalWeight = Number.parseFloat(totalWeight.toString());
+      newItems.forEach(
+        (item) => (totalWeight += Number.parseFloat(item.weight.toString())),
+      );
+      totalWeight = Number.parseFloat(totalWeight.toString());
+      setWeight(formatarPeso(totalWeight));
 
       let totalPrice = 0.0;
-      newItems.forEach((item) => (totalPrice += item.price));
+      totalPrice = Number.parseFloat(totalPrice.toString());
+      newItems.forEach(
+        (item) => (totalPrice += Number.parseFloat(item.price.toString())),
+      );
+      totalPrice = Number.parseFloat(totalPrice.toString());
       setPrice(formatarValor(totalPrice));
     }
   };
@@ -1159,18 +1167,19 @@ export function SalesBudget(): JSX.Element {
                       size={14}
                       title="Excluir"
                       onClick={() => {
-                        const newItems = [...items];
-                        delete newItems[
-                          newItems.findIndex((i) => i.id == item.product.id)
-                        ];
-                        newItems.length--;
+                        const newItems: ISaleItem[] = [];
+                        items.forEach((i) => {
+                          if (i.product.id != item.product.id) newItems.push(i);
+                        });
                         setItems(newItems);
                         let totalWeight = 0.0;
                         newItems.forEach((item) => (totalWeight += item.weight));
+                        totalWeight = Number.parseFloat(totalWeight.toString());
                         setWeight(formatarValor(totalWeight));
 
                         let totalPrice = 0.0;
                         newItems.forEach((item) => (totalPrice += item.price));
+                        totalPrice = Number.parseFloat(totalPrice.toString());
                         setPrice(formatarValor(totalPrice));
                       }}
                     />

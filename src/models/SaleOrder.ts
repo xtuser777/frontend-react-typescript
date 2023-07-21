@@ -171,6 +171,8 @@ export class SaleOrder implements ISaleOrder {
   async delete() {
     try {
       const response: AxiosRequestConfig = await axios.delete('/sale-order/' + this.id);
+      console.log(response);
+
       if (response.data.length == 0) {
         toast.success('Pedido de venda removido com sucesso.');
         return true;

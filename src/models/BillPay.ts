@@ -271,7 +271,11 @@ export class BillPay implements IBillPay {
         payload,
       );
       if (response.data.length == 0) {
-        toast.success('Conta a pagar quitada com sucesso!');
+        toast.success(
+          payload.bill.situation == 1
+            ? 'Conta a pagar estornada com sucesso!'
+            : 'Conta a pagar quitada com sucesso!',
+        );
         return true;
       } else {
         toast.error(`Erro: ${response.data}`);

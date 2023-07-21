@@ -806,13 +806,17 @@ export function FreightBudget(): JSX.Element {
       });
       setItems(newItems);
       let totalWeight = 0.0;
-      newItems.forEach((item) => (totalWeight += item.weight));
+      totalWeight = Number.parseFloat(totalWeight.toString());
+      newItems.forEach(
+        (item) => (totalWeight += Number.parseFloat(item.weight.toString())),
+      );
       const newTypes = [...types];
       for (const t of product.types) {
         const exists = newTypes.find((i) => i.id == t.id);
         if (!exists) newTypes.push(t);
       }
-      setWeight(formatarValor(totalWeight));
+      totalWeight = Number.parseFloat(totalWeight.toString());
+      setWeight(formatarPeso(totalWeight));
       budget.weight = totalWeight;
       setTypes(newTypes);
     }
@@ -936,15 +940,19 @@ export function FreightBudget(): JSX.Element {
                       title="Excluir"
                       onClick={() => {
                         if (salesBudget == '0') {
-                          const newItems = [...items];
-                          delete newItems[
-                            newItems.findIndex((i) => i.product.id == item.product.id)
-                          ];
-                          newItems.length--;
+                          const newItems: IFreightItem[] = [];
+                          items.forEach((i) => {
+                            if (i.product.id != item.product.id) newItems.push(i);
+                          });
                           setItems(newItems);
                           let totalWeight = 0.0;
-                          newItems.forEach((item) => (totalWeight += item.weight));
-                          setWeight(formatarValor(totalWeight));
+                          totalWeight = Number.parseFloat(totalWeight.toString());
+                          newItems.forEach(
+                            (item) =>
+                              (totalWeight += Number.parseFloat(item.weight.toString())),
+                          );
+                          totalWeight = Number.parseFloat(totalWeight.toString());
+                          setWeight(formatarPeso(totalWeight));
                           budget.weight = totalWeight;
                           const newTypes: ITruckType[] = [];
                           newItems.forEach((i) => {
