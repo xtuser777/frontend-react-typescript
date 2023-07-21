@@ -26,7 +26,11 @@ export function FreightOrderStatus(): JSX.Element {
     new Date().toISOString().substring(0, 10),
   );
   const [orderStatusTime, setOrderStatusTime] = useState(
-    new Date().toISOString().substring(11, 19),
+    new Date()
+      .toLocaleTimeString('en-US', {
+        timeZone: 'America/Sao_Paulo',
+      })
+      .substring(0, 8),
   );
 
   const [status, setStatus] = useState('0');
